@@ -12,7 +12,8 @@ because of this quality: I went back to coding only recently, and you can _smell
 
 ## So, what does it do?
 Essentially, the goal is to:
-* be input-device agnostic: dealing with Mouse, Touch, Augmented Gestures (see Jérôme Etienne work), Leap Motion, etc.
+* provide a unified, input-device agnostic events capturing system: dealing with Mouse, Touch, Augmented Gestures
+	(see Jérôme Etienne's work), Leap Motion, etc.
 * compensate for human lack of accuracy, leading to almost-simultaneous actions of fingers, instead of simultaneous.
 	Think of double bi-tap for example, chances are that you will not tap both fingers twice exactly simultaneously.
 	Even if you do, you will not always. And now, try with tri-tap, or worse, double tri-swipe! This inaccuracy was one of
@@ -24,4 +25,16 @@ Essentially, the goal is to:
 	allowing gestures like: double two fingers tap, double finger tip plus simultaneous swipe, etc.
 * allow attachment of such listeners to several elements in the same page
 * allow attachment of several such listeners to a same element
-* allow delegation, attaching to a parent element, with a filter to define which children it applies
+* allow delegation, attaching to a parent element, with a filter to define which children it applies. As you would expect,
+	it lets you attach the callback to a container in which elements will be added dynamically
+
+## Status
+Currently, the library is usable, but is still missing few things, which doesn't make it suitable for immediate production
+use. However, it lets curious people to start playing with it and give feedback (mommy I'm scared!). Known missing
+points:
+* cleaner/better coding, like using the Markus Gundersen's work-(strongly) inspired rotation-zoomer class as a plugin
+* making it more a module than a plugin (see Miller Medeiros' articles about this), and have jQuery pluginification as
+	a plus (it's more or less done, but not great)
+* unit tests: I need to take a deep dive into this, and didn't have the time (courage?) to do it yet
+
+Consider this as a 0.4 release, not ready for production.
