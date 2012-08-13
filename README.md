@@ -1,16 +1,17 @@
 # Introduction
 ## What is the _TipTap_ library?
 
-The _TipTap_ library is a javascript library to ease mouse and touch complex gestures management, as well as provide a
+The _TipTap_ library is a javascript library to ease mouse and touch complex gestures management, as well as to provide a
 unified way of managing different input devices systems: mouse, touch systems and their specific data structure (iOS,
-Android, Windows...), Leap Motion hopefully, etc.
+Android, Windows...), Leap Motion hopefully, etc. In fact, it's mostly a present & future based library, mostly aimed at
+multi-pointers interactivity, instead of our old-fashioned and already outdated mouse. But it of course supports mouse!
 
 This library was meant to fill a hole that I couldn't fill immediately with any other initiative around here,
 see this page for a quite comprehensive list of touch libs around: https://github.com/bebraw/jswiki/wiki/Touch
 Please forgive the poor code quality, and consider the library in early alpha, not because of functionalities, but
 because of this quality: I went back to coding only recently, and you can _smell_ it.  
 
-# So, was it meant to do?#
+## So, was it meant to do?
 Essentially, its goal is to:
 * provide a unified, input-device agnostic events capturing system: dealing with Mouse, Touch, Augmented Gestures
 	(see Jérôme Etienne's work), Leap Motion, etc.
@@ -28,12 +29,12 @@ Essentially, its goal is to:
 * allow delegation, attaching to a parent element, with a filter to define which children it applies. As you would expect,
 	it lets you attach the callback to a container in which elements will be added dynamically
 
-# Dependencies
+## Dependencies
 The library currently relies on jQuery (or maybe replacement libs like Zepto.js, need to try) and Underscore (maybe
-replaceable by LoDash, but I need to try) to work. Dependency shouldn't be so hard to remove, and is defintely something
+replaceable by LoDash, but I need to try) to work. Dependency shouldn't be so hard to remove, and is definitely something
 I'd like to do in the near future.
 
-# Current status
+## Current status
 Currently, the library is usable, but is still missing few things, which doesn't make it suitable for immediate production
 use. However, it gives curious people (or people in the need for such a lib) the ability to start playing with it and give
 feedback (mommy I'm scared!). Known missing points:
@@ -44,9 +45,27 @@ feedback (mommy I'm scared!). Known missing points:
 
 Consider this as a something like a 0.4 release, not ready for production.
 
-# How to use
+# Detailed concepts
 ## Simple gestures supported
-### Multi-pointers devices
+The basic gestures supported by the library are the ones you expect (don't deny, I know it!). I'll use the vocabulary of
+a touch screen to define the movements to be done:
+- _tap_: you touch briefly the sensitive surface, and remove your finger almost instantly. Like a mouse _click_.
+- _tip_: you touch the sensitive surface, and stay on it. Like a mouse _down_.
+- _swipe_: it's like a fast-moving tap. You move the finger fast in one direction (top, right, bottom or left) and while
+	moving fast, you tap the screen. Your finger draws a "U" in the air, tangenting the screen at the bottom of the curve,
+	gently sliding on it. Of course, the library corrects any not accurate direction, and keeps the direction of the 
+	biggest movement
+- _rotate_: current managing of rotation is not nice. I mean, I quickly hacked a modified version of Markus Gundersen
+	touch demo, to allow for zoom and rotate. But it's not yet as efficient as was my previous implementation, and I have
+	to merge both. Rotation can be done with two or three (or more, but well..) fingers down, and we'll see why it matters.
+- _pinch_: aka _zoom_, it's, well allowing you to do what you expect. Same comment as for rotate: count of fingers may
+	differ, and this can be used efficiently.
+And that's all!
+
+### Combining simple gestures on multi-pointers devices
+If it was only for simple gestures, this lib wouldn't be very useful, since lots of others do this quite well (Hammer.js,
+Touchy, etc.) It's main interest lies in the ability to create multi-gestures and combos.
+
 ### Mono-pointers (mouse) fallbacks
 ## Syntax for combining simultaneous gestures
 ## Syntax for creating combos
