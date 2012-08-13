@@ -38,7 +38,12 @@ I'd like to do in the near future.
 Currently, the library is usable, but is still missing few things, which doesn't make it suitable for immediate production
 use. However, it gives curious people (or people in the need for such a lib) the ability to start playing with it and give
 feedback (mommy I'm scared!). Known missing points:
+* real (usable) handling of rotation and zoom
 * cleaner/better coding, like using the Markus Gundersen's work-(strongly) inspired rotation-zoomer class as a plugin
+* identify a gesture by the proximity of the pointers: it will prevent two almost simultaneous taps at both ends of the
+	surface to be considered as a same gesture, which is in general never the case. Will be even more important on large
+	interaction surface like Microsoft Surface tables
+* give ability to the application using the lib to split a gesture into several ones
 * making it more a module than a plugin (see Miller Medeiros' articles about this), and have jQuery pluginification as
 	a plus (it's more or less done, but not great)
 * unit tests: I need to take a deep dive into this, and didn't have the time (courage?) to do it yet
@@ -53,8 +58,8 @@ a touch screen to define the movements to be done:
 - _tip_: you touch the sensitive surface, and stay on it. Like a mouse _down_.
 - _swipe_: it's like a fast-moving tap. You move the finger fast in one direction (top, right, bottom or left) and while
 	moving fast, you tap the screen. Your finger draws a "U" in the air, tangenting the screen at the bottom of the curve,
-	gently sliding on it. Of course, the library corrects any not accurate direction, and keeps the direction of the 
-	biggest movement
+	gently (but quickly and briefly, after all, I said "tangenting") gliding on it. Of course, the library corrects any not
+	perfect direction, and keeps the direction of the biggest movement
 - _rotate_: current managing of rotation is not nice. I mean, I quickly hacked a modified version of Markus Gundersen
 	touch demo, to allow for zoom and rotate. But it's not yet as efficient as was my previous implementation, and I have
 	to merge both. Rotation can be done with two or three (or more, but well..) fingers down, and we'll see why it matters.
@@ -64,8 +69,23 @@ And that's all!
 
 ### Combining simple gestures on multi-pointers devices
 If it was only for simple gestures, this lib wouldn't be very useful, since lots of others do this quite well (Hammer.js,
-Touchy, etc.) It's main interest lies in the ability to create multi-gestures and combos.
+Touchy, etc.) It's main interest lies in the ability to create multi-gestures and combos. The lib was created to make it
+easy to deal with multi-pointers gestures and "combos" of gestures. Few examples:
+- double-tap
+- triple-tap
+- double bi-tap: by "bi-tap", I mean tapping two pointers at once
+- tip and swipe: one pointer is tipping, while the other is swiping
+- double tip followed by swipe: can be a trigger of an action in an application, or a special attack combo in a game
+- tip and rotate
+- etc. combinations are almost endless (in fact, no, some decisions had to be taken due to technical constraints, and
+	the uselessness of the related possibilities), mostly limited by the convenience of the combo (let's say that "triple
+quad-tap followed by bi-tap simultaneously with triple-swipe" wouldn't exactly be a great combo :-D)
 
 ### Mono-pointers (mouse) fallbacks
+For now, there's not exactly _fallbacks_. Sorry. Just, you can define combos which react to both touch or mouse events,
+simply masking you the difference. So, yes, only single pointer interactions can be done with mouse.
+
 ## Syntax for combining simultaneous gestures
+
+
 ## Syntax for creating combos
