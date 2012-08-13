@@ -1,13 +1,14 @@
 # Introduction
 ## What is the _TipTap_ library?
 
-The _TipTap_ library is a javascript library to ease mouse and touch complex gestures management, as well as to provide a
-unified way of managing different input devices systems: mouse, touch systems and their specific data structure (iOS,
-Android, Windows...), Leap Motion hopefully, etc. In fact, it's mostly a present & future based library, mostly aimed at
-multi-pointers interactivity, instead of our old-fashioned and already outdated mouse. But it of course supports mouse!
+The _TipTap_ library is a javascript library to ease mouse and touch complex gestures definition and management, as well
+as to provide a unified way of managing different input devices systems: mouse, touch systems and their specific data
+structure (iOS, Android, Windows...), Leap Motion hopefully, etc. In fact, it's mostly a present & future based library,
+mostly aimed at multi-pointers interactivity, instead of our old-fashioned and already outdated mouse. But it of course
+supports mouse!
 
 This library was meant to fill a hole that I couldn't fill immediately with any other initiative around here,
-see this page for a quite comprehensive list of touch libs around: https://github.com/bebraw/jswiki/wiki/Touch
+see [this page](https://github.com/bebraw/jswiki/wiki/Touch) for a quite comprehensive list of touch libs around.
 Please forgive the poor code quality, and consider the library in early alpha, not because of functionalities, but
 because of this quality: I went back to coding only recently, and you can _smell_ it.  
 
@@ -50,7 +51,8 @@ feedback (mommy I'm scared!). Known missing points:
 
 Consider this as a something like a 0.4 release, not ready for production.
 
-# Detailed concepts
+# The gestures
+
 ## Simple gestures supported
 The basic gestures supported by the library are the ones you expect (don't deny, I know it!). I'll use the vocabulary of
 a touch screen to define the movements to be done:
@@ -69,15 +71,24 @@ And that's all!
 
 ### Combining simple gestures on multi-pointers devices
 If it was only for simple gestures, this lib wouldn't be very useful, since lots of others do this quite well (Hammer.js,
-Touchy, etc.) It's main interest lies in the ability to create multi-gestures and combos. The lib was created to make it
-easy to deal with multi-pointers gestures and "combos" of gestures. Few examples:
-- double-tap
-- triple-tap
+Touchy, etc.) It's main interest lies in the ability to create complex gestures (and [_combos_][1]). A complex gesture
+is defined by several simple gestures happening simultaneously:
+Few examples:
+- bi-tap
+- tri-tap
+- tip **and** swipe: one pointer is tipping, while the other is swiping
+- bi-tip
+- etc.
+
+[1]: ### Combining gestures in combos
+Combos are made of list of gestures, simple or complex, happening with a short period of time between them. A combo is
+ended by any lack of activity during a period of time longer than this accepted duration for a combo, or by any number
+of _tips_. Examples of combos:
+- double tap
+- triple tap
 - double bi-tap: by "bi-tap", I mean tapping two pointers at once
-- tip and swipe: one pointer is tipping, while the other is swiping
 - double tip followed by swipe: can be a trigger of an action in an application, or a special attack combo in a game
-- tip and rotate
-- etc. combinations are almost endless (in fact, no, some decisions had to be taken due to technical constraints, and
+- combinations are almost endless (in fact, no, some decisions had to be taken due to technical constraints, and
 	the uselessness of the related possibilities), mostly limited by the convenience of the combo (let's say that "triple
 quad-tap followed by bi-tap simultaneously with triple-swipe" wouldn't exactly be a great combo :-D)
 
@@ -85,7 +96,7 @@ quad-tap followed by bi-tap simultaneously with triple-swipe" wouldn't exactly b
 For now, there's not exactly _fallbacks_. Sorry. Just, you can define combos which react to both touch or mouse events,
 simply masking you the difference. So, yes, only single pointer interactions can be done with mouse.
 
-## Syntax for combining simultaneous gestures
+## Syntax for defining complex gestures
 
 
-## Syntax for creating combos
+## Syntax for defining combos
