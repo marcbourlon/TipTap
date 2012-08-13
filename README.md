@@ -1,17 +1,17 @@
-# TipTap
-## Introduction
+# Introduction
+## What is the _TipTap_ library?
 
-Javascript library to ease mouse and touch gestures management, as well as provide a unified way of managing different
-input devices systems: mouse, touch systems and their specific data structure (iOS, Android, Windows...), Leap Motion
-hopefully, etc.
+The _TipTap_ library is a javascript library to ease mouse and touch complex gestures management, as well as provide a
+unified way of managing different input devices systems: mouse, touch systems and their specific data structure (iOS,
+Android, Windows...), Leap Motion hopefully, etc.
 
 This library was meant to fill a hole that I couldn't fill immediately with any other initiative around here,
 see this page for a quite comprehensive list of touch libs around: https://github.com/bebraw/jswiki/wiki/Touch
 Please forgive the poor code quality, and consider the library in early alpha, not because of functionalities, but
 because of this quality: I went back to coding only recently, and you can _smell_ it.  
 
-## So, what does it do?
-Essentially, the goal is to:
+# So, was it meant to do?#
+Essentially, its goal is to:
 * provide a unified, input-device agnostic events capturing system: dealing with Mouse, Touch, Augmented Gestures
 	(see Jérôme Etienne's work), Leap Motion, etc.
 * compensate for human lack of accuracy, leading to almost-simultaneous actions of fingers, instead of simultaneous.
@@ -28,13 +28,25 @@ Essentially, the goal is to:
 * allow delegation, attaching to a parent element, with a filter to define which children it applies. As you would expect,
 	it lets you attach the callback to a container in which elements will be added dynamically
 
-## Status
+# Dependencies
+The library currently relies on jQuery (or maybe replacement libs like Zepto.js, need to try) and Underscore (maybe
+replaceable by LoDash, but I need to try) to work. Dependency shouldn't be so hard to remove, and is defintely something
+I'd like to do in the near future.
+
+# Current status
 Currently, the library is usable, but is still missing few things, which doesn't make it suitable for immediate production
-use. However, it lets curious people to start playing with it and give feedback (mommy I'm scared!). Known missing
-points:
+use. However, it gives curious people (or people in the need for such a lib) the ability to start playing with it and give
+feedback (mommy I'm scared!). Known missing points:
 * cleaner/better coding, like using the Markus Gundersen's work-(strongly) inspired rotation-zoomer class as a plugin
 * making it more a module than a plugin (see Miller Medeiros' articles about this), and have jQuery pluginification as
 	a plus (it's more or less done, but not great)
 * unit tests: I need to take a deep dive into this, and didn't have the time (courage?) to do it yet
 
-Consider this as a 0.4 release, not ready for production.
+Consider this as a something like a 0.4 release, not ready for production.
+
+# How to use
+## Simple gestures supported
+### Multi-pointers devices
+### Mono-pointers (mouse) fallbacks
+## Syntax for combining simultaneous gestures
+## Syntax for creating combos
