@@ -80,8 +80,8 @@ Few examples:
 - bi-tip
 - etc.
 
-[1]: ### Combining gestures in combos
-Combos are made of list of gestures, simple or complex, happening with a short period of time between them. A combo is
+### Combining gestures in combos
+[1]: Combos are made of list of gestures, simple or complex, happening with a short period of time between them. A combo is
 ended by any lack of activity during a period of time longer than this accepted duration for a combo, or by any number
 of _tips_. Examples of combos:
 - double tap
