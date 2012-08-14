@@ -1,14 +1,15 @@
 # Introduction
 ## What is the _TipTap_ library?
 
-The _TipTap_ library is a javascript library to ease mouse and touch complex gestures definition and management, as well
-as to provide a unified way of managing different input devices systems: mouse, touch systems and their specific data
-structure (iOS, Android, Windows...), Leap Motion hopefully, etc. In fact, it's mostly a present & future based library,
-mostly aimed at multi-pointers interactivity, instead of our old-fashioned and already outdated mouse. But it of course
-supports mouse!
+The _TipTap_ library is a javascript library to ease mouse and touch complex gestures definition and management on HTML
+DOM elements (so, though not tested, on SVG and Canvas too), as well as to provide a unified way of managing different
+input devices systems: mouse, touch systems and their specific data structure (iOS, Android, Windows...), Leap Motion
+hopefully, etc. In fact, it's mostly a present & future based library, mostly aimed at multi-pointers interactivity,
+instead of our old-fashioned and already outdated mouse. But it of course supports mouse!
 
 This library was meant to fill a hole that I couldn't fill immediately with any other initiative around here,
 see [this page](https://github.com/bebraw/jswiki/wiki/Touch) for a quite comprehensive list of touch libs around.
+
 Please forgive the poor code quality, and consider the library in early alpha, not because of functionalities, but
 because of this quality: I went back to coding only recently, and you can _smell_ it.  
 
@@ -31,9 +32,13 @@ Essentially, its goal is to:
 	it lets you attach the callback to a container in which elements will be added dynamically
 
 ## Dependencies
-The library currently relies on jQuery (or maybe replacement libs like Zepto.js, need to try) and Underscore (maybe
-replaceable by LoDash, but I need to try) to work. Dependency shouldn't be so hard to remove, and is definitely something
-I'd like to do in the near future.
+The library currently relies on:
+- [jQuery](http://jquery.com/) (tested with 1.7.2, probably 1.8.*) (may work with other "$" libraries like Zepto.js,
+need to try)
+- [Underscore](http://underscorejs.org) by Jeremy Ashkenas (may work with LoDash, I need to try)
+- [Signals](http://millermedeiros.github.com/js-signals/) by Miller Medeiros
+
+Dependencies shouldn't be so hard to remove, and is definitely something I'd like to do in the near future.
 
 ## Current status
 Currently, the library is usable, but is still missing few things, which doesn't make it suitable for immediate production
@@ -48,12 +53,21 @@ feedback (mommy I'm scared!). Known missing points:
 * making it more a module than a plugin (see Miller Medeiros' articles about this), and have jQuery pluginification as
 	a plus (it's more or less done, but not great)
 * unit tests: I need to take a deep dive into this, and didn't have the time (courage?) to do it yet
+* making it both script-tag and AMD-compatible (I shamefully failed to do this)
 
 Consider this as a something like a 0.4 release, not ready for production.
+
+# The elements
+
+All gestures and combos are defined for a DOM element. I didn't use Events for this, but a simple callback system.
+(Should it be reworked as Events? **Feedback welcome**) You can define gestures and combos for an element, or for its
+descendants, by using a selector string (for now, because of the use of jQuery, this selector can be complex, but if I
+remove this dependency, I think I would have to go to simpler things like class or id matching, wouldn't I?)
 
 # The gestures
 
 ## Simple gestures supported
+
 The basic gestures supported by the library are the ones you expect (don't deny, I know it!). I'll use the vocabulary of
 a touch screen to define the movements to be done:
 - _tap_: you touch briefly the sensitive surface, and remove your finger almost instantly. Like a mouse _click_.
@@ -74,6 +88,7 @@ touchscreen, but for a mouse, and for other devices, it is.
 And that's all!
 
 ### Combining simple gestures on multi-pointers devices
+
 If it was only for simple gestures, this lib wouldn't be very useful, since lots of others do this quite well (Hammer.js,
 Touchy, etc.) It's main interest lies in the ability to create complex gestures (and [_combos_][1]). A complex gesture
 is defined by several simple gestures happening simultaneously:
@@ -85,6 +100,7 @@ Few examples:
 - etc.
 
 ### Combining gestures in combos
+
 [1]: Combos are made of list of gestures, simple or complex, happening with a short period of time between them. A combo is
 ended by any lack of activity during a period of time longer than this accepted duration for a combo, or by any number
 of _tips_. Examples of combos:
@@ -97,6 +113,7 @@ of _tips_. Examples of combos:
 quad-tap followed by bi-tap simultaneously with triple-swipe" wouldn't exactly be a great combo :-D)
 
 ### Mono-pointers (mouse) fallbacks
+
 For now, there's not exactly any _fallbacks_, in the way that you could magically simulate multi-pointers with mono-pointer
 system. Sorry. I'm thinking of some key-button combination, like shift-click to place the center of the rotation, then
 click and drag to rotate... feedback welcome!
@@ -104,18 +121,35 @@ So, what fallbacks mean is that you can define combos which react to both touch 
 difference. So, yes, only single pointer interactions can be done with mouse.
 
 # Syntax
+
 ## Defining simple gestures
 The syntax for defining simple gestures is, well, simple:
 - the base is simply the gesture name: _tip_, _tap_, _swipe_t_, _swipe_r_, _swipe_b_, _swipe_l_, _pinch_ *, _rotate_ *,
 _drag_
 - add to this the count of pointers involved. Want to signify a tap of two fingers? _tap2_. A tri-swipe to the right?
 _swipe_r3_. Dragging with 2 pointers? _drag2_.
+- as the smart readers will have noticed, no need to put "1" when only one pointer is involved.
 
 (*) pinch and rotate are not yet implemented like this in this alpha release. I'm still not decided on whether I should
 enhance the object returned to the drag callback with some rotation and zoom values, or define _pinch_ and _rotate_ as
 gestures. Indeed, any two (or more) pointers dragging involves some zoom (we are not robots), so either we have a _zoom_ gesture,
 for which we can define precision-triggering threshold, or we have only _drag_ gesture and values of rotation and zoom,
-and the application decides what to do with. Having 
+and the application decides what to do with. **Feedback and suggestions welcome** 
 
 ## Defining complex gestures
+
+As we saw before, complex gestures are a combination of simultaneous simple gestures. In fact, it's even more reduced
+than this, since you can't really combine _any_ kind of gestures. And it quite makes sense: though we can imagine doing
+some rotation with both hands, chances are that they will happen on different elements, and will as such be defined as
+two different gestures. What is more realistic is combination of _tips_ and _taps_ or _swipes_. You create complex
+gestures by joining simple gestures with a dash (between you and me, not only the dash is changeable by config, but is
+also optional, and was added only because I think it makes things more readable for the coder/user. With all these
+informations, you will have come to the conclusion that most complex gestures will be some "tip-tap" or "tip-swipe"
+gestures: _tip2-tap2_ (two fingers down, tap with two others), _tip-swipe_b_, etc.
+
 ## Defining combos
+
+
+
+## Pattern matching
+untip and tip*-untip
