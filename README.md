@@ -67,6 +67,9 @@ a touch screen to define the movements to be done:
 	to merge both. Rotation can be done with two or three (or more, but well..) fingers down, and we'll see why it matters.
 - _pinch_: aka _zoom_, it's, well allowing you to do what you expect. Same comment as for rotate: count of fingers may
 	differ, and this can be used efficiently.
+- _drag_: it's simply moving a pointer while _tipping_
+- _move_: not yet implemented, but should probably be in the future. It's moving without tipping. Impossible on a
+touchscreen, but for a mouse, and for other devices, it is.
 
 And that's all!
 
@@ -102,6 +105,17 @@ difference. So, yes, only single pointer interactions can be done with mouse.
 
 # Syntax
 ## Defining simple gestures
+The syntax for defining simple gestures is, well, simple:
+- the base is simply the gesture name: _tip_, _tap_, _swipe_t_, _swipe_r_, _swipe_b_, _swipe_l_, _pinch_ *, _rotate_ *,
+_drag_
+- add to this the count of pointers involved. Want to signify a tap of two fingers? _tap2_. A tri-swipe to the right?
+_swipe_r3_. Dragging with 2 pointers? _drag2_.
+
+(*) pinch and rotate are not yet implemented like this in this alpha release. I'm still not decided on whether I should
+enhance the object returned to the drag callback with some rotation and zoom values, or define _pinch_ and _rotate_ as
+gestures. Indeed, any two (or more) pointers dragging involves some zoom (we are not robots), so either we have a _zoom_ gesture,
+for which we can define precision-triggering threshold, or we have only _drag_ gesture and values of rotation and zoom,
+and the application decides what to do with. Having 
 
 ## Defining complex gestures
 ## Defining combos
