@@ -67,6 +67,7 @@ a touch screen to define the movements to be done:
 	to merge both. Rotation can be done with two or three (or more, but well..) fingers down, and we'll see why it matters.
 - _pinch_: aka _zoom_, it's, well allowing you to do what you expect. Same comment as for rotate: count of fingers may
 	differ, and this can be used efficiently.
+
 And that's all!
 
 ### Combining simple gestures on multi-pointers devices
@@ -93,10 +94,14 @@ of _tips_. Examples of combos:
 quad-tap followed by bi-tap simultaneously with triple-swipe" wouldn't exactly be a great combo :-D)
 
 ### Mono-pointers (mouse) fallbacks
-For now, there's not exactly _fallbacks_. Sorry. Just, you can define combos which react to both touch or mouse events,
-simply masking you the difference. So, yes, only single pointer interactions can be done with mouse.
+For now, there's not exactly any _fallbacks_, in the way that you could magically simulate multi-pointers with mono-pointer
+system. Sorry. I'm thinking of some key-button combination, like shift-click to place the center of the rotation, then
+click and drag to rotate... feedback welcome!
+So, what fallbacks mean is that you can define combos which react to both touch or mouse events, simply masking you the
+difference. So, yes, only single pointer interactions can be done with mouse.
 
-## Syntax for defining complex gestures
+# Syntax
+## Defining simple gestures
 
-
-## Syntax for defining combos
+## Defining complex gestures
+## Defining combos
