@@ -101,13 +101,13 @@ Few examples:
 
 ### Combining gestures in combos
 
-[1]: Combos are made of list of gestures, simple or complex, happening with a short period of time between them. A combo is
-ended by any lack of activity during a period of time longer than this accepted duration for a combo, or by any number
-of _tips_. Examples of combos:
-- double tap
-- triple tap
+[1]: Combos (as in Street Fighter-like games) are lists of gestures (simple or complex), happening with a short period
+of time between each. A combo is ended by any lack of activity during a period of time longer than this accepted
+duration for a combo, or by any number of _tips_. Examples of combos:
+- double _tap_ then _tip_
+- triple _tap_
 - double bi-tap: by "bi-tap", I mean tapping two pointers at once
-- double tip followed by swipe: can be a trigger of an action in an application, or a special attack combo in a game
+- double _tip_ followed by _swipe_: can be a trigger of an action in an application, or a special attack combo in a game
 - combinations are almost endless (in fact, no, some decisions had to be taken due to technical constraints, and
 	the uselessness of the related possibilities), mostly limited by the convenience of the combo (let's say that "triple
 quad-tap followed by bi-tap simultaneously with triple-swipe" wouldn't exactly be a great combo :-D)
@@ -147,9 +147,26 @@ also optional, and was added only because I think it makes things more readable 
 informations, you will have come to the conclusion that most complex gestures will be some "tip-tap" or "tip-swipe"
 gestures: _tip2-tap2_ (two fingers down, tap with two others), _tip-swipe_b_, etc.
 
+## Pattern matching
+
+Sometimes, you want to catch a move, whatever the context (translate: whatever count of tips). Some other time, you may
+want to trigger something whatever the count of pointers tapping simultaneously. Etc. In all these cases, you should use
+a joker, as in regular expressions. And, what a chance, we use the same modifiers as in RegExp!
+- __*__: any number of times (== "0 or more")
+- __+__: any number of times > 0 (== "1 or more")
+Examples:
+- with any count of fingers tipping, act when exactly one is removed: tip*-untip . (Why _tip*_, not _tip+_? Because when you untip,
+the untipped finger is not tipping anymore (brilliant, I know, I know). So, untipping a single finger does return
+"untip", not "tip-untip")
+- with any count of fingers tipping, act when some new fingers start tipping: tip*-tip+
+- etc.
+
 ## Defining combos
 
-
-
-## Pattern matching
-untip and tip*-untip
+As you know, combos being few gestures in a row, we only need a separator between gestures (which is also overloadable,
+but can't be omitted). I went for greater than: ">"
+Examples:
+- double tap: tap>tap
+- double bi-tap followed by bi-swipe right: tap2>tap2>swipe_r2
+- same as above, but with tri-tip: tip3-tap2>tip3-tap2>tip3-swipe_r2
+- etc.
