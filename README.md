@@ -76,6 +76,8 @@ remove this dependency, I think I would have to go to simpler things like class 
 
 ## Simple gestures supported
 
+### Normal gestures
+
 The basic gestures supported by the library are the ones you expect (don't deny, I know it!). I'll use the vocabulary of
 a touch screen to define the movements to be done:
 - _tap_: you touch briefly the sensitive surface, and remove your finger almost instantly. Like a mouse _click_.
@@ -93,17 +95,16 @@ a touch screen to define the movements to be done:
 - _move_: not yet implemented, but should probably be in the future. It's moving without tipping. Impossible on a
 	touchscreen, but for a mouse, and for other devices, it is.
 
-And that's all!
-
-## Notification gestures
+### Notification gestures
 
 In addition to these "real" gestures, exist few "notification" gestures. Complete understanding of such gestures comes
-with the explanation of complex gestures and combos. The notification gestures are the following:
+with the explanation of combos. The notification gestures are the following:
 - _press_: fired when a finger touches the screen (_touchstart_ event), a mouse is pressed, etc.
 - _started_dragging_: fired when a finger starts moving, a mouse with button pressed starts moving, etc.
 - _stopped_dragging_: fired when a finger IS RELEASED FROM THE SCREEN after some dragging, a mouse with button is
 released after it was dragged, etc. Whether I should implement a timer to detect the end of the motion is not decided
 yet (sounds cool and logical, but maybe difficult, so, as usual, **feedback welcome**)
+- no _release_: for now, there is no _release_ gesture
 See below for explanation of the [difference between normal simple gestures and notification gestures][2].
 
 ## Combining simple gestures on multi-pointers devices
