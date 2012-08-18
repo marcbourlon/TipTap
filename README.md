@@ -95,7 +95,18 @@ a touch screen to define the movements to be done:
 
 And that's all!
 
-### Combining simple gestures on multi-pointers devices
+## Notification gestures
+
+In addition to these "real" gestures, exist few "notification" gestures. Complete understanding of such gestures comes
+with the explanation of complex gestures and combos. The notification gestures are the following:
+- _press_: fired when a finger touches the screen (_touchstart_ event), a mouse is pressed, etc.
+- _started_dragging_: fired when a finger starts moving, a mouse with button pressed starts moving, etc.
+- _stopped_dragging_: fired when a finger IS RELEASED FROM THE SCREEN after some dragging, a mouse with button is
+released after it was dragged, etc. Whether I should implement a timer to detect the end of the motion is not decided
+yet (sounds cool and logical, but maybe difficult, so, as usual, **feedback welcome**)
+See below for explanation of the [difference between normal simple gestures and notification gestures][2].
+
+## Combining simple gestures on multi-pointers devices
 
 If it was only for simple gestures, this lib wouldn't be very useful, since lots of others do this quite well (Hammer.js,
 Touchy, etc.) It's main interest lies in the ability to create complex gestures (and [_combos_][1]). A complex gesture
@@ -107,7 +118,7 @@ Few examples:
 - bi-tip
 - etc.
 
-### Combining gestures in combos
+## Combining gestures in combos
 
 [1]: Combos (as in Street Fighter-like games) are lists of gestures (simple or complex), happening with a short period
 of time between each. A combo is ended by any lack of activity during a period of time longer than this accepted
@@ -120,7 +131,12 @@ duration for a combo, or by any number of _tips_. Examples of combos:
 	the uselessness of the related possibilities), mostly limited by the convenience of the combo (let's say that "triple
 	quad-tap followed by bi-tap simultaneously with triple-swipe" wouldn't exactly be a very usable combo :-D)
 
-### Mono-pointers (mouse) fallbacks
+## Difference between simple gestures and notification gestures
+
+[2]: Notification gestures are kind of helpers which must not be treated like normal gestures, because of combos. To make
+the combos system work 
+
+## Mono-pointers (mouse) fallbacks
 
 For now, there's not exactly any _fallbacks_, in the way that you could magically simulate multi-pointers with mono-pointer
 system. Sorry. I'm thinking of some key-button combination, like shift-click to place the center of the rotation, then
