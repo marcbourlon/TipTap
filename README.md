@@ -1,5 +1,6 @@
 # Introduction
 
+
 ## What is the _TipTap_ library?
 
 The _TipTap_ library is a javascript library to ease mouse and touch complex gestures definition and management on HTML
@@ -17,15 +18,18 @@ Please forgive the poor code quality (intended to improve, of course!), and cons
 really because of functionalities, but because of this quality: I went back to coding only recently, and you can
 _smell_ it.  
 
+
 ## So, was it meant to do?
 
 Essentially, its goal is to:
 * provide a unified, input-device agnostic events capturing system: dealing with Mouse, Touch, Augmented Gestures
 	(see [Jérôme Etienne's work](https://github.com/jeromeetienne/augmentedgesture.js)), Leap Motion, etc.
 * compensate for human lack of accuracy, leading to almost-simultaneous actions of fingers, instead of simultaneous.
-	Think of double bi-tap for example, chances are that you will not tap both fingers twice exactly simultaneously.
-	Even if you do, you will not always. And now, try with tri-tap, or worse, double tri-swipe! This inaccuracy was one of
-	the main reason to create this lib, and by far the biggest technical issue to solve.
+Think of double bi-tap for example, chances are that you will not tap both fingers twice exactly simultaneously.
+Even if you do, you will not always. And now, try with tri-tap, or worse, double tri-swipe! This inaccuracy was one of
+the main reason to create this lib, and by far the biggest technical issue to solve. To do this, when a pointer event
+occurs, it will wait for a tiny amount of time to see if other similar events come. If it happens, it will group the
+event together, a bit like what is done natively by iOS with its touch events and the touches* arrays.
 * despite the previous step, not miss any event! 
 * differenciate simply between tap, tip (long tap), swipe, move, pinch, spread, rotate...
 * give a rich but simple language to define complex gestures, in an Event-like syntax. Example:
@@ -35,6 +39,7 @@ Essentially, its goal is to:
 * allow attachment of several such listeners to a same element
 * allow delegation, attaching to a parent element, with a filter to define which children it applies. As you would expect,
 	it lets you attach the callback to a container in which elements will be added dynamically
+
 
 ## Dependencies
 
@@ -47,6 +52,7 @@ need to try)
 jquery and underscore dependencies shouldn't be so hard to remove, and is definitely something I'd like to do in the near
 future.
 
+
 ## Current status
 
 Currently, the library is usable, but is still missing few things, which doesn't make it suitable for immediate production
@@ -55,8 +61,8 @@ feedback (mommy I'm scared!). Known missing points:
 * real (usable) handling of rotation and zoom
 * cleaner/better coding, like using the Markus Gundersen's work-(strongly) inspired rotation-zoomer class as a plugin
 * identify a gesture by the proximity of the pointers: it will prevent two almost simultaneous taps at both ends of the
-	surface to be considered as a same gesture, which is in general never the case. Will be even more important on large
-	interaction surface like Microsoft Surface tables
+surface to be considered as a same gesture, which is in general never the case. Will be even more important on large
+interaction surface like Microsoft Surface tables
 * give ability to the application using the lib to split a gesture into several ones
 * making it more a module than a plugin (see Miller Medeiros' articles about this), and have jQuery pluginification as
 	a plus (it's more or less done, but not great)
@@ -65,6 +71,7 @@ feedback (mommy I'm scared!). Known missing points:
 
 Consider this as a something like a 0.4 release, not ready for production.
 
+
 # The elements
 
 All gestures and combos are defined for a DOM element. I didn't use Events for this, but a simple callback system.
@@ -72,9 +79,12 @@ All gestures and combos are defined for a DOM element. I didn't use Events for t
 descendants, by using a selector string (for now, because of the use of jQuery, this selector can be complex, but if I
 remove this dependency, I think I would have to go to simpler things like class or id matching, wouldn't I?)
 
+
 # The gestures
 
+
 ## Simple gestures supported
+
 
 ### Normal gestures
 
@@ -92,8 +102,9 @@ a touch screen to define the movements to be done:
 - _pinch_: aka _zoom_, it's, well allowing you to do what you expect. Same comment as for rotate: count of fingers may
 	differ, and this can be used efficiently.
 - _drag_: it's simply moving a pointer while _tipping_
-- _move_: not yet implemented, but should probably be in the future. It's moving without tipping. Impossible on a
+- _move_: **not yet implemented**, but should probably be in the future. It's moving without tipping. Impossible on a
 	touchscreen, but for a mouse, and for other devices, it is.
+
 
 ### Notification gestures
 
@@ -104,8 +115,10 @@ with the explanation of combos. The notification gestures are the following:
 - _stopped_dragging_: fired when a finger IS RELEASED FROM THE SCREEN after some dragging, a mouse with button is
 released after it was dragged, etc. Whether I should implement a timer to detect the end of the motion is not decided
 yet (sounds cool and logical, but maybe difficult, so, as usual, **feedback welcome**)
-- no _release_: for now, there is no _release_ gesture
+- _release_: as expected, fired when fingers are removed from the screen (mouse released, etc.)
+
 See below for explanation of the [difference between normal simple gestures and notification gestures][2].
+
 
 ## Combining simple gestures on multi-pointers devices
 
@@ -118,6 +131,7 @@ Few examples:
 - tip **and** swipe: one pointer is tipping, while the other is swiping
 - bi-tip
 - etc.
+
 
 ## Combining gestures in combos
 
@@ -132,10 +146,22 @@ duration for a combo, or by any number of _tips_. Examples of combos:
 	the uselessness of the related possibilities), mostly limited by the convenience of the combo (let's say that "triple
 	quad-tap followed by bi-tap simultaneously with triple-swipe" wouldn't exactly be a very usable combo :-D)
 
+
 ## Difference between simple gestures and notification gestures
 
-[2]: Notification gestures are kind of helpers which must not be treated like normal gestures, because of combos. To make
-the combos system work 
+[2]: Gestures that can be part of combos are not sent immediately to the app. Indeed, the goal being to be a "black-box"
+for the app using the library, the idea is to not bother the app till we don't have a combo, that we match with
+definitions of callbacks. So, after a n-tap, for example, the lib wil wait for a few fractions of a second, in case a
+new event is happening, to chain it in a combo. That's of course ok, but if you want to react on mouse press/touchstart,
+this small amount of time to react will appear to the user as an eternity, or, let's say, will make the UI appear as
+sluggish. So, the solution is to use what I called "notification" gestures. They are sent immediately, and "in parallel" of normal 
+gestures, and can't be in combos, that they would pollute. Examples:
+- if you touch a screen, move immediately, then release, you will get: press, dragStart, drag (few times),
+dragStop, release.
+- if you double tap a screen, while a finger is already touching, you will get: tip-press, tip-release, tip-tap. **In this
+order**. Remember: tap and swipe being "combo-able", they aren't sent right away. That's why release arrives first. This
+said, it's up to the app to decide which "event" to use.
+
 
 ## Mono-pointers (mouse) fallbacks
 
@@ -146,7 +172,9 @@ click and drag to rotate... feedback welcome!
 So, what fallbacks mean is that you can define combos which react to both touch or mouse events, simply masking you the
 difference. So, yes, only single pointer interactions can be done with mouse.
 
+
 # Syntax for defining gestures
+
 
 ## Defining simple gestures
 
@@ -163,6 +191,7 @@ gestures. Indeed, any two (or more) pointers dragging involves some zoom (we are
 for which we can define precision-triggering threshold, or we have only _drag_ gesture and values of rotation and zoom,
 and the application decides what to do with. **Feedback and suggestions welcome** 
 
+
 ## Defining complex gestures
 
 As we saw before, complex gestures are a combination of simultaneous simple gestures. In fact, it's even more reduced
@@ -173,6 +202,7 @@ gestures by joining simple gestures with a dash (between you and me, not only th
 also optional, and was added only because I think it makes things more readable for the coder/user. With all these
 informations, you will have come to the conclusion that most complex gestures will be some "tip-tap" or "tip-swipe"
 gestures: _tip2-tap2_ (two fingers down, tap with two others), _tip-swipe_b_, etc.
+
 
 ## Pattern matching
 
@@ -188,6 +218,7 @@ the untipped finger is not tipping anymore (brilliant, I know, I know). So, unti
 - with any count of fingers tipping, act when some new fingers start tipping: tip*-tip+
 - etc.
 
+
 ## Defining combos
 
 As you know, combos being few gestures in a row, we only need a separator between gestures (which is also overloadable,
@@ -198,11 +229,12 @@ Examples:
 - same as above, but with tri-tip: tip3-tap2>tip3-tap2>tip3-swipe_r2
 - etc.
 
+
 # Coding
+
 
 ## TipTap initialization
 
 
 ## Setting a callback
-
 
