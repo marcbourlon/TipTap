@@ -21,7 +21,7 @@ _smell_ it.
 
 Essentially, its goal is to:
 * provide a unified, input-device agnostic events capturing system: dealing with Mouse, Touch, Augmented Gestures
-	(see Jérôme Etienne's work), Leap Motion, etc.
+	(see [Jérôme Etienne's work](https://github.com/jeromeetienne/augmentedgesture.js)), Leap Motion, etc.
 * compensate for human lack of accuracy, leading to almost-simultaneous actions of fingers, instead of simultaneous.
 	Think of double bi-tap for example, chances are that you will not tap both fingers twice exactly simultaneously.
 	Even if you do, you will not always. And now, try with tri-tap, or worse, double tri-swipe! This inaccuracy was one of
