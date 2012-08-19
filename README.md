@@ -180,9 +180,9 @@ difference. So, yes, only single pointer interactions can be done with mouse.
 
 The syntax for defining simple gestures is, well, simple:
 - the base is simply the gesture name: _tip_, _tap_, _swipe_t_, _swipe_r_, _swipe_b_, _swipe_l_, _pinch_ *, _rotate_ *,
-	_drag_
+_drag_
 - add to this the count of pointers involved. Want to signify a tap of two fingers? _tap2_. A tri-swipe to the right?
-	_swipe_r3_. Dragging with 2 pointers? _drag2_.
+_swipe_r3_. Dragging with 2 pointers? _drag2_.
 - as the smart readers will have noticed, no need to put "1" when only one pointer is involved.
 
 (*) pinch and rotate are not yet implemented like this in this alpha release. I'm still not decided on whether I should
@@ -211,10 +211,11 @@ want to trigger something whatever the count of pointers tapping simultaneously.
 a joker, as in regular expressions. And, what a chance, we use the same modifiers as in RegExp!
 - __*__: any number of times (== "0 or more")
 - __+__: any number of times > 0 (== "1 or more")
+- 
 Examples:
-- with any count of fingers tipping, act when exactly one is removed: tip\*-untip . (Why _tip\*_, not _tip+_? Because when you untip,
-the untipped finger is not tipping anymore (brilliant, I know, I know). So, untipping a single finger does return
-"untip", not "tip-untip")
+- with any count of fingers tipping, act when exactly one is removed: _tip\*-untip_. (Why _tip\*_, not _tip+_?
+Because when you untip, the untipped finger is not tipping anymore (brilliant, I know, I know). So, untipping a single
+finger does return "untip", not "tip-untip")
 - with any count of fingers tipping, act when some new fingers start tipping: tip*-tip+
 - etc.
 
