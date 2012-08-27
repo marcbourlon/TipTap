@@ -211,7 +211,7 @@ want to trigger something whatever the count of pointers tapping simultaneously.
 a joker, as in regular expressions. And, what a chance, we use the same modifiers as in RegExp!
 - __*__: any number of times (== "0 or more")
 - __+__: any number of times > 0 (== "1 or more")
-- 
+
 Examples:
 - with any count of fingers tipping, act when exactly one is removed: _tip\*-untip_. (Why _tip\*_, not _tip+_?
 Because when you untip, the untipped finger is not tipping anymore (brilliant, I know, I know). So, untipping a single
@@ -239,3 +239,7 @@ Examples:
 
 ## Setting a callback
 
+
+# Technical details
+- uses changedTouches array
+- 
