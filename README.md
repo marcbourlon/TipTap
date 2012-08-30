@@ -1,6 +1,5 @@
 # Introduction
 
-
 ## What is the _TipTap_ library?
 
 The _TipTap_ library is a javascript library to ease mouse and touch complex gestures definition and management on HTML
@@ -117,13 +116,13 @@ released after it was dragged, etc. Whether I should implement a timer to detect
 yet (sounds cool and logical, but maybe difficult, so, as usual, **feedback welcome**)
 - _release_: as expected, fired when fingers are removed from the screen (mouse released, etc.)
 
-See below for explanation of the [difference between normal simple gestures and notification gestures](1).
+See below for explanation of the [difference between normal simple gestures and notification gestures](#1).
 
 
 ## Combining simple gestures on multi-pointers devices
 
 If it was only for simple gestures, this lib wouldn't be very useful, since lots of others do this quite well (Hammer.js,
-Touchy, etc.) It's main interest lies in the ability to create complex gestures (and [_combos_](2)). A complex gesture
+Touchy, etc.) It's main interest lies in the ability to create complex gestures (and [_combos_](#2)). A complex gesture
 is defined by several simple gestures happening simultaneously:
 Few examples:
 - bi-tap
@@ -133,9 +132,10 @@ Few examples:
 - etc.
 
 
+<a name="2" />
 ## Combining gestures in combos
 
-[2]: Combos (as in Street Fighter-like games) are lists of gestures (simple or complex), happening with a short period
+Combos (as in Street Fighter-like games) are lists of gestures (simple or complex), happening with a short period
 of time between each. A combo is ended by any lack of activity during a period of time longer than this accepted
 duration for a combo, or by any number of _tips_. Examples of combos:
 - double _tap_ then _tip_
@@ -147,9 +147,10 @@ duration for a combo, or by any number of _tips_. Examples of combos:
 	quad-tap followed by bi-tap simultaneously with triple-swipe" wouldn't exactly be a very usable combo :-D)
 
 
+<a name="1" />
 ## Difference between simple gestures and notification gestures
 
-[1]: Gestures that can be part of combos are not sent immediately to the app. Indeed, the goal being to be a "black-box"
+Gestures that can be part of combos are not sent immediately to the app. Indeed, the goal being to be a "black-box"
 for the app using the library, the idea is to not bother the app till we don't have a combo, that we match with
 definitions of callbacks. So, after a n-tap, for example, the lib wil wait for a few fractions of a second, in case a
 new event is happening, to chain it in a combo. That's of course ok, but if you want to react on mouse press/touchstart,
@@ -174,7 +175,6 @@ difference. So, yes, only single pointer interactions can be done with mouse.
 
 
 # Syntax for defining gestures
-
 
 ## Defining simple gestures
 
@@ -215,7 +215,7 @@ a joker, as in regular expressions. And, what a chance, we use the same modifier
 Examples:
 - with any count of fingers tipping, act when exactly one is removed: _tip\*-untip_. (Why _tip\*_, not _tip+_?
 Because when you untip, the untipped finger is not tipping anymore (brilliant, I know, I know). So, untipping a single
-finger does return "untip", not "tip-untip")
+finger returns only "untip", not "tip-untip")
 - with any count of fingers tipping, act when some new fingers start tipping: tip*-tip+
 - etc.
 
@@ -227,8 +227,24 @@ but can't be omitted). I went for greater than: ">"
 Examples:
 - double tap: tap>tap
 - double bi-tap followed by bi-swipe right: tap2>tap2>swipe_r2
-- same as above, but with tri-tip: tip3-tap2>tip3-tap2>tip3-swipe_r2
+- same as above, but requiring that there are first 3 fingers touching the screen: tip3-tap2>tip3-tap2>tip3-swipe_r2
 - etc.
+
+# Callbacks on intersecting combos
+
+The library allows to define several callbacks on a same combo, or, let's say, on __intersecting combos__. If it may not
+sound useful at first, it's in fact adding a real comfort (and was added for this reason :-p). Let's take the example
+of the simple demo. We must catch all the fingers touching each picture, either when tipping, or when touching and moving
+right away; for this reason, we catch: __tip\*-tip+/tip\*-press+__. However, highlighting the picture ONLY when you
+want it (that is, when you select or drag it) in this callback would be tricky (I know, I tried :-)): if you do so, the
+__press__ "event" caught means that when you double-tap, the picture will highlight, de-highlight (supposing we have the
+symmetrical logic for de-highlighting), highlight again, de-highlight again. Not nice. Adding the ability to test, within
+the callback, which "event" was really caught (if event == "tip") is not elegant for the app coder. So instead, you add
+another callback on __tip+/dragStart+__ in which you define the highlight. You'll notice that there's no __tip\*__,
+which means we DO want only the first finger action here (for this, it wouldn't hurt to do it at each finger, but it
+would be useless, so why waste CPU cycles?). Similarly, to de-highlight, we catch: __untip+/dragStop+__. This time
+however, not putting __tip\*__ is important, because we want to signify that we remove the highlight ONLY when the LAST
+finger(s) is(are) removed.
 
 
 # Coding
