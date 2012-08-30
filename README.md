@@ -117,13 +117,13 @@ released after it was dragged, etc. Whether I should implement a timer to detect
 yet (sounds cool and logical, but maybe difficult, so, as usual, **feedback welcome**)
 - _release_: as expected, fired when fingers are removed from the screen (mouse released, etc.)
 
-See below for explanation of the [difference between normal simple gestures and notification gestures][2].
+See below for explanation of the [difference between normal simple gestures and notification gestures] [1].
 
 
 ## Combining simple gestures on multi-pointers devices
 
 If it was only for simple gestures, this lib wouldn't be very useful, since lots of others do this quite well (Hammer.js,
-Touchy, etc.) It's main interest lies in the ability to create complex gestures (and [_combos_][1]). A complex gesture
+Touchy, etc.) It's main interest lies in the ability to create complex gestures (and [_combos_] [2]). A complex gesture
 is defined by several simple gestures happening simultaneously:
 Few examples:
 - bi-tap
@@ -135,7 +135,7 @@ Few examples:
 
 ## Combining gestures in combos
 
-[1]: Combos (as in Street Fighter-like games) are lists of gestures (simple or complex), happening with a short period
+[2]: Combos (as in Street Fighter-like games) are lists of gestures (simple or complex), happening with a short period
 of time between each. A combo is ended by any lack of activity during a period of time longer than this accepted
 duration for a combo, or by any number of _tips_. Examples of combos:
 - double _tap_ then _tip_
@@ -149,7 +149,7 @@ duration for a combo, or by any number of _tips_. Examples of combos:
 
 ## Difference between simple gestures and notification gestures
 
-[2]: Gestures that can be part of combos are not sent immediately to the app. Indeed, the goal being to be a "black-box"
+[1]: Gestures that can be part of combos are not sent immediately to the app. Indeed, the goal being to be a "black-box"
 for the app using the library, the idea is to not bother the app till we don't have a combo, that we match with
 definitions of callbacks. So, after a n-tap, for example, the lib wil wait for a few fractions of a second, in case a
 new event is happening, to chain it in a combo. That's of course ok, but if you want to react on mouse press/touchstart,
