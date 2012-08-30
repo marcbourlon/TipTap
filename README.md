@@ -117,13 +117,13 @@ released after it was dragged, etc. Whether I should implement a timer to detect
 yet (sounds cool and logical, but maybe difficult, so, as usual, **feedback welcome**)
 - _release_: as expected, fired when fingers are removed from the screen (mouse released, etc.)
 
-See below for explanation of the [difference between normal simple gestures and notification gestures] [1].
+See below for explanation of the [difference between normal simple gestures and notification gestures](1).
 
 
 ## Combining simple gestures on multi-pointers devices
 
 If it was only for simple gestures, this lib wouldn't be very useful, since lots of others do this quite well (Hammer.js,
-Touchy, etc.) It's main interest lies in the ability to create complex gestures (and [_combos_] [2]). A complex gesture
+Touchy, etc.) It's main interest lies in the ability to create complex gestures (and [_combos_](2)). A complex gesture
 is defined by several simple gestures happening simultaneously:
 Few examples:
 - bi-tap
