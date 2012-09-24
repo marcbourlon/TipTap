@@ -403,7 +403,8 @@ The pageY (like in DOM) where the gesture happened
 
 The small demo shows the basics of TipTap, like attaching some callbacks to a main element, and to its not yet existing
 children, pretty much like event delegation. Because the only events created are attached to the main container, no need
-to clean anything when removing these sub elements. It also shows some small tips, like using **tip*-tip+|tip\*-press+** and **tip+|dragStart+** to deal with highlighting the selected image correctly (only
+to clean anything when removing these sub elements. It also shows some small tips, like using
+**tip\*-tip\+\|tip\*-press\+** and **tip\+\|dragStart\+** to deal with highlighting the selected image correctly (only
 on tip or dragStart (in case the user moves the finger too fast for a **tip**), while the recording of the finger must 
 happen during tip or press (in case of fast drag start, again). If highlighting was set for **press** for example, a double
 tap would flash the highlighting because of the two **press** events sent.
