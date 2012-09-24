@@ -335,7 +335,69 @@ Global flag to "trace" the code
 
 ## Setting a callback
 
+### The syntax
+```javascript
+$(<jQuery filter>).jTipTap("on", <combo>[, <sub elements filter>], callback[, bound object])
+```
+"on": means we created a new TipTap "event". "off" doesn't exist yet.
+combo: any string defining a valid combo (syntax correctness checking is, let's be fair, inexistant): "tap", "tip-tap",
+"tap2>tap3", "tip2-swipe_r", "press|tip", "tip*-dragStart", etc.
+filter: any jQuery valid filter: .classname, #id, not:input, etc.
+callback: a function receiving an Action object as parameter
+object: if specified, the **this** in the callback will be valued to this object. Equivalent of $.bind or _.bind
 
-# Technical details
-- uses changedTouches array
-- 
+### A simple callback on an element
+
+Setting up a callback is a simple as this:
+```javascript
+$('#myID').jTipTap('on',"tap",
+           function (action) {
+           	alert("You tapped me!");
+           });
+```
+
+As you could guess, this will pop an alert when you **tap** the element of id **myID**. Defining more complex gestures
+and combos is as simple as this, and this is why this library was made for.
+all is done so that the 
+
+### A callback delegated to sub-elements
+
+This is hardly harder:
+```javascript
+$('#myID').jTipTap('on',"tap", ".sub"
+           function (action) {
+           	alert("You tapped element: " + action.getPointer(0).$target[0].id);
+           });
+```
+The third (optional) parameter is any valid jQuery filter (since all tests are made using jQuery **is()**), allowing some quite
+rich way of choosing which elements to pick, including usage of **not:**, elements names, classes, ids...
+The method **getPointer()** from parameter **action** retrieves the pointer by the given number FROM THE LAST GESTURE.
+This is important to know that we can get such informations only for the last gesture done. We could keep track of all the
+gestures which made the combo, but I didn't have the usage yet, so it is this way for now.
+
+### The Pointer object
+
+The Pointer structure is quite simple, the four more important properties for the user being:
+```javascript
+identifier
+```
+The pointer identifier. Either given by the system for Touch devices, or created by TipTap library for the Mouse (but 
+meaningless in this case except for internal stuff)
+
+```javascript
+$target
+```
+The jQuery object wrapping the DOM element which received the gesture
+
+```javascript
+pageX
+```
+The pageX (like in DOM) where the gesture happened
+
+```javascript
+pageY
+```
+The pageY (like in DOM) where the gesture happened
+
+
+The small demo
