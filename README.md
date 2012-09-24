@@ -43,13 +43,11 @@ event together, a bit like what is done natively by iOS with its touch events an
 ## Dependencies
 
 The library currently relies on:
-- [jQuery](http://jquery.com/) (tested with 1.7.2, probably 1.8.*) (may work with other "$" libraries like Zepto.js,
-need to try)
-- [Underscore](http://underscorejs.org) by Jeremy Ashkenas (may work with LoDash, I need to try)
+- [jQuery](http://jquery.com/) (1.7.2+)
+- [Underscore](http://underscorejs.org) by Jeremy Ashkenas, or [Lodash](https://github.com/bestiejs/lodash) by John-David Dalton
 - [Signals](http://millermedeiros.github.com/js-signals/) by Miller Medeiros
 
-jquery and underscore dependencies shouldn't be so hard to remove, and is definitely something I'd like to do in the near
-future.
+I would love to have no dependency at all, but...
 
 
 ## Current status
