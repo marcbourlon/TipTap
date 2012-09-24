@@ -250,73 +250,86 @@ finger(s) is(are) removed.
 ## TipTap initialization
 You must first call TipTap.init(), passing an optional settings object. The list of fields and their default value:
 
-{
-	deviceType: TipTap.DEVICE_MOUSE, // which kind of device do we use
-}
+```javascript
+deviceType: TipTap.DEVICE_MOUSE,
+```
+
 Can be TipTap.DEVICE_MOUSE or TipTap.DEVICE_TOUCH. If you want to force the type of device on which to work. In practice,
 it doesn't make sense, and you should let the library define by itself what type of device to use.
 
-{
-	SIMULTANEOUS_MOVES_TIMER_ms: 3 * TipTap.TOUCH_REFRESH_ms,
-}
+```javascript
+SIMULTANEOUS_MOVES_TIMER_ms: 3 * TipTap.TOUCH_REFRESH_ms,
+```
+
 Delay accepted between similar events/moves to be considered as simultaneous. It's one of the key reasons of this library,
 compensating for not perfect simultaneity of fingers tapping for example.
 
-{
-	TAP_MAX_DURATION_ms: 150,
-}
+```javascript
+TAP_MAX_DURATION_ms: 150,
+```
+
 If the pointer goes down without moving / releasing for longer than this, it's a tip.
 
-{
-	SWIPE_START_DELAY_ms: 2 * TipTap.TOUCH_REFRESH_ms,
-}
+```javascript
+SWIPE_START_DELAY_ms: 2 * TipTap.TOUCH_REFRESH_ms,
+```
+
 Define how fast the user must move his pointer so that the move is considered as a swipe, and not a simple move.
 
-{
-	SWIPE_DURATION_ms: 8 * TipTap.TOUCH_REFRESH_ms,
-}
+```javascript
+SWIPE_DURATION_ms: 8 * TipTap.TOUCH_REFRESH_ms,
+```
+
 Max move duration to still be a swipe (moving the finger, even fast, all along the screen is not a swipe)
 
-{
-	SWIPE_MIN_DISPLACEMENT_px: 8,
-}
+```javascript
+SWIPE_MIN_DISPLACEMENT_px: 8,
+```
+
 Speed being distance / time, define the minimal distance covered by the first drag to consider as swipe. It's not
 retina friendly. In fact, it's not multi-DPI friendly, and needs improvement!
 
-{
-	SWIPE_MAX_DISTANCE_px: 160,
-}
+```javascript
+SWIPE_MAX_DISTANCE_px: 160,
+```
+
 Max dragged distance to still be a swipe.
 
-{
-	MOVE_THRESHOLD_px: TipTap.touch ? 8 : 0,
-}
+```javascript
+MOVE_THRESHOLD_px: TipTap.touch ? 8 : 0,
+```
+
 When you think your finger is perfectly still on the screen, it's in fact moving, most of the time. This is a tolerance
 factor.
 
-{
-	COMBO_END_TIMER_ms: 100,
-}
+```javascript
+COMBO_END_TIMER_ms: 100,
+```
+
 Max delay between two actions in a same combo (like time between two clicks in a double-click)
 
-{
-	COMBO_GESTURES_SEP: ">",
-}
+```javascript
+COMBO_GESTURES_SEP: ">",
+```
+
 Separator of gestures in combos: tap2**>**tap2 (double bi-tap)
 
-{
-	COMBO_PARALLEL_ACTIONS_OP: "-",
-}
+```javascript
+COMBO_PARALLEL_ACTIONS_OP: "-",
+```
+
 Separator of simple gestures in complex gesture: tip2-tap2 (bi-tap while bi-tipping)
  
-{
-	COMBO_OR_OPERATOR: "|",
-}
+```javascript
+COMBO_OR_OPERATOR: "|",
+```
+
 Char to define alternate combos: press|tip
 
-{
-	debug: true
-}
+```javascript
+debug: true
+```
+
 Global flag to "trace" the code
 
 
