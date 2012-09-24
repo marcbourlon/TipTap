@@ -11,11 +11,10 @@ instead of our old-fashioned and already outdated mouse. But it of course suppor
 This library was meant to fill a hole that I couldn't fill immediately with any other initiative around here,
 see [this page](https://github.com/bebraw/jswiki/wiki/Touch) for a quite comprehensive list of touch libs around. See
 it as a mix between [Hammer.js](http://eightmedia.github.com/hammer.js/), [Touchy](https://github.com/HotStudio/touchy),
-[Dojox.gesture](http://dojotoolkit.org/reference-guide/1.7/dojox/gesture.html#dojox-gesture)
-
-Please forgive the poor code quality (intended to improve, of course!), and consider the library in early alpha, not
-really because of functionalities, but because of this quality: I went back to coding only recently, and you can
-_smell_ it.  
+[Dojox.gesture](http://dojotoolkit.org/reference-guide/1.7/dojox/gesture.html#dojox-gesture), and coming from the same
+statement as done by Boris Smus about "broken" touch events in browsers, leading him to create his
+[pointers](http://smus.com/mouse-touch-pointer/) library. You could see TipTap as a more complete version of "pointers",
+except that Mr Smus codes much better than me :-D
 
 
 ## So, was it meant to do?
