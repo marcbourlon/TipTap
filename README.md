@@ -198,7 +198,7 @@ two different gestures. What is more realistic is combination of _tips_ and _tap
 gestures by joining simple gestures with a dash (between you and me, not only the dash is changeable by config, but is
 also optional, and was added only because I think it makes things more readable for the coder/user. With all these
 informations, you will have come to the conclusion that most complex gestures will be some "tip-tap" or "tip-swipe"
-gestures: _tip2-tap2_ (two fingers down, tap with two others), _tip-swipe_b_, etc.
+gestures: _tip2-tap2_ (two fingers down, tap with two others), _tip-swipe\_b_, etc.
 
 
 ## Pattern matching
@@ -208,6 +208,7 @@ want to trigger something whatever the count of pointers tapping simultaneously.
 a joker, as in regular expressions. And, what a chance, we use the same modifiers as in RegExp!
 - __*__: any number of times (== "0 or more")
 - __+__: any number of times > 0 (== "1 or more")
+- __?__: 0 or 1 occurrence
 
 Examples:
 - with any count of fingers tipping, act when exactly one is removed: _tip\*-untip_. (Why _tip\*_, not _tip+_?
@@ -246,8 +247,77 @@ finger(s) is(are) removed.
 
 # Coding
 
-
 ## TipTap initialization
+You must first call TipTap.init(), passing an optional settings object. The list of fields and their default value:
+
+{
+	deviceType: TipTap.DEVICE_MOUSE, // which kind of device do we use
+}
+Can be TipTap.DEVICE_MOUSE or TipTap.DEVICE_TOUCH. If you want to force the type of device on which to work. In practice,
+it doesn't make sense, and you should let the library define by itself what type of device to use.
+
+{
+	SIMULTANEOUS_MOVES_TIMER_ms: 3 * TipTap.TOUCH_REFRESH_ms,
+}
+Delay accepted between similar events/moves to be considered as simultaneous. It's one of the key reasons of this library,
+compensating for not perfect simultaneity of fingers tapping for example.
+
+{
+	TAP_MAX_DURATION_ms: 150,
+}
+If the pointer goes down without moving / releasing for longer than this, it's a tip.
+
+{
+	SWIPE_START_DELAY_ms: 2 * TipTap.TOUCH_REFRESH_ms,
+}
+Define how fast the user must move his pointer so that the move is considered as a swipe, and not a simple move.
+
+{
+	SWIPE_DURATION_ms: 8 * TipTap.TOUCH_REFRESH_ms,
+}
+Max move duration to still be a swipe (moving the finger, even fast, all along the screen is not a swipe)
+
+{
+	SWIPE_MIN_DISPLACEMENT_px: 8,
+}
+Speed being distance / time, define the minimal distance covered by the first drag to consider as swipe. It's not
+retina friendly. In fact, it's not multi-DPI friendly, and needs improvement!
+
+{
+	SWIPE_MAX_DISTANCE_px: 160,
+}
+Max dragged distance to still be a swipe.
+
+{
+	MOVE_THRESHOLD_px: TipTap.touch ? 8 : 0,
+}
+When you think your finger is perfectly still on the screen, it's in fact moving, most of the time. This is a tolerance
+factor.
+
+{
+	COMBO_END_TIMER_ms: 100,
+}
+Max delay between two actions in a same combo (like time between two clicks in a double-click)
+
+{
+	COMBO_GESTURES_SEP: ">",
+}
+Separator of gestures in combos: tap2**>**tap2 (double bi-tap)
+
+{
+	COMBO_PARALLEL_ACTIONS_OP: "-",
+}
+Separator of simple gestures in complex gesture: tip2-tap2 (bi-tap while bi-tipping)
+ 
+{
+	COMBO_OR_OPERATOR: "|",
+}
+Char to define alternate combos: press|tip
+
+{
+	debug: true
+}
+Global flag to "trace" the code
 
 
 ## Setting a callback
