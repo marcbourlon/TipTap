@@ -406,6 +406,12 @@ The pageY (like in DOM) where the gesture happened
 
 ## The included demo
 
+To run the demo, you need to have a /libs/ folder containing the following files:
+- jquery-1.8.1.min.js
+- lodash.min.js
+- signals.min.js
+They were not included in this repo because I think it's not the way to do.
+
 The small demo shows the basics of TipTap, like attaching some callbacks to a main element, and to its not yet existing
 children, pretty much like event delegation. Because the only events created are attached to the main container, no need
 to clean anything when removing these sub elements. It also shows some small tips, like using
