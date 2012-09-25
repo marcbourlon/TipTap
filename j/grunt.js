@@ -7,17 +7,17 @@ module.exports = function (grunt) {
 				dist: {
 					src:  [
 						// order is important. All rely on TipTap, Action relies on Gesture
-						'TipTap/TipTap.js',
-						'TipTap/Fsm.js',
-						'TipTap/Gesture.js',
-						'TipTap/Action.js',
-						'TipTap/Finger.js',
-						'TipTap/Mouse.js',
-						'TipTap/Pointer.js',
-						'TipTap/Position.js',
-						'TipTap/RotoZoomer.js',
-						'TipTap/Router.js',
-						'TipTap/Touch.js'
+						'src/TipTap.js',
+						'src/Fsm.js',
+						'src/Gesture.js',
+						'src/Action.js',
+						'src/Finger.js',
+						'src/Mouse.js',
+						'src/Pointer.js',
+						'src/Position.js',
+						'src/RotoZoomer.js',
+						'src/Router.js',
+						'src/Touch.js'
 					],
 					dest: 'dist/TipTap.js'
 				}
