@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+	<title>TipTap DEMO</title>
+	<meta name="description" content="Demo of a powerful touchlib">
+	<meta name="author" content="Marc Bourlon">
+
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+
+	<style type="text/css">
+		body {
+			font-size: 11px; font-family: Arial, sans-serif;
+		}
+		#box1 { position: relative; float: left; width: 600px; height: 600px; border: 1px solid #00F; background: #DDF; }
+		#box1 .test { position: absolute; width: 30%; border: 1px solid #000; }
+		#box1 .dragging { opacity: 0.8; border-color: #0D0; box-shadow: 2px 2px 5px black; }
+		#debuglog { height: 500px; overflow: scroll; border: 1px solid #000; }
+			/* hack: supposed to load and cache all the images. Doesn't work */
+		body:after { content: url("i/Pagani-Zonda-R-3.jpg"); url ( "i/90923269786ec28b4432529457258d95.jpg" ); url ( "i/012611_pagani_huayra_1.jpg" ); url ( "i/citroen-gt-supercar_j2gtu_5965_uIGQC_5965.jpg" ); url ( "i/e-wolf-supercar.jpg" ); url ( "i/Shelby-Super-Cars-Ultimate-Aero-II-rear-view.jpg" ); url ( "i/saleens7tt05.jpg" ); url ( "i/vector-supercar-might-make-a-comeback.jpg" ); url ( "i/2011-shelby-supercars-ultimate-aero-ii.jpg" ); url ( "i/supercars.jpg" ); url ( "i/Marussia_05.jpg" ); url ( "i/Marussia_04.jpg" ); url ( "i/Marussia_Russian_Supercar.jpg" ); url ( "i/Supercars-Limited-Hulme-F1-Champion-SA-Top-1024x768.jpg" ); url ( "i/shelby-supercars-ultimate-aero-tt-12.jpg" ); url ( "i/veh_upcoming_furai_2.jpg" ); url ( "i/koenigccx06_081600.jpg" ); url ( "i/porsche-ruf-electric_msp11.jpg" ); url ( "i/tesla-roadster_msp1.jpg" ); url ( "i/fisker_karma_msp2.jpg" ); url ( "i/shelby-aero_msp_1.jpg" ); url ( "i/lightning_front_tall.jpg" ); url ( "i/ronn-motors-hydrogen-hybrid_msp.jpg" ); url ( "i/e13a06241c5071db29f29833874127cc.jpg" ); url ( "i/audi r10 2.jpg" ); url ( "i/audi r10.jpg" ); display: none; }
+			}
+	</style>
+</head>
+<body>
+<div id="box1">
+</div>
+<div id="box2">
+</div>
+<label for="debug"><input id="debug" type="checkbox" checked> Debug</label>
+
+<div id="debuglog"></div>
+<script defer src="/libs/jquery-1.8.1.min.js"></script>
+<script defer src="/libs/lodash.min.js"></script>
+<script defer src="/libs/signals.min.js"></script>
+<!-- -->
+<script defer src="j/src/TipTap.js"></script>
+<script defer src="j/src/Fsm.js"></script>
+<script defer src="j/src/Mouse.js"></script>
+<script defer src="j/src/Touch.js"></script>
+<script defer src="j/src/Position.js"></script>
+<script defer src="j/src/Finger.js"></script>
+<script defer src="j/src/Pointer.js"></script>
+<script defer src="j/src/RotoZoomer.js"></script>
+<script defer src="j/src/Gesture.js"></script>
+<script defer src="j/src/Action.js"></script>
+<script defer src="j/src/Router.js"></script>
+<!-- - ->
+<script defer src="j/dist/TipTap.min.js"></script> <!-- -->
+<script defer src="j/demo.js"></script>
+<script type="text/javascript">
+	function printStackTrace() {
+		var callstack = [];
+		var isCallstackPopulated = false;
+		try {
+			i.dont.exist += 0; //doesn't exist- that's the point
+		} catch (e) {
+			if (e.stack) { //Firefox
+				var lines = e.stack.split('\n');
+				for (var i = 0, len = lines.length; i < len; i++) {
+					if (lines[i].match(/^\s*[A-Za-z0-9\-_\$]+\(/)) {
+						callstack.push(lines[i]);
+					}
+				}
+				//Remove call to printStackTrace()
+				callstack.shift();
+				isCallstackPopulated = true;
+			}
+			else if (window.opera && e.message) { //Opera
+				lines = e.message.split('\n');
+				for (i = 0, len = lines.length; i < len; i++) {
+					if (lines[i].match(/^\s*[A-Za-z0-9\-_\$]+\(/)) {
+						var entry = lines[i];
+						//Append next line also since it has the file info
+						if (lines[i + 1]) {
+							entry += ' at ' + lines[i + 1];
+							i++;
+						}
+						callstack.push(entry);
+					}
+				}
+				//Remove call to printStackTrace()
+				callstack.shift();
+				isCallstackPopulated = true;
+			}
+		}
+		if (!isCallstackPopulated) { //IE and Safari
+			var currentFunction = arguments.callee.caller;
+			while (currentFunction) {
+				var fn = currentFunction.toString();
+				var fname = fn.substring(fn.indexOf('function') + 8, fn.indexOf('')) || 'anonymous';
+				callstack.push(fname);
+				currentFunction = currentFunction.caller;
+			}
+		}
+		md(callstack.join('<br/>', true));
+	}
+</script>
+</body>
+</html>
