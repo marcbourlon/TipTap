@@ -406,11 +406,15 @@ The pageY (like in DOM) where the gesture happened
 
 ## The included demo
 
+### Dependencies
+
 To run the demo, you need to have a /libs/ folder containing the following files:
 - jquery-1.8.1.min.js
 - lodash.min.js
 - signals.min.js
 They were not included in this repo because I think it's not the way to do.
+
+### Content
 
 The small demo shows the basics of TipTap, like attaching some callbacks to a main element, and to its not yet existing
 children, pretty much like event delegation. Because the only events created are attached to the main container, no need
@@ -419,3 +423,10 @@ to clean anything when removing these sub elements. It also shows some small tip
 on tip or dragStart (in case the user moves the finger too fast for a **tip**), while the recording of the finger must 
 happen during tip or press (in case of fast drag start, again). If highlighting was set for **press** for example, a double
 tap would flash the highlighting because of the two **press** events sent.
+
+### Actions
+- tap the background to pop new images
+- press+drag or tip+drag (press+drag means you touch the screen (click mouse) and move right away, tip means you wait till the image border gets highlighted and shadow shows up) to move the image. On iPad, you can use your ten fingers and your nose to move up to 11 at a time (device limit)
+- with two or more fingers, you can zoom + rotate the pictures (however, as stated, this is not yet connected to decent usable system, it's only visual)
+- double tap an image to zoom by 1.1
+- triple tap an image to dezoom by 1.1

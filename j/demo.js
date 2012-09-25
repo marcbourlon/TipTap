@@ -183,18 +183,6 @@ $(function () {
 		           dragResize(action.gesture, 1);
 	           })
 		.jTipTap('on',
-	           "drag2",
-	           ".test",
-	           function (action) {
-		           dragResize(action.gesture, 1.01);
-	           })
-		.jTipTap('on',
-	           "drag3",
-	           ".test",
-	           function (action) {
-		           dragResize(action.gesture, 0.99);
-	           })
-		.jTipTap('on',
 	           "tip*-untip+|tip*-release+",
 	           ".test",
 	           function (action) {
