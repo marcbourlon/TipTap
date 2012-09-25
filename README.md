@@ -16,12 +16,17 @@ statement as done by Boris Smus about "broken" touch events in browsers, leading
 [pointers](http://smus.com/mouse-touch-pointer/) library. You could see TipTap as a more complete version of "pointers",
 except that Mr Smus codes much better than me :-D
 
+# License
+
+Let's give back to a community who gives me so much: [MIT License](http://www.opensource.org/licenses/mit-license.php)
+
+# The TipTap library
 
 ## So, was it meant to do?
 
 Essentially, its goal is to:
 * provide a unified, input-device agnostic events capturing system: dealing with Mouse, Touch, Augmented Gestures
-	(see [Jérôme Etienne's work](https://github.com/jeromeetienne/augmentedgesture.js)), Leap Motion, etc.
+(see [Jérôme Etienne's work](https://github.com/jeromeetienne/augmentedgesture.js)), Leap Motion, etc.
 * compensate for human lack of accuracy, leading to almost-simultaneous actions of fingers, instead of simultaneous.
 Think of double bi-tap for example, chances are that you will not tap both fingers twice exactly simultaneously.
 Even if you do, you will not always. And now, try with tri-tap, or worse, double tri-swipe! This inaccuracy was one of
