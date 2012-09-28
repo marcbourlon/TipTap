@@ -272,7 +272,7 @@
 			var formattedGesture = gesture.format();
 
 			// shall we include the "tip" prefix in the matching combo?
-			if (TipTap.settings.sendTipPrefixes) {
+			if (TipTap.settings.useTipPrefixes) {
 
 				// get the "background" tipping count to send it: tip3-tip for example
 				tips = TipTap.Gesture.formatGesture(TipTap.Gesture._TIPPED, this.pressedPointersCount);

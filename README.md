@@ -157,8 +157,7 @@ for the app using the library, the idea is to not bother the app till we don't h
 definitions of callbacks. So, after a n-tap, for example, the lib wil wait for a few fractions of a second, in case a
 new event is happening, to chain it in a combo. That's of course ok, but if you want to react on mouse press/touchstart,
 this small amount of time to react will appear to the user as an eternity, or, let's say, will make the UI appear as
-sluggish. So, the solution is to use what I called "notification" gestures. They are sent immediately, and "in parallel" of normal 
-gestures, and can't be in combos, that they would pollute. Examples:
+sluggish. So, the solution is to use what I called "notification" gestures. They are sent immediately, and "in parallel" of normal gestures, and can't be in combos, that they would pollute. Examples:
 - if you touch a screen, move immediately, then release, you will get: press, dragStart, drag (few times),
 dragStop, release.
 - if you double tap a screen, while a finger is already touching, you will get: tip-press, tip-release, tip-tap. **In this
@@ -189,9 +188,7 @@ _swipe_r3_. Dragging with 2 pointers? _drag2_.
 
 (*) pinch and rotate are not yet implemented like this in this alpha release. I'm still not decided on whether I should
 enhance the object returned to the drag callback with some rotation and zoom values, or define _pinch_ and _rotate_ as
-gestures. Indeed, any two (or more) pointers dragging involves some zoom (we are not robots), so either we have a _zoom_ gesture,
-for which we can define precision-triggering threshold, or we have only _drag_ gesture and values of rotation and zoom,
-and the application decides what to do with. **Feedback and suggestions welcome** 
+gestures. Indeed, any two (or more) pointers dragging involves some zoom (we are not robots), so either we have a _zoom_ gesture, for which we can define precision-triggering threshold, or we have only _drag_ gesture and values of rotation and zoom, and the application decides what to do with. **Feedback and suggestions welcome**
 
 
 ## Defining complex gestures
@@ -199,12 +196,16 @@ and the application decides what to do with. **Feedback and suggestions welcome*
 As we saw before, complex gestures are a combination of simultaneous simple gestures. In fact, it's even more reduced
 than this, since you can't really combine _any_ kind of gestures. And it quite makes sense: though we can imagine doing
 some rotation with both hands, chances are that they will happen on different elements, and will as such be defined as
-two different gestures. What is more realistic is combination of _tips_ and _taps_ or _swipes_. You create complex
-gestures by joining simple gestures with a dash (between you and me, not only the dash is changeable by config, but is
-also optional, and was added only because I think it makes things more readable for the coder/user. With all these
-informations, you will have come to the conclusion that most complex gestures will be some "tip-tap" or "tip-swipe"
-gestures: _tip2-tap2_ (two fingers down, tap with two others), _tip-swipe\_b_, etc.
+two different gestures. What is more realistic is combination of _tips_ and (_taps_ or _swipes_).
 
+### With "tip" prefix
+Depending on your usage, you may or not want the lib to use "tip prefixing" (see [Settings](#3). By this, I mean include in the complex gestures definition, the "tip" count for tipping fingers. Example, if you want to trigger an action for every tap happening while two fingers are tipping, you would use: "tip2-tap". This is convenient for some quick application, or some demo, not using any robust routing or finite state machine to deal with complex things. Examples: _tip2-tap2_ (two fingers down, tap with two others), _tip-swipe\_b_, etc.
+
+### Without "tip" prefix
+You define combos and complex gestures without taking into consideration the count of tipping fingers,
+because, somehow, you already deal with this with your routing system, FSM, etc. So,
+since you will already know that you are in the state "tip2", for example, you just define the combo as _tap2_,
+for dealing with a _tip2-tap2_.
 
 ## Pattern matching
 
@@ -305,14 +306,6 @@ rotoZoom: false,
 Global flag to activate or not the rotation and zoom "demo" effect. Will be replaced by more specific flag when these effects are correctly implemented.
 
 ```javascript
-sendTipPrefixes: false,
-```
-
-Include or not the "tip" prefixes in combos for matching: "tip-tap" or just "tap". DEFAULTS TO FALSE because,
-in fact, in a serious application, using some finished state system, it doesn't really make sense,
-and just makes combos definitions counter-intuitive.
-
-```javascript
 simultaneousMovesTimer_ms: 3 * TipTap.TOUCH_REFRESH_ms,
 ```
 
@@ -343,6 +336,15 @@ tapMaxDuration_ms: 150,
 ```
 
 If the pointer goes down without moving / releasing for longer than this, it's a tip.
+
+<a name="3" />
+```javascript
+useTipPrefixes: false,
+```
+
+Include or not the "tip" prefixes in combos for matching: "tip-tap" or just "tap". DEFAULTS TO FALSE because,
+in fact, in a serious application, using some finished state system, it doesn't really make sense,
+and just makes combos definitions counter-intuitive.
 
 
 ## Setting a callback

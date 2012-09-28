@@ -354,8 +354,6 @@
 
 		rotoZoom: false,        // whether to activate the hack of CSS3 rotation/zoom
 
-		sendTipPrefixes: false,  // include or not the "tip" prefixes in combos: "tip-tap" or just "tap"
-
 		simultaneousMovesTimer_ms: 3 * TipTap.TOUCH_REFRESH_ms, // delay accepted between similar events/moves to be considered  as simultaneous
 
 		swipeDuration_ms: 8 * TipTap.TOUCH_REFRESH_ms, // max move duration to still be a swipe
@@ -364,7 +362,9 @@
 
 		swipeMinDisplacement_px: 16, // minimal distance of first move to consider as swipe
 
-		tapMaxDuration_ms: 150 // if down without move for longer than this, it's a tip. Otherwise, move or tap
+		tapMaxDuration_ms: 150, // if down without move for longer than this, it's a tip. Otherwise, move or tap
+
+		useTipPrefixes: false,  // include or not the "tip" prefixes in complex gestures: "tip-tap" or just "tap"
 
 	};
 

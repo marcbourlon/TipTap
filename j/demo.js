@@ -32,7 +32,7 @@ $(function () {
 	TipTap.init(
 		{
 			rotoZoom:        true,
-			sendTipPrefixes: false
+			useTipPrefixes: false
 		}
 	);
 	var boxCount = 0;
