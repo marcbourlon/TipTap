@@ -214,7 +214,7 @@
 		});
 
 		// separate all alternate combos to deal with them one by one: "A|B" -> ["A","B"]
-		var listOfCombos = fullCombo.split(TipTap.settings.ComboAlternateOperator);
+		var listOfCombos = fullCombo.split(TipTap.settings.comboAlternateOperator);
 
 		var listOfProcessedCombos = [];
 
@@ -247,7 +247,7 @@
 
 	Router.lettersAndSeparatorsRE = new RegExp("[" + gesturesLetters +
 		                                           TipTap.settings.comboGesturesSep +
-		                                           TipTap.settings.ComboParallelActionOperator + "]");
+		                                           TipTap.settings.comboParallelActionOperator + "]");
 	Router.modifiersRE = /[\*\+\?]/;
 	Router.modifiersZeroOrRE = /[\*\?]/;
 	Router.numbersRE = /[0-9]/;
@@ -305,7 +305,7 @@
 
 						if (Router.modifiersZeroOrRE.test(c) && (index <= comboLength)) {
 
-							var hasDash = ((combo.charAt(index)) === TipTap.settings.ComboParallelActionOperator);
+							var hasDash = ((combo.charAt(index)) === TipTap.settings.comboParallelActionOperator);
 
 							if (hasDash) {
 

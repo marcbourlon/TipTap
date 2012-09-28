@@ -267,7 +267,7 @@
 			if (tips) {
 
 				// eg: tip3-tip
-				formattedGesture = tips + TipTap.settings.ComboParallelActionOperator + formattedGesture;
+				formattedGesture = tips + TipTap.settings.comboParallelActionOperator + formattedGesture;
 
 			}
 

@@ -344,9 +344,9 @@
 
 		comboGesturesSep: ">", // char to separate combos: tap2>tap2
 
-		ComboAlternateOperator: "|", // char to define alternate combos: press/tip
+		comboAlternateOperator: "|", // char to define alternate combos: press/tip
 
-		ComboParallelActionOperator: "-", // char to show simultaneous actions: tip2-tap2
+		comboParallelActionOperator: "-", // char to show simultaneous actions: tip2-tap2
 
 		moveThreshold_px: TipTap.touch ? 8 : 0, // min distance to consider that the move was intentional
 

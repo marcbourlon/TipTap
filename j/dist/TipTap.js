@@ -358,9 +358,9 @@
 
 		comboGesturesSep: ">", // char to separate combos: tap2>tap2
 
-		ComboParallelActionOperator: "-", // char to show simultaneous actions: tip2-tap2
+		comboParallelActionOperator: "-", // char to show simultaneous actions: tip2-tap2
 
-		ComboAlternateOperator: "|", // char to define alternate combos: press/tip
+		comboAlternateOperator: "|", // char to define alternate combos: press/tip
 
 		debug: true
 
@@ -1218,7 +1218,7 @@ var md = (function () {
 			if (tips) {
 
 				// eg: tip3-tip
-				formattedGesture = tips + TipTap.settings.ComboParallelActionOperator + formattedGesture;
+				formattedGesture = tips + TipTap.settings.comboParallelActionOperator + formattedGesture;
 
 			}
 
@@ -2781,7 +2781,7 @@ var md = (function () {
 		});
 
 		// separate all alternate combos to deal with them one by one: "A|B" -> ["A","B"]
-		var listOfCombos = fullCombo.split(TipTap.settings.ComboAlternateOperator);
+		var listOfCombos = fullCombo.split(TipTap.settings.comboAlternateOperator);
 
 		var listOfProcessedCombos = [];
 
@@ -2814,7 +2814,7 @@ var md = (function () {
 
 	Router.lettersAndSeparatorsRE = new RegExp("[" + gesturesLetters +
 		                                           TipTap.settings.comboGesturesSep +
-		                                           TipTap.settings.ComboParallelActionOperator + "]");
+		                                           TipTap.settings.comboParallelActionOperator + "]");
 	Router.modifiersRE = /[\*\+\?]/;
 	Router.modifiersZeroOrRE = /[\*\?]/;
 	Router.numbersRE = /[0-9]/;
@@ -2872,7 +2872,7 @@ var md = (function () {
 
 						if (Router.modifiersZeroOrRE.test(c) && (index <= comboLength)) {
 
-							var hasDash = ((combo.charAt(index)) === TipTap.settings.ComboParallelActionOperator);
+							var hasDash = ((combo.charAt(index)) === TipTap.settings.comboParallelActionOperator);
 
 							if (hasDash) {
 
