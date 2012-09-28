@@ -39,7 +39,11 @@
 
 		// check if the target has already been processed by RotoZoomer
 		// $target, rotateable, zoomable, autoApply
-		this.rotoZoomer = new TipTap.RotoZoomer(this.$target, true, true, true);
+		if (TipTap.settings.rotoZoom) {
+
+			this.rotoZoomer = new TipTap.RotoZoomer(this.$target, true, true, true);
+
+		}
 
 		// create the Signal objects to send
 		this.createSignals();
@@ -108,7 +112,7 @@
 			}
 
 			// inner "event loop" of gestures treatment
-			this.startProcessGesturesTimer();
+			this.startGesturesListProcessingTimer();
 
 			md(this + ".allocateGesture-4", debugMe);
 
@@ -134,7 +138,7 @@
 
 			var debugMe = true && this.debugMe && TipTap.settings.debug;
 
-			var combo = this.listOfFormattedGestures.join(TipTap.settings.COMBO_GESTURES_SEP);
+			var combo = this.listOfFormattedGestures.join(TipTap.settings.comboGesturesSep);
 
 			md(this + ".buildComboFromGestures-1:[" +
 
@@ -189,14 +193,14 @@
 				md(this + ".consumeDoneGesturesFromFIFO-treating(" + gesture + "." + gesture.status + ")", debugMe);
 
 				// if too recent and not in dragged status
-				if ((TipTap.settings.SIMULTANEOUS_MOVES_TIMER_ms > gesture.age()) &&
+				if ((TipTap.settings.simultaneousMovesTimer_ms > gesture.age()) &&
 					// once in dragged state, send events as soon as possible to avoid "lag", so age doesn't count
 					(gesture.status !== TipTap.Gesture._DRAGGED)) {
 
 					md(this + ".consumeDoneGesturesFromFIFO-too young and != 'dragged', EXITING", debugMe);
 
 					// restart the scheduler to come back later
-					this.startProcessGesturesTimer();
+					this.startGesturesListProcessingTimer();
 
 					// and exit
 					return;
@@ -263,7 +267,7 @@
 			if (tips) {
 
 				// eg: tip3-tip
-				formattedGesture = tips + TipTap.settings.COMBO_PARALLEL_ACTIONS_OP + formattedGesture;
+				formattedGesture = tips + TipTap.settings.ComboParallelActionOperator + formattedGesture;
 
 			}
 
@@ -295,7 +299,7 @@
 
 		},
 
-		startProcessGesturesTimer: function () {
+		startGesturesListProcessingTimer: function () {
 			var debugMe = true && this.debugMe && TipTap.settings.debug;
 
 			if (this.processGestureTimer) {
@@ -311,7 +315,7 @@
 
 				_.bind(this.consumeDoneGesturesFromFIFO, this),
 
-				TipTap.settings.SIMULTANEOUS_MOVES_TIMER_ms / 4
+				TipTap.settings.simultaneousMovesTimer_ms / 4
 
 			);
 
@@ -329,7 +333,7 @@
 
 					_.bind(this.endComboAndMaybeAction, this, gesture),
 
-					TipTap.settings.COMBO_END_TIMER_ms
+					TipTap.settings.comboEndTimer_ms
 
 				);
 
@@ -390,7 +394,10 @@
 	// status callback. Names are dynamically created from gestures codes, avoid keeping two source files in sync
 	Action.prototype[gesture.statusMatchCode[gesture._PRESSED].code] = function (gesture) {
 
-		this.rotoZoomer.onPressed(gesture);
+		if (TipTap.settings.rotoZoom) {
+
+			this.rotoZoomer.onPressed(gesture);
+		}
 
 		// notification gestures are not stored in the formatted list
 		this.buildAndSendNotificationGesture(gesture);
@@ -459,7 +466,11 @@
 
 		md(this + ".drag", debugMe);
 
-		this.rotoZoomer.onDrag(gesture);
+		if (TipTap.settings.rotoZoom) {
+
+			this.rotoZoomer.onDrag(gesture);
+
+		}
 
 		this.gesture = gesture;
 
@@ -470,20 +481,26 @@
 
 	Action.prototype[gesture.statusMatchCode[gesture._DRAG_STOPPED].code] = function (gesture) {
 
-		this.rotoZoomer.onStoppedDragging(gesture);
+		if (TipTap.settings.rotoZoom) {
+
+			this.rotoZoomer.onStoppedDragging(gesture);
+
+		}
 
 		// notification gestures are not stored in the formatted list
-
 		this.buildAndSendNotificationGesture(gesture);
 
 	};
 
 	Action.prototype[gesture.statusMatchCode[gesture._RELEASED].code] = function (gesture) {
 
-		this.rotoZoomer.onReleased(gesture);
+		if (TipTap.settings.rotoZoom) {
+
+			this.rotoZoomer.onReleased(gesture);
+
+		}
 
 		// notification gestures are not stored in the formatted list
-
 		this.buildAndSendNotificationGesture(gesture);
 
 	};

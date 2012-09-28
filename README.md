@@ -329,13 +329,19 @@ Separator of simple gestures in complex gesture: tip2-tap2 (bi-tap while bi-tipp
 COMBO_OR_OPERATOR: "|",
 ```
 
+Global flag to activate or not the rotation and zoom "demo" effect. Will be replaced by more specific flag when these effects are correctly implemented.
+
+```javascript
+rotoZoom: undefined,
+```
+
 Char to define alternate combos: press|tip
 
 ```javascript
 debug: true
 ```
 
-Global flag to "trace" the code
+Global flag to "trace" the code (should be remove from production use, but quite convenient for understanding what's happening in your gestures)
 
 
 ## Setting a callback

@@ -272,10 +272,10 @@
 
 			var debugMe = true && this.debugMe && TipTap.settings.debug;
 
-			md(this + ".onEnd", debugMe);
-
 			// odd (?) usage of _.reduce(): calls finger.end() on all fingers concerned
 			if (_.reduce(this.device.buildEtList(e), _.bind(this.onEndDo, this), TipTap.KEEP_BUBBLING, this)) {
+
+				md(this + ".onEnd", debugMe);
 
 				this.stopEvent(e);
 
@@ -340,27 +340,27 @@
 
 		deviceType: TipTap.DEVICE_MOUSE, // which kind of device do we use
 
-		SIMULTANEOUS_MOVES_TIMER_ms: 3 * TipTap.TOUCH_REFRESH_ms, // delay accepted between similar events/moves to be considered  as simultaneous
+		comboEndTimer_ms: 100, // delay accepted before next tap to keep it in the gesture (like in dblclick)
 
-		TAP_MAX_DURATION_ms: 150, // if down without move for longer than this, it's a tip. Otherwise, move or tap
+		comboGesturesSep: ">", // char to separate combos: tap2>tap2
 
-		SWIPE_START_DELAY_ms: 2 * TipTap.TOUCH_REFRESH_ms, // duration between start and move to take as a swipe
+		ComboAlternateOperator: "|", // char to define alternate combos: press/tip
 
-		SWIPE_DURATION_ms: 8 * TipTap.TOUCH_REFRESH_ms, // max move duration to still be a swipe
+		ComboParallelActionOperator: "-", // char to show simultaneous actions: tip2-tap2
 
-		SWIPE_MIN_DISPLACEMENT_px: 8, // minimal distance of first move to consider as swipe
+		moveThreshold_px: TipTap.touch ? 8 : 0, // min distance to consider that the move was intentional
 
-		SWIPE_MAX_DISTANCE_px: 160, // max distance to still be considered as swipe
+		tapMaxDuration_ms: 150, // if down without move for longer than this, it's a tip. Otherwise, move or tap
 
-		MOVE_THRESHOLD_px: TipTap.touch ? 8 : 0, // min distance to consider that the move was intentional
+		simultaneousMovesTimer_ms: 3 * TipTap.TOUCH_REFRESH_ms, // delay accepted between similar events/moves to be considered  as simultaneous
 
-		COMBO_END_TIMER_ms: 100, // delay accepted before next tap to keep it in the gesture (like in dblclick)
+		swipeDuration_ms: 8 * TipTap.TOUCH_REFRESH_ms, // max move duration to still be a swipe
 
-		COMBO_GESTURES_SEP: ">", // char to separate combos: tap2>tap2
+		swipeMaxDistance_px: 160, // max distance to still be considered as swipe
 
-		COMBO_PARALLEL_ACTIONS_OP: "-", // char to show simultaneous actions: tip2-tap2
+		swipeMinDisplacement_px: 16, // minimal distance of first move to consider as swipe
 
-		COMBO_OR_OPERATOR: "|", // char to define alternate combos: press/tip
+		swipeStartDelay_ms: 2 * TipTap.TOUCH_REFRESH_ms, // duration between start and move to take as a swipe
 
 		debug: true
 

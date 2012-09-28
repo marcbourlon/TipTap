@@ -340,27 +340,27 @@
 
 		deviceType: TipTap.DEVICE_MOUSE, // which kind of device do we use
 
-		SIMULTANEOUS_MOVES_TIMER_ms: 3 * TipTap.TOUCH_REFRESH_ms, // delay accepted between similar events/moves to be considered  as simultaneous
+		simultaneousMovesTimer_ms: 3 * TipTap.TOUCH_REFRESH_ms, // delay accepted between similar events/moves to be considered  as simultaneous
 
-		TAP_MAX_DURATION_ms: 150, // if down without move for longer than this, it's a tip. Otherwise, move or tap
+		tapMaxDuration_ms: 150, // if down without move for longer than this, it's a tip. Otherwise, move or tap
 
-		SWIPE_START_DELAY_ms: 2 * TipTap.TOUCH_REFRESH_ms, // duration between start and move to take as a swipe
+		swipeStartDelay_ms: 2 * TipTap.TOUCH_REFRESH_ms, // duration between start and move to take as a swipe
 
-		SWIPE_DURATION_ms: 8 * TipTap.TOUCH_REFRESH_ms, // max move duration to still be a swipe
+		swipeDuration_ms: 8 * TipTap.TOUCH_REFRESH_ms, // max move duration to still be a swipe
 
-		SWIPE_MIN_DISPLACEMENT_px: 8, // minimal distance of first move to consider as swipe
+		swipeMinDisplacement_px: 8, // minimal distance of first move to consider as swipe
 
-		SWIPE_MAX_DISTANCE_px: 160, // max distance to still be considered as swipe
+		swipeMaxDistance_px: 160, // max distance to still be considered as swipe
 
-		MOVE_THRESHOLD_px: TipTap.touch ? 8 : 0, // min distance to consider that the move was intentional
+		moveThreshold_px: TipTap.touch ? 8 : 0, // min distance to consider that the move was intentional
 
-		COMBO_END_TIMER_ms: 100, // delay accepted before next tap to keep it in the gesture (like in dblclick)
+		comboEndTimer_ms: 100, // delay accepted before next tap to keep it in the gesture (like in dblclick)
 
-		COMBO_GESTURES_SEP: ">", // char to separate combos: tap2>tap2
+		comboGesturesSep: ">", // char to separate combos: tap2>tap2
 
-		COMBO_PARALLEL_ACTIONS_OP: "-", // char to show simultaneous actions: tip2-tap2
+		ComboParallelActionOperator: "-", // char to show simultaneous actions: tip2-tap2
 
-		COMBO_OR_OPERATOR: "|", // char to define alternate combos: press/tip
+		ComboAlternateOperator: "|", // char to define alternate combos: press/tip
 
 		debug: true
 
@@ -990,7 +990,11 @@ var md = (function () {
 
 		// check if the target has already been processed by RotoZoomer
 		// $target, rotateable, zoomable, autoApply
-		this.rotoZoomer = new TipTap.RotoZoomer(this.$target, true, true, true);
+		if (TipTap.settings.rotoZoom) {
+
+			this.rotoZoomer = new TipTap.RotoZoomer(this.$target, true, true, true);
+
+		}
 
 		// create the Signal objects to send
 		this.createSignals();
@@ -1059,7 +1063,7 @@ var md = (function () {
 			}
 
 			// inner "event loop" of gestures treatment
-			this.startProcessGesturesTimer();
+			this.startGesturesListProcessingTimer();
 
 			md(this + ".allocateGesture-4", debugMe);
 
@@ -1085,7 +1089,7 @@ var md = (function () {
 
 			var debugMe = true && this.debugMe && TipTap.settings.debug;
 
-			var combo = this.listOfFormattedGestures.join(TipTap.settings.COMBO_GESTURES_SEP);
+			var combo = this.listOfFormattedGestures.join(TipTap.settings.comboGesturesSep);
 
 			md(this + ".buildComboFromGestures-1:[" +
 
@@ -1140,14 +1144,14 @@ var md = (function () {
 				md(this + ".consumeDoneGesturesFromFIFO-treating(" + gesture + "." + gesture.status + ")", debugMe);
 
 				// if too recent and not in dragged status
-				if ((TipTap.settings.SIMULTANEOUS_MOVES_TIMER_ms > gesture.age()) &&
+				if ((TipTap.settings.simultaneousMovesTimer_ms > gesture.age()) &&
 					// once in dragged state, send events as soon as possible to avoid "lag", so age doesn't count
 					(gesture.status !== TipTap.Gesture._DRAGGED)) {
 
 					md(this + ".consumeDoneGesturesFromFIFO-too young and != 'dragged', EXITING", debugMe);
 
 					// restart the scheduler to come back later
-					this.startProcessGesturesTimer();
+					this.startGesturesListProcessingTimer();
 
 					// and exit
 					return;
@@ -1214,7 +1218,7 @@ var md = (function () {
 			if (tips) {
 
 				// eg: tip3-tip
-				formattedGesture = tips + TipTap.settings.COMBO_PARALLEL_ACTIONS_OP + formattedGesture;
+				formattedGesture = tips + TipTap.settings.ComboParallelActionOperator + formattedGesture;
 
 			}
 
@@ -1246,7 +1250,7 @@ var md = (function () {
 
 		},
 
-		startProcessGesturesTimer: function () {
+		startGesturesListProcessingTimer: function () {
 			var debugMe = true && this.debugMe && TipTap.settings.debug;
 
 			if (this.processGestureTimer) {
@@ -1262,7 +1266,7 @@ var md = (function () {
 
 				_.bind(this.consumeDoneGesturesFromFIFO, this),
 
-				TipTap.settings.SIMULTANEOUS_MOVES_TIMER_ms / 4
+				TipTap.settings.simultaneousMovesTimer_ms / 4
 
 			);
 
@@ -1280,7 +1284,7 @@ var md = (function () {
 
 					_.bind(this.endComboAndMaybeAction, this, gesture),
 
-					TipTap.settings.COMBO_END_TIMER_ms
+					TipTap.settings.comboEndTimer_ms
 
 				);
 
@@ -1341,7 +1345,10 @@ var md = (function () {
 	// status callback. Names are dynamically created from gestures codes, avoid keeping two source files in sync
 	Action.prototype[gesture.statusMatchCode[gesture._PRESSED].code] = function (gesture) {
 
-		this.rotoZoomer.onPressed(gesture);
+		if (TipTap.settings.rotoZoom) {
+
+			this.rotoZoomer.onPressed(gesture);
+		}
 
 		// notification gestures are not stored in the formatted list
 		this.buildAndSendNotificationGesture(gesture);
@@ -1410,7 +1417,11 @@ var md = (function () {
 
 		md(this + ".drag", debugMe);
 
-		this.rotoZoomer.onDrag(gesture);
+		if (TipTap.settings.rotoZoom) {
+
+			this.rotoZoomer.onDrag(gesture);
+
+		}
 
 		this.gesture = gesture;
 
@@ -1421,20 +1432,26 @@ var md = (function () {
 
 	Action.prototype[gesture.statusMatchCode[gesture._DRAG_STOPPED].code] = function (gesture) {
 
-		this.rotoZoomer.onStoppedDragging(gesture);
+		if (TipTap.settings.rotoZoom) {
+
+			this.rotoZoomer.onStoppedDragging(gesture);
+
+		}
 
 		// notification gestures are not stored in the formatted list
-
 		this.buildAndSendNotificationGesture(gesture);
 
 	};
 
 	Action.prototype[gesture.statusMatchCode[gesture._RELEASED].code] = function (gesture) {
 
-		this.rotoZoomer.onReleased(gesture);
+		if (TipTap.settings.rotoZoom) {
+
+			this.rotoZoomer.onReleased(gesture);
+
+		}
 
 		// notification gestures are not stored in the formatted list
-
 		this.buildAndSendNotificationGesture(gesture);
 
 	};
@@ -1471,10 +1488,10 @@ var md = (function () {
 		this.direction = Finger._DIR_NONE;
 
 		// used to store details about the absolute drag: distance (x, y, total), speed (x, y, total), duration
-		this.absDrag = { dx: 0, dy: 0, d: 0, spx: 0, spy: 0, spd: 0, duration_ms: 0 };
+		this.dragDetailsAbsolute = { dx: 0, dy: 0, d: 0, spx: 0, spy: 0, spd: 0, duration_ms: 0 };
 
 		// used to store details about the relative drag (between two last positions)
-		this.relDrag = { dx: 0, dy: 0, d: 0, spx: 0, spy: 0, spd: 0, duration_ms: 0 };
+		this.dragDetailsRelative = { dx: 0, dy: 0, d: 0, spx: 0, spy: 0, spd: 0, duration_ms: 0 };
 
 		// reference to the timer used to switch from tap to tip, allows to kill it when Finger up early
 		this.pressedToTippedTimer = 0;
@@ -1545,7 +1562,7 @@ var md = (function () {
 							var state;
 
 							// if not really dragged, move away without doing anything
-							if (!this.wasReallyDragged()) {
+							if (!this.wasAnUncontrolledMove()) {
 								return TipTap.Fsm._SELF;
 							}
 
@@ -1604,7 +1621,7 @@ var md = (function () {
 							var debugMe = true && TipTap.settings.debug && this.debugMe;
 
 							// if not really dragged, move away without doing anything
-							if (!this.wasReallyDragged()) {
+							if (!this.wasAnUncontrolledMove()) {
 								return TipTap.Fsm._SELF;
 							}
 
@@ -1816,19 +1833,19 @@ var md = (function () {
 			var dx, dy, adx, ady;
 
 			// if this.isMoving is not set, it's the first drag event. Calculate displacement from start position
-			dx = this.relDrag.dx;
+			dx = this.dragDetailsRelative.dx;
 			adx = Math.abs(dx);
-			dy = this.relDrag.dy;
+			dy = this.dragDetailsRelative.dy;
 			ady = Math.abs(dy);
 
 			md(this + ".isSwipingOrDragging-1: " + this.absDrag.duration_ms + "px", debugMe)
 
 			// Swipe is defined by: 'dragged "a lot" and just after "start" '
-			if (this.absDrag.duration_ms <= settings.SWIPE_START_DELAY_ms) {
+			if (this.absDrag.duration_ms <= settings.swipeStartDelay_ms) {
 
 				md(this + ".isSwipingOrDragging-2", debugMe)
 				if (adx >= ady) {
-					if (adx >= settings.SWIPE_MIN_DISPLACEMENT_px) {
+					if (adx >= settings.swipeMinDisplacement_px) {
 						if (dx > 0) {
 							md(this + ".isSwipingOrDragging > swipe-r", debugMe)
 							this.direction = Finger._DIR_RIGHT;
@@ -1838,7 +1855,7 @@ var md = (function () {
 						}
 					}
 				} else {
-					if (ady >= settings.SWIPE_MIN_DISPLACEMENT_px) {
+					if (ady >= settings.swipeMinDisplacement_px) {
 						if (dy > 0) {
 							md(this + ".isSwipingOrDragging > swipe-b", debugMe)
 							this.direction = Finger._DIR_BOTTOM;
@@ -1859,8 +1876,8 @@ var md = (function () {
 
 			md(this + ".notSwipingAnymore: " + this.absDrag.duration_ms + "ms, " + this.absDrag.d + "px", debugMe)
 
-			return (this.absDrag.duration_ms > settings.SWIPE_DURATION_ms) ||
-				(this.absDrag.d > settings.SWIPE_MAX_DISTANCE_px);
+			return (this.absDrag.duration_ms > settings.swipeDuration_ms) ||
+				(this.absDrag.d > settings.swipeMaxDistance_px);
 		},
 
 		onDrag: function (eventTouch) {
@@ -1869,8 +1886,8 @@ var md = (function () {
 			this.storePosition(eventTouch);
 
 			// computes all the important movement values: distance, speed, duration_ms...
-			this.absDrag = this.computeAbsMove();
-			this.relDrag = this.computeRelMove();
+			this.dragDetailsAbsolute = this.computeAbsMove();
+			this.dragDetailsRelative = this.computeRelMove();
 
 			Finger.fsm.dragged.call(this);
 		},
@@ -1904,7 +1921,7 @@ var md = (function () {
 
 				// start the timer
 				this.pressedToTippedTimer = setTimeout(_.bind(this.pressedToTipped, this),
-				                                       TipTap.settings.TAP_MAX_DURATION_ms);
+				                                       TipTap.settings.tapMaxDuration_ms);
 
 			}
 		},
@@ -1917,15 +1934,15 @@ var md = (function () {
 			return "---F#" + this.identifier;
 		},
 
-		wasReallyDragged: function () {
+		wasAnUncontrolledMove: function () {
 			var debugMe = true && TipTap.settings.debug && this.debugMe;
 
 			var settings = TipTap.settings;
 
-			md(this + ".wasReallyDragged", debugMe);
+			md(this + ".wasAnUncontrolledMove", debugMe);
 
-			return ((Math.abs(this.absDrag.dx) > settings.MOVE_THRESHOLD_px) ||
-				(Math.abs(this.absDrag.dy) > settings.MOVE_THRESHOLD_px));
+			return ((Math.abs(this.absDrag.dx) > settings.moveThreshold_px) ||
+				(Math.abs(this.absDrag.dy) > settings.moveThreshold_px));
 		}
 	};
 
@@ -2764,7 +2781,7 @@ var md = (function () {
 		});
 
 		// separate all alternate combos to deal with them one by one: "A|B" -> ["A","B"]
-		var listOfCombos = fullCombo.split(TipTap.settings.COMBO_OR_OPERATOR);
+		var listOfCombos = fullCombo.split(TipTap.settings.ComboAlternateOperator);
 
 		var listOfProcessedCombos = [];
 
@@ -2796,8 +2813,8 @@ var md = (function () {
 
 
 	Router.lettersAndSeparatorsRE = new RegExp("[" + gesturesLetters +
-		                                           TipTap.settings.COMBO_GESTURES_SEP +
-		                                           TipTap.settings.COMBO_PARALLEL_ACTIONS_OP + "]");
+		                                           TipTap.settings.comboGesturesSep +
+		                                           TipTap.settings.ComboParallelActionOperator + "]");
 	Router.modifiersRE = /[\*\+\?]/;
 	Router.modifiersZeroOrRE = /[\*\?]/;
 	Router.numbersRE = /[0-9]/;
@@ -2855,7 +2872,7 @@ var md = (function () {
 
 						if (Router.modifiersZeroOrRE.test(c) && (index <= comboLength)) {
 
-							var hasDash = ((combo.charAt(index)) === TipTap.settings.COMBO_PARALLEL_ACTIONS_OP);
+							var hasDash = ((combo.charAt(index)) === TipTap.settings.ComboParallelActionOperator);
 
 							if (hasDash) {
 

@@ -1,17 +1,3 @@
-/*require.config(
- {
- paths: {
- 'jquery':     'l/jquery-1.7.1.min',
- 'underscore': 'l/underscore-min',
- },
- shim:  {
- 'underscore': {
- exports: '_'
- }
- }
- }
- );
- */
 var positionsList = [];
 var imgFiles = [
 	"Pagani-Zonda-R-3.jpg",
@@ -43,7 +29,7 @@ var imgFiles = [
 ];
 
 $(function () {
-	TipTap.init({});
+	TipTap.init({ rotoZoom: true });
 	var boxCount = 0;
 	var zIndex = 1;
 
@@ -91,7 +77,7 @@ $(function () {
 		           }
 	           })
 		.jTipTap('on',
-	           "swipe_r",
+	           "tip*-swipe_r>untip",
 	           ".test",
 	           function (action) {
 		           var debugMe = true && TipTap.settings.debug;
