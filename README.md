@@ -256,92 +256,93 @@ finger(s) is(are) removed.
 You must first call TipTap.init(), passing an optional settings object. The list of fields and their default value:
 
 ```javascript
+comboAlternateOperator: "|",
+```
+
+Char to define alternate combos: press|tip
+
+```javascript
+comboEndTimer_ms: 100,
+```
+
+Max delay between two actions in a same combo (like time between two clicks in a double-click)
+
+```javascript
+comboGesturesSep: ">",
+```
+
+Separator of gestures in combos: tap2**>**tap2 (double bi-tap)
+
+```javascript
+comboParallelActionOperator: "-",
+```
+
+Separator of simple gestures in complex gesture: tip2-tap2 (bi-tap while bi-tipping)
+
+```javascript
+debug: true
+```
+
+Global flag to "trace" the code (this and related code should be remove from production use, but quite convenient for understanding what's happening in your gestures)
+
+```javascript
 deviceType: TipTap.DEVICE_MOUSE,
 ```
 
 Can be TipTap.DEVICE_MOUSE or TipTap.DEVICE_TOUCH. If you want to force the type of device on which to work. In practice,
-it doesn't make sense, and you should let the library define by itself what type of device to use.
+it doesn't make sense to force it, and you should let the library define by itself what type of device to use.
 
 ```javascript
-SIMULTANEOUS_MOVES_TIMER_ms: 3 * TipTap.TOUCH_REFRESH_ms,
+moveThreshold_px: TipTap.touch ? 8 : 0,
+```
+
+When you think your finger is perfectly still on the screen, it's in fact moving, most of the time. This is another tolerance factor.
+
+```javascript
+rotoZoom: false,
+```
+
+Global flag to activate or not the rotation and zoom "demo" effect. Will be replaced by more specific flag when these effects are correctly implemented.
+
+```javascript
+sendTipPrefixes: false,
+```
+
+Include or not the "tip" prefixes in combos for matching: "tip-tap" or just "tap". DEFAULTS TO FALSE because,
+in fact, in a serious application, using some finished state system, it doesn't really make sense,
+and just makes combos definitions counter-intuitive.
+
+```javascript
+simultaneousMovesTimer_ms: 3 * TipTap.TOUCH_REFRESH_ms,
 ```
 
 Delay accepted between similar events/moves to be considered as simultaneous. It's one of the key reasons of this library,
 compensating for not perfect simultaneity of fingers tapping for example.
 
 ```javascript
-TAP_MAX_DURATION_ms: 150,
+swipeDuration_ms: 8 * TipTap.TOUCH_REFRESH_ms,
 ```
 
-If the pointer goes down without moving / releasing for longer than this, it's a tip.
+Longest move duration to still be considered as a swipe (moving the finger, even fast, all along the screen is not a swipe)
 
 ```javascript
-SWIPE_START_DELAY_ms: 2 * TipTap.TOUCH_REFRESH_ms,
+swipeMaxDistance_px: 160,
 ```
 
-Define how fast the user must move his pointer so that the move is considered as a swipe, and not a simple move.
+Maximum dragged distance to still be a swipe.
 
 ```javascript
-SWIPE_DURATION_ms: 8 * TipTap.TOUCH_REFRESH_ms,
-```
-
-Max move duration to still be a swipe (moving the finger, even fast, all along the screen is not a swipe)
-
-```javascript
-SWIPE_MIN_DISPLACEMENT_px: 8,
+swipeMinDisplacement_px: 8,
 ```
 
 Speed being distance / time, define the minimal distance covered by the first drag to consider as swipe. It's not
 retina friendly. In fact, it's not multi-DPI friendly, and needs improvement!
 
 ```javascript
-SWIPE_MAX_DISTANCE_px: 160,
+tapMaxDuration_ms: 150,
 ```
 
-Max dragged distance to still be a swipe.
-
-```javascript
-MOVE_THRESHOLD_px: TipTap.touch ? 8 : 0,
-```
-
-When you think your finger is perfectly still on the screen, it's in fact moving, most of the time. This is a tolerance
-factor.
-
-```javascript
-COMBO_END_TIMER_ms: 100,
-```
-
-Max delay between two actions in a same combo (like time between two clicks in a double-click)
-
-```javascript
-COMBO_GESTURES_SEP: ">",
-```
-
-Separator of gestures in combos: tap2**>**tap2 (double bi-tap)
-
-```javascript
-COMBO_PARALLEL_ACTIONS_OP: "-",
-```
-
-Separator of simple gestures in complex gesture: tip2-tap2 (bi-tap while bi-tipping)
- 
-```javascript
-COMBO_OR_OPERATOR: "|",
-```
-
-Global flag to activate or not the rotation and zoom "demo" effect. Will be replaced by more specific flag when these effects are correctly implemented.
-
-```javascript
-rotoZoom: undefined,
-```
-
-Char to define alternate combos: press|tip
-
-```javascript
-debug: true
-```
-
-Global flag to "trace" the code (should be remove from production use, but quite convenient for understanding what's happening in your gestures)
+If the pointer goes down without moving / releasing for longer than this, it's a tip.
 
 
 ## Setting a callback

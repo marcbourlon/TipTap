@@ -12,10 +12,8 @@
 
 		md(this + '.new(' + $target[0].id + '")', debugMe);
 
-		this.$target = $target;
-
-		// todo: change $target to target when no more jQuery dependency. Ideal would be a "plus" mode for jQuery
-		//this.target = this.$target.get(0);
+		// function bound with the gesture to use when called. Allows to call it from setTimeout or immediate (untip)
+		this.boundEndComboAndMaybeAction = null;
 
 		// store the reference to the timer waiting for a following Gesture. Allow to kill the timer
 		this.endComboAndMaybeActionTimer = 0;
@@ -36,6 +34,11 @@
 
 		// "pointer" on the setTimeout of Gesture FIFO processing (scheduler)
 		this.processGestureTimer = 0;
+
+		this.$target = $target;
+
+		// todo: change $target to target when no more jQuery dependency. Ideal would be a "plus" mode for jQuery
+		//this.target = this.$target.get(0);
 
 		// check if the target has already been processed by RotoZoomer
 		// $target, rotateable, zoomable, autoApply
@@ -107,6 +110,7 @@
 
 			} else {
 
+				// shouldn't happen
 				md(this + ".allocateGesture-using gesture " + gesture, debugMe, "#00F");
 
 			}
@@ -140,9 +144,7 @@
 
 			var combo = this.listOfFormattedGestures.join(TipTap.settings.comboGesturesSep);
 
-			md(this + ".buildComboFromGestures-1:[" +
-
-				   combo + "]", debugMe);
+			md(this + ".buildComboClearGesturesAndSendCombo-1:[" + combo + "]", debugMe);
 
 			this.clearListOfFormattedGestures();
 
@@ -240,9 +242,8 @@
 
 		endComboAndMaybeAction: function (gesture) {
 			var debugMe = true && this.debugMe && TipTap.settings.debug;
-			var combo;
 
-			md(this + ".sendComboAndEndAction-1(" + this.endComboAndMaybeActionTimer + ", " + gesture + ")", debugMe, "");
+			md(this + ".endComboAndMaybeAction-1(" + this.endComboAndMaybeActionTimer + ", " + gesture + ")", debugMe, "");
 
 			this.endComboAndMaybeActionTimer = 0;
 
@@ -250,6 +251,15 @@
 
 			// if no more Pointers active, kill the Action
 			this.terminateIfEmpty();
+
+		},
+
+		flushPreviousGesture: function () {
+
+			// in case of untip, we must flush previous complex gestures because combos are for Tap and Swipe only
+			this.boundEndComboAndMaybeAction && this.boundEndComboAndMaybeAction();
+
+			this.boundEndComboAndMaybeAction = null;
 
 		},
 
@@ -261,13 +271,18 @@
 
 			var formattedGesture = gesture.format();
 
-			// get the "background" tipping count to send it: tip3tip for example
-			tips = TipTap.Gesture.formatGesture(TipTap.Gesture._TIPPED, this.pressedPointersCount);
+			// shall we include the "tip" prefix in the matching combo?
+			if (TipTap.settings.sendTipPrefixes) {
 
-			if (tips) {
+				// get the "background" tipping count to send it: tip3-tip for example
+				tips = TipTap.Gesture.formatGesture(TipTap.Gesture._TIPPED, this.pressedPointersCount);
 
-				// eg: tip3-tip
-				formattedGesture = tips + TipTap.settings.comboParallelActionOperator + formattedGesture;
+				if (tips) {
+
+					// eg: tip3-tip
+					formattedGesture = tips + TipTap.settings.comboParallelActionOperator + formattedGesture;
+
+				}
 
 			}
 
@@ -326,12 +341,14 @@
 		startSendComboAndEndActionTimer: function (gesture) {
 			var debugMe = true && this.debugMe && TipTap.settings.debug;
 
+			this.boundEndComboAndMaybeAction = _.bind(this.endComboAndMaybeAction, this, gesture);
+
 			// tap/swipe wait for the time needed to do a possible next gesture within the same combo
 			this.endComboAndMaybeActionTimer =
 
 				setTimeout(
 
-					_.bind(this.endComboAndMaybeAction, this, gesture),
+					this.boundEndComboAndMaybeAction,
 
 					TipTap.settings.comboEndTimer_ms
 
@@ -414,7 +431,7 @@
 				// store gesture at the last moment, to avoid issue with "release", due to small wait for tab/swipe
 				this.formatAndStoreGesture(gesture);
 
-				// only tab and swipe are "chainable" anymore, doing tip and fast tap after doesn't make much sense as a Combo
+				// only tab and swipe are "chainable" anymore, doing tip and a tap shortly after doesn't make much sense as a Combo
 				this.startSendComboAndEndActionTimer(gesture);
 
 			};
@@ -441,10 +458,13 @@
 
 		this.pressedPointersCount -= gesture.pointersCount();
 
-		this.formatAndStoreGesture(gesture);
-
-		// cancel any planned automatic sending, because a tip causes immediate sending
+		// cancel any planned automatic sending, because an untip causes immediate sending
 		this.cancelSendComboAndEndActionTimer();
+
+		// an untip must not be chained to previous gestures anymore, doesn't really make sense
+		this.flushPreviousGesture();
+
+		this.formatAndStoreGesture(gesture);
 
 		this.buildComboClearGesturesAndSendCombo(gesture);
 

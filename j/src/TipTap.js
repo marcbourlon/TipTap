@@ -338,19 +338,23 @@
 
 	TipTap.settings = {
 
-		deviceType: TipTap.DEVICE_MOUSE, // which kind of device do we use
+		comboAlternateOperator: "|", // char to define alternate combos: press/tip
 
-		comboEndTimer_ms: 100, // delay accepted before next tap to keep it in the gesture (like in dblclick)
+		comboEndTimer_ms: 100, // delay accepted before next tap or swipe to keep it in the gesture (like in dblclick)
 
 		comboGesturesSep: ">", // char to separate combos: tap2>tap2
 
-		comboAlternateOperator: "|", // char to define alternate combos: press/tip
-
 		comboParallelActionOperator: "-", // char to show simultaneous actions: tip2-tap2
+
+		debug: true,
+
+		deviceType: TipTap.DEVICE_MOUSE, // which kind of device do we use
 
 		moveThreshold_px: TipTap.touch ? 8 : 0, // min distance to consider that the move was intentional
 
-		tapMaxDuration_ms: 150, // if down without move for longer than this, it's a tip. Otherwise, move or tap
+		rotoZoom: false,        // whether to activate the hack of CSS3 rotation/zoom
+
+		sendTipPrefixes: false,  // include or not the "tip" prefixes in combos: "tip-tap" or just "tap"
 
 		simultaneousMovesTimer_ms: 3 * TipTap.TOUCH_REFRESH_ms, // delay accepted between similar events/moves to be considered  as simultaneous
 
@@ -360,9 +364,7 @@
 
 		swipeMinDisplacement_px: 16, // minimal distance of first move to consider as swipe
 
-		swipeStartDelay_ms: 2 * TipTap.TOUCH_REFRESH_ms, // duration between start and move to take as a swipe
-
-		debug: true
+		tapMaxDuration_ms: 150 // if down without move for longer than this, it's a tip. Otherwise, move or tap
 
 	};
 

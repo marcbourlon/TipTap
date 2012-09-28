@@ -162,7 +162,7 @@
 
 		toString: function () {
 
-			return "--G#" + this.id + Gesture.statusMatchCode[this.status].code;
+			return "--G#" + this.id + "-" + Gesture.statusMatchCode[this.status].code;
 
 		}
 

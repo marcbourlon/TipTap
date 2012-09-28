@@ -29,7 +29,12 @@ var imgFiles = [
 ];
 
 $(function () {
-	TipTap.init({ rotoZoom: true });
+	TipTap.init(
+		{
+			rotoZoom:        true,
+			sendTipPrefixes: false
+		}
+	);
 	var boxCount = 0;
 	var zIndex = 1;
 
@@ -77,7 +82,7 @@ $(function () {
 		           }
 	           })
 		.jTipTap('on',
-	           "tip*-swipe_r>untip",
+	           "swipe_r",
 	           ".test",
 	           function (action) {
 		           var debugMe = true && TipTap.settings.debug;
@@ -134,7 +139,7 @@ $(function () {
 
 	           })
 		.jTipTap('on',
-	           "tip*-tip+|tip*-press+",
+	           "tip+|press+",
 	           ".test",
 	           function (action) {
 		           var $target;
@@ -169,7 +174,7 @@ $(function () {
 		           dragResize(action.gesture, 1);
 	           })
 		.jTipTap('on',
-	           "tip*-untip+|tip*-release+",
+	           "untip+|release+",
 	           ".test",
 	           function (action) {
 		           var debugMe = true && TipTap.settings.debug;
