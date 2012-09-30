@@ -272,10 +272,10 @@
 
 			var debugMe = true && this.debugMe && TipTap.settings.debug;
 
-			md(this + ".onEnd", debugMe);
-
 			// odd (?) usage of _.reduce(): calls finger.end() on all fingers concerned
 			if (_.reduce(this.device.buildEtList(e), _.bind(this.onEndDo, this), TipTap.KEEP_BUBBLING, this)) {
+
+				md(this + ".onEnd", debugMe);
 
 				this.stopEvent(e);
 
@@ -338,31 +338,35 @@
 
 	TipTap.settings = {
 
-		deviceType: TipTap.DEVICE_MOUSE, // which kind of device do we use
+		comboAlternateOperator: "|", // char to define alternate combos: press/tip
 
-		simultaneousMovesTimer_ms: 3 * TipTap.TOUCH_REFRESH_ms, // delay accepted between similar events/moves to be considered  as simultaneous
-
-		tapMaxDuration_ms: 150, // if down without move for longer than this, it's a tip. Otherwise, move or tap
-
-		swipeStartDelay_ms: 2 * TipTap.TOUCH_REFRESH_ms, // duration between start and move to take as a swipe
-
-		swipeDuration_ms: 8 * TipTap.TOUCH_REFRESH_ms, // max move duration to still be a swipe
-
-		swipeMinDisplacement_px: 8, // minimal distance of first move to consider as swipe
-
-		swipeMaxDistance_px: 160, // max distance to still be considered as swipe
-
-		moveThreshold_px: TipTap.touch ? 8 : 0, // min distance to consider that the move was intentional
-
-		comboEndTimer_ms: 100, // delay accepted before next tap to keep it in the gesture (like in dblclick)
+		comboEndTimer_ms: 100, // delay accepted before next tap or swipe to keep it in the gesture (like in dblclick)
 
 		comboGesturesSep: ">", // char to separate combos: tap2>tap2
 
 		comboParallelActionOperator: "-", // char to show simultaneous actions: tip2-tap2
 
-		comboAlternateOperator: "|", // char to define alternate combos: press/tip
+		debug: true,
 
-		debug: true
+		deviceType: TipTap.DEVICE_MOUSE, // which kind of device do we use
+
+		moveThreshold_px: TipTap.touch ? 8 : 0, // min distance to consider that the move was intentional
+
+		rotoZoom: false,        // whether to activate the hack of CSS3 rotation/zoom
+
+		simultaneousMovesTimer_ms: 3 * TipTap.TOUCH_REFRESH_ms, // delay accepted between similar events/moves to be considered  as simultaneous
+
+		swipeDuration_ms: 8 * TipTap.TOUCH_REFRESH_ms, // max move duration to still be a swipe
+
+		swipeMaxDistance_px: 160, // max distance to still be considered as swipe
+
+		swipeMinDisplacement_px: 16, // minimal distance of first move to consider as swipe
+
+		tapMaxDuration_ms: 150, // if down without move for longer than this, it's a tip. Otherwise, move or tap
+
+		useBorisSmusPointersPolyfill: false,  // use Boris Smus pointers polyfill
+
+		useTipPrefixes: false,  // include or not the "tip" prefixes in complex gestures: "tip-tap" or just "tap"
 
 	};
 
@@ -824,7 +828,7 @@ var md = (function () {
 
 		toString: function () {
 
-			return "--G#" + this.id + Gesture.statusMatchCode[this.status].code;
+			return "--G#" + this.id + "-" + Gesture.statusMatchCode[this.status].code;
 
 		}
 
@@ -963,10 +967,8 @@ var md = (function () {
 
 		md(this + '.new(' + $target[0].id + '")', debugMe);
 
-		this.$target = $target;
-
-		// todo: change $target to target when no more jQuery dependency. Ideal would be a "plus" mode for jQuery
-		//this.target = this.$target.get(0);
+		// function bound with the gesture to use when called. Allows to call it from setTimeout or immediate (untip)
+		this.boundEndComboAndMaybeAction = null;
 
 		// store the reference to the timer waiting for a following Gesture. Allow to kill the timer
 		this.endComboAndMaybeActionTimer = 0;
@@ -987,6 +989,11 @@ var md = (function () {
 
 		// "pointer" on the setTimeout of Gesture FIFO processing (scheduler)
 		this.processGestureTimer = 0;
+
+		this.$target = $target;
+
+		// todo: change $target to target when no more jQuery dependency. Ideal would be a "plus" mode for jQuery
+		//this.target = this.$target.get(0);
 
 		// check if the target has already been processed by RotoZoomer
 		// $target, rotateable, zoomable, autoApply
@@ -1020,17 +1027,16 @@ var md = (function () {
 		allocateGesture: function (status, finger) {
 			var debugMe = true && this.debugMe && TipTap.settings.debug;
 			var gesture;
-			/*
-			 CLONE the pointer, because:
-			 1) the same can be used for different states (PRESSED and TIPPED or TAPPED)
-			 2) to not let Finger alive because of links to living Pointers
-			 */
-			var pointer;
 
 			md(this + ".allocateGesture-1(" + TipTap.Gesture.statusMatchCode[status].code + ")", debugMe);
 
+			/*
+			 CLONE the pointerInfos, because:
+			 1) the same can be used for different states (PRESSED and TIPPED or TAPPED)
+			 2) to not let Finger alive because of links to living Pointers
+			 */
 			// copy Finger position, plus some stuff
-			pointer = new TipTap.Pointer(finger, status);
+			var pointerInfos = new TipTap.PointerInfos(finger, status);
 
 			if (TipTap.Gesture._PRESSED === status) {
 
@@ -1039,10 +1045,10 @@ var md = (function () {
 
 			}
 
-			// is there a Gesture which can accept this pointer?
+			// is there a Gesture which can accept this pointerInfos?
 			gesture = _.find(this.fifoOfGestures, function (g) {
 
-				return g.canThisPointerBeAdded(pointer);
+				return g.canThisPointerBeAdded(pointerInfos);
 
 			}, this);
 
@@ -1058,6 +1064,7 @@ var md = (function () {
 
 			} else {
 
+				// shouldn't happen
 				md(this + ".allocateGesture-using gesture " + gesture, debugMe, "#00F");
 
 			}
@@ -1067,7 +1074,7 @@ var md = (function () {
 
 			md(this + ".allocateGesture-4", debugMe);
 
-			gesture.addPointer(pointer);
+			gesture.addPointer(pointerInfos);
 
 			return gesture;
 
@@ -1091,9 +1098,7 @@ var md = (function () {
 
 			var combo = this.listOfFormattedGestures.join(TipTap.settings.comboGesturesSep);
 
-			md(this + ".buildComboFromGestures-1:[" +
-
-				   combo + "]", debugMe);
+			md(this + ".buildComboClearGesturesAndSendCombo-1:[" + combo + "]", debugMe);
 
 			this.clearListOfFormattedGestures();
 
@@ -1191,9 +1196,8 @@ var md = (function () {
 
 		endComboAndMaybeAction: function (gesture) {
 			var debugMe = true && this.debugMe && TipTap.settings.debug;
-			var combo;
 
-			md(this + ".sendComboAndEndAction-1(" + this.endComboAndMaybeActionTimer + ", " + gesture + ")", debugMe, "");
+			md(this + ".endComboAndMaybeAction-1(" + this.endComboAndMaybeActionTimer + ", " + gesture + ")", debugMe, "");
 
 			this.endComboAndMaybeActionTimer = 0;
 
@@ -1201,6 +1205,15 @@ var md = (function () {
 
 			// if no more Pointers active, kill the Action
 			this.terminateIfEmpty();
+
+		},
+
+		flushPreviousGesture: function () {
+
+			// in case of untip, we must flush previous complex gestures because combos are for Tap and Swipe only
+			this.boundEndComboAndMaybeAction && this.boundEndComboAndMaybeAction();
+
+			this.boundEndComboAndMaybeAction = null;
 
 		},
 
@@ -1212,13 +1225,18 @@ var md = (function () {
 
 			var formattedGesture = gesture.format();
 
-			// get the "background" tipping count to send it: tip3tip for example
-			tips = TipTap.Gesture.formatGesture(TipTap.Gesture._TIPPED, this.pressedPointersCount);
+			// shall we include the "tip" prefix in the matching combo?
+			if (TipTap.settings.useTipPrefixes) {
 
-			if (tips) {
+				// get the "background" tipping count to send it: tip3-tip for example
+				tips = TipTap.Gesture.formatGesture(TipTap.Gesture._TIPPED, this.pressedPointersCount);
 
-				// eg: tip3-tip
-				formattedGesture = tips + TipTap.settings.comboParallelActionOperator + formattedGesture;
+				if (tips) {
+
+					// eg: tip3-tip
+					formattedGesture = tips + TipTap.settings.comboParallelActionOperator + formattedGesture;
+
+				}
 
 			}
 
@@ -1277,12 +1295,14 @@ var md = (function () {
 		startSendComboAndEndActionTimer: function (gesture) {
 			var debugMe = true && this.debugMe && TipTap.settings.debug;
 
+			this.boundEndComboAndMaybeAction = _.bind(this.endComboAndMaybeAction, this, gesture);
+
 			// tap/swipe wait for the time needed to do a possible next gesture within the same combo
 			this.endComboAndMaybeActionTimer =
 
 				setTimeout(
 
-					_.bind(this.endComboAndMaybeAction, this, gesture),
+					this.boundEndComboAndMaybeAction,
 
 					TipTap.settings.comboEndTimer_ms
 
@@ -1365,7 +1385,7 @@ var md = (function () {
 				// store gesture at the last moment, to avoid issue with "release", due to small wait for tab/swipe
 				this.formatAndStoreGesture(gesture);
 
-				// only tab and swipe are "chainable" anymore, doing tip and fast tap after doesn't make much sense as a Combo
+				// only tab and swipe are "chainable" anymore, doing tip and a tap shortly after doesn't make much sense as a Combo
 				this.startSendComboAndEndActionTimer(gesture);
 
 			};
@@ -1392,10 +1412,13 @@ var md = (function () {
 
 		this.pressedPointersCount -= gesture.pointersCount();
 
-		this.formatAndStoreGesture(gesture);
-
-		// cancel any planned automatic sending, because a tip causes immediate sending
+		// cancel any planned automatic sending, because an untip causes immediate sending
 		this.cancelSendComboAndEndActionTimer();
+
+		// an untip must not be chained to previous gestures anymore, doesn't really make sense
+		this.flushPreviousGesture();
+
+		this.formatAndStoreGesture(gesture);
 
 		this.buildComboClearGesturesAndSendCombo(gesture);
 
@@ -1477,15 +1500,15 @@ var md = (function () {
 
 		var debugMe = true && TipTap.settings.debug && this.debugMe;
 
-		// to store the list of "pointer" informations for this Finger during its life
-		this.listOfPositions = [];
+		this.direction = Finger._DIR_NONE;
 
 		this.identifier = eventTouch.identifier;
 
-		// important to keep $target to force it to new Pointers (fast moves can make mouse go out of initial $target)
-		this.$target = eventTouch.$target;
+		// the flag is set if the Finger has tipped before doing other things. Simplifies FSM logic a lot!!
+		this.isTipping = false;
 
-		this.direction = Finger._DIR_NONE;
+		// to store the list of "pointer" informations for this Finger during its life
+		this.listOfPositions = [];
 
 		// used to store details about the absolute drag: distance (x, y, total), speed (x, y, total), duration
 		this.dragDetailsAbsolute = { dx: 0, dy: 0, d: 0, spx: 0, spy: 0, spd: 0, duration_ms: 0 };
@@ -1496,7 +1519,15 @@ var md = (function () {
 		// reference to the timer used to switch from tap to tip, allows to kill it when Finger up early
 		this.pressedToTippedTimer = 0;
 
-		// the Signals to send to watchers
+		// index of the positions list of when the swipe started (to calculate values)
+		this.swipeStartPositionIndex = 0;
+
+		// important to keep $target to force it to new Pointers (fast moves can make mouse go out of initial $target)
+		this.$target = eventTouch.$target;
+
+		// methods calls at creation
+
+		// create the Signals to send to listeners
 		this.createSignals();
 
 		// we store all positions
@@ -1550,6 +1581,12 @@ var md = (function () {
 
 							md(this + "-fsm(pressing-pressedToTipped-tipping)", debugMe)
 
+							/*
+							 swipe and dragStop are fully similar and can be done from press or tip. But in the case of coming
+							 after a tip, we need to send untip at the end. A flag allows to avoid FSM states duplication
+							 */
+							this.isTipping = true;
+
 							this.tipped.dispatch(this);
 
 						}
@@ -1558,38 +1595,9 @@ var md = (function () {
 						signal: "dragged",
 						to:     TipTap.Fsm._CALC,
 						action: function () {
-							var debugMe = true && TipTap.settings.debug && this.debugMe;
-							var state;
 
-							// if not really dragged, move away without doing anything
-							if (!this.wasAnUncontrolledMove()) {
-								return TipTap.Fsm._SELF;
-							}
+							return this.fsmDraggedTransition();
 
-							md(this + "-fsm(pressing-dragged-1)", debugMe);
-
-							// because we moved for good, we cancel the planned change of state
-							this.cancelPressedToTippedTimer();
-
-							// detects if the move is a swipe
-							state = this.isSwipingOrDragging();
-
-							md(this + "-fsm(pressing-dragged-2)", debugMe);
-
-							// if we detect a swipe, we must go to the corresponding state
-							if (state === "swiping") {
-								return state;
-							}
-
-							md(this + "-fsm(pressing-dragged-3)", debugMe);
-
-							// tell the world we started a drag :-)
-							this.dragStarted.dispatch(this);
-
-							// and that we dragged
-							this.dragged.dispatch(this);
-
-							return "dragging";
 						}
 					},
 					{
@@ -1618,23 +1626,9 @@ var md = (function () {
 						signal: "dragged",
 						to:     TipTap.Fsm._CALC,
 						action: function () {
-							var debugMe = true && TipTap.settings.debug && this.debugMe;
 
-							// if not really dragged, move away without doing anything
-							if (!this.wasAnUncontrolledMove()) {
-								return TipTap.Fsm._SELF;
-							}
+							return this.fsmDraggedTransition();
 
-							md(this + "-fsm(tipping-dragged-1)", debugMe);
-
-							this.dragStarted.dispatch(this);
-
-							// and that we dragged
-							this.dragged.dispatch(this);
-
-							md(this + "-fsm(tipping-dragged-2)", debugMe);
-
-							return "dragging";
 						}
 					},
 					{
@@ -1677,7 +1671,12 @@ var md = (function () {
 
 							md(this + "-fsm(dragging-ended-1)", debugMe)
 
-							this.untipped.dispatch(this);
+							// usage of this flag simplifies the Fsm
+							if (this.isTipping) {
+
+								this.untipped.dispatch(this);
+
+							}
 
 							this.released.dispatch(this);
 
@@ -1721,6 +1720,13 @@ var md = (function () {
 
 							this.swiped.dispatch(this);
 
+							// usage of this flag simplifies the Fsm
+							if (this.isTipping) {
+
+								this.untipped.dispatch(this);
+
+							}
+
 							this.released.dispatch(this);
 
 						}
@@ -1737,8 +1743,11 @@ var md = (function () {
 	Finger._DIR_LEFT = 8;
 
 	Finger.prototype = {
+
 		addPosition: function (pointer) {
+
 			this.listOfPositions.push(pointer);
+
 		},
 
 		cancelPressedToTippedTimer: function () {
@@ -1781,8 +1790,11 @@ var md = (function () {
 		computeRelMove: function () {
 
 			return this._computeMove(
+
 				this.listOfPositions.length - 2,
+
 				this.listOfPositions.length - 1
+
 			);
 
 		},
@@ -1800,6 +1812,45 @@ var md = (function () {
 			this.dragged = new Signal();
 			this.dragStopped = new Signal();
 			this.released = new Signal();
+		},
+
+		fsmDraggedTransition: function () {
+			var debugMe = true && TipTap.settings.debug && this.debugMe;
+			var state;
+
+			// if not really dragged, move away without doing anything
+			if (this.wasAnUncontrolledMove()) {
+
+				return TipTap.Fsm._SELF;
+
+			}
+
+			md(this + "-fsm(pressing-dragged-1)", debugMe);
+
+			// because we moved for good, we cancel the planned change of state. Useless in the case of transiting from TIP
+			this.cancelPressedToTippedTimer();
+
+			// detects if the move is a swipe
+			state = this.isSwipingOrDragging();
+
+			md(this + "-fsm(pressing-dragged-2)", debugMe);
+
+			// if we detect a swipe, we must go to the corresponding state
+			if (state === "swiping") {
+
+				return state;
+
+			}
+
+			md(this + "-fsm(pressing-dragged-3)", debugMe);
+
+			// tell the world we started a drag :-)
+			this.dragStarted.dispatch(this);
+
+			// and that we dragged
+			this.dragged.dispatch(this);
+
+			return "dragging";
 		},
 
 		getDirection: function () {
@@ -1832,52 +1883,82 @@ var md = (function () {
 			var settings = TipTap.settings;
 			var dx, dy, adx, ady;
 
-			// if this.isMoving is not set, it's the first drag event. Calculate displacement from start position
 			dx = this.dragDetailsRelative.dx;
 			adx = Math.abs(dx);
 			dy = this.dragDetailsRelative.dy;
 			ady = Math.abs(dy);
 
-			md(this + ".isSwipingOrDragging-1: " + this.absDrag.duration_ms + "px", debugMe)
+			//md(this + ".isSwipingOrDragging-1: " + this.dragDetailsAbsolute.duration_ms + "px", debugMe)
 
-			// Swipe is defined by: 'dragged "a lot" and just after "start" '
-			if (this.absDrag.duration_ms <= settings.swipeStartDelay_ms) {
+			md(this + ".isSwipingOrDragging-2", debugMe)
 
-				md(this + ".isSwipingOrDragging-2", debugMe)
-				if (adx >= ady) {
-					if (adx >= settings.swipeMinDisplacement_px) {
-						if (dx > 0) {
-							md(this + ".isSwipingOrDragging > swipe-r", debugMe)
-							this.direction = Finger._DIR_RIGHT;
-						} else {
-							md(this + ".isSwipingOrDragging > swipe-l", debugMe)
-							this.direction = Finger._DIR_LEFT;
-						}
+			if (adx >= ady) {
+
+				md(this + ".isSwipingOrDragging, adx: " + adx, debugMe, "#0F0")
+
+				if (adx >= settings.swipeMinDisplacement_px) {
+
+					if (dx > 0) {
+
+						md(this + ".isSwipingOrDragging > swipe-r", debugMe)
+
+						this.direction = Finger._DIR_RIGHT;
+
+					} else {
+
+						md(this + ".isSwipingOrDragging > swipe-l", debugMe)
+
+						this.direction = Finger._DIR_LEFT;
+
 					}
-				} else {
-					if (ady >= settings.swipeMinDisplacement_px) {
-						if (dy > 0) {
-							md(this + ".isSwipingOrDragging > swipe-b", debugMe)
-							this.direction = Finger._DIR_BOTTOM;
-						} else {
-							md(this + ".isSwipingOrDragging > swipe-t", debugMe)
-							this.direction = Finger._DIR_TOP;
-						}
-					}
+
+					this.swipeStartPositionIndex = this.listOfPositions.length - 1;
+
+					return "swiping";
+
 				}
-				return "swiping";
+			} else {
+
+				if (ady >= settings.swipeMinDisplacement_px) {
+
+					if (dy > 0) {
+
+						md(this + ".isSwipingOrDragging > swipe-b", debugMe)
+
+						this.direction = Finger._DIR_BOTTOM;
+
+					} else {
+
+						md(this + ".isSwipingOrDragging > swipe-t", debugMe)
+
+						this.direction = Finger._DIR_TOP;
+
+					}
+
+					this.swipeStartPositionIndex = this.listOfPositions.length - 1;
+
+					return "swiping";
+
+				}
+
 			}
+
 			return "tipping";
+
 		},
 
 		notSwipingAnymore: function () {
 			var debugMe = true && TipTap.settings.debug && this.debugMe;
 			var settings = TipTap.settings;
 
-			md(this + ".notSwipingAnymore: " + this.absDrag.duration_ms + "ms, " + this.absDrag.d + "px", debugMe)
+			md(this + ".notSwipingAnymore: " + this.dragDetailsAbsolute.duration_ms + "ms, " + this.dragDetailsAbsolute.d + "px", debugMe)
 
-			return (this.absDrag.duration_ms > settings.swipeDuration_ms) ||
-				(this.absDrag.d > settings.swipeMaxDistance_px);
+			return (
+				this._computeMove(
+					this.swipeStartPositionIndex,
+					this.listOfPositions.length - 1).duration_ms >
+					settings.swipeDuration_ms
+				) || (this.dragDetailsAbsolute.d > settings.swipeMaxDistance_px);
 		},
 
 		onDrag: function (eventTouch) {
@@ -1927,7 +2008,9 @@ var md = (function () {
 		},
 
 		storePosition: function (eventTouch) {
+
 			this.addPosition(new TipTap.Position(eventTouch));
+
 		},
 
 		toString: function () {
@@ -1939,11 +2022,14 @@ var md = (function () {
 
 			var settings = TipTap.settings;
 
-			md(this + ".wasAnUncontrolledMove", debugMe);
+			md(this + ".wasAnUncontrolledMove(" +
+				   Math.abs(this.dragDetailsAbsolute.dx) + "px, " +
+				   Math.abs(this.dragDetailsAbsolute.dy) + "px)", debugMe);
 
-			return ((Math.abs(this.absDrag.dx) > settings.moveThreshold_px) ||
-				(Math.abs(this.absDrag.dy) > settings.moveThreshold_px));
+			return ((Math.abs(this.dragDetailsAbsolute.dx) <= settings.moveThreshold_px) &&
+				(Math.abs(this.dragDetailsAbsolute.dy) <= settings.moveThreshold_px));
 		}
+
 	};
 
 	// namespacing
@@ -2025,7 +2111,7 @@ var md = (function () {
 
 (function (TipTap, _) {
 
-	var Pointer = function (ptr, status) {
+	var PointerInfos = function (ptr, status) {
 
 		this.identifier = ptr.identifier;
 
@@ -2042,7 +2128,7 @@ var md = (function () {
 
 	};
 
-	Pointer.prototype = {
+	PointerInfos.prototype = {
 
 		toString: function () {
 
@@ -2053,7 +2139,7 @@ var md = (function () {
 	};
 
 	// namespaces the thing
-	TipTap.Pointer = Pointer;
+	TipTap.PointerInfos = PointerInfos;
 
 }(window.TipTap, _));
 

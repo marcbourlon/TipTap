@@ -1,6 +1,6 @@
 (function (TipTap, _) {
 
-	var Pointer = function (ptr, status) {
+	var PointerInfos = function (ptr, status) {
 
 		this.identifier = ptr.identifier;
 
@@ -17,7 +17,7 @@
 
 	};
 
-	Pointer.prototype = {
+	PointerInfos.prototype = {
 
 		toString: function () {
 
@@ -28,6 +28,6 @@
 	};
 
 	// namespaces the thing
-	TipTap.Pointer = Pointer;
+	TipTap.PointerInfos = PointerInfos;
 
 }(window.TipTap, _));

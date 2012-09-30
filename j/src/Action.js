@@ -72,17 +72,16 @@
 		allocateGesture: function (status, finger) {
 			var debugMe = true && this.debugMe && TipTap.settings.debug;
 			var gesture;
-			/*
-			 CLONE the pointer, because:
-			 1) the same can be used for different states (PRESSED and TIPPED or TAPPED)
-			 2) to not let Finger alive because of links to living Pointers
-			 */
-			var pointer;
 
 			md(this + ".allocateGesture-1(" + TipTap.Gesture.statusMatchCode[status].code + ")", debugMe);
 
+			/*
+			 CLONE the pointerInfos, because:
+			 1) the same can be used for different states (PRESSED and TIPPED or TAPPED)
+			 2) to not let Finger alive because of links to living Pointers
+			 */
 			// copy Finger position, plus some stuff
-			pointer = new TipTap.Pointer(finger, status);
+			var pointerInfos = new TipTap.PointerInfos(finger, status);
 
 			if (TipTap.Gesture._PRESSED === status) {
 
@@ -91,10 +90,10 @@
 
 			}
 
-			// is there a Gesture which can accept this pointer?
+			// is there a Gesture which can accept this pointerInfos?
 			gesture = _.find(this.fifoOfGestures, function (g) {
 
-				return g.canThisPointerBeAdded(pointer);
+				return g.canThisPointerBeAdded(pointerInfos);
 
 			}, this);
 
@@ -120,7 +119,7 @@
 
 			md(this + ".allocateGesture-4", debugMe);
 
-			gesture.addPointer(pointer);
+			gesture.addPointer(pointerInfos);
 
 			return gesture;
 

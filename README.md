@@ -337,6 +337,12 @@ tapMaxDuration_ms: 150,
 
 If the pointer goes down without moving / releasing for longer than this, it's a tip.
 
+```javascript
+useBorisSmusPointersPolyfill: false,
+```
+
+Uses Boris Smus ["pointers.js"](https://github.com/borismus/pointer.js) polyfill. Defaults to false. BE CAREFUL: you have to modify the library, to deactivate the Gestures management, fully not compatible with TipTap.
+
 <a name="3" />
 ```javascript
 useTipPrefixes: false,

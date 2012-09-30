@@ -364,6 +364,8 @@
 
 		tapMaxDuration_ms: 150, // if down without move for longer than this, it's a tip. Otherwise, move or tap
 
+		useBorisSmusPointersPolyfill: false,  // use Boris Smus pointers polyfill
+
 		useTipPrefixes: false,  // include or not the "tip" prefixes in complex gestures: "tip-tap" or just "tap"
 
 	};
