@@ -11,16 +11,17 @@
 	var TipTap = {
 		debugMe:             true,
 		device:              null,
+		CANCEL_BUBBLING:     true,
 		DEVICE_DEFAULT:      0, // if nothing specified, will bind device events (mouse OR touch)
 		DEVICE_MOUSE:        1, // allows to force usage of mouse device input
 		DEVICE_TOUCH:        2, // allows to force usage of touch device input
 		GLOBAL_CLASS_FILTER: "-", // char used internally for global container class
+		KEEP_BUBBLING:       false,
 		listOfFingers:       [],
 		listOfRouters:       [], // list of all Routers objects
 		// Stolen the touch test from Modernizr. Including 49KB for just this was a bit overkill, to me
 		touch:               ('ontouchstart' in window) || (window.DocumentTouch && document instanceof DocumentTouch),
 		TOUCH_REFRESH_ms:    1000 / 60, // iOS touch devices frequency is 60Hz
-		use$:                true, // use jQuery. Not used for now
 
 		disable: function (elems) {
 			/*
@@ -46,15 +47,21 @@
 
 		},
 
-		getEvent: function (e) {
-
-			if (this.use$) {
-
-				return e.originalEvent;
-
-			}
+		_getEvent: function (e) {
 
 			return e;
+
+		},
+
+		_getEventjQuery: function (e) {
+
+			return e.originalEvent;
+
+		},
+
+		buildNamespacedEventName: function (eventBasename) {
+
+			return  eventBasename + '.TipTap';
 
 		},
 
@@ -62,31 +69,45 @@
 
 			this.settings = _.extend(this.settings, options);
 
-			if ((this.settings.deviceType === this.DEVICE_TOUCH) || this.touch) {
+			if (this.settings.useBorisSmusPointersPolyfill) {
 
-				this.device = new TipTap.Touch();
+				this.device = this.Pointer;
 
 			} else {
 
-				this.device = new TipTap.Mouse();
+				if ((this.settings.deviceType === this.DEVICE_TOUCH) || this.touch) {
+
+					this.device = this.Touch;
+
+				} else {
+
+					this.device = this.Mouse;
+
+				}
 
 			}
 
+			// if user asks to use jQuery but this is not present, deny it
+			this.settings.usejQuery = this.settings.usejQuery && !!$;
+
 			// only one global listener for move/end/cancel. Because fast mouse movement can move cursor out of element, and
 			// because end can be fired on another element, dynamically created during drag (same as in drag'n'drop, etc.)
-			if (TipTap.use$) {
+			if (TipTap.settings.usejQuery) {
 
 				$(document)
-					.bind(this.device.DRAG_EVENT + ".TipTap", _.bind(TipTap.onDrag, TipTap))
-					.bind(this.device.END_EVENT + ".TipTap", _.bind(TipTap.onEnd, TipTap))
-					.bind(this.device.CANCEL_EVENT + ".TipTap", _.bind(TipTap.onCancel, TipTap));
+					.bind(this.buildNamespacedEventName(this.device.DRAG_EVENT_NAME), _.bind(TipTap.onDrag, TipTap))
+					.bind(this.buildNamespacedEventName(this.device.END_EVENT_NAME), _.bind(TipTap.onEnd, TipTap))
+					.bind(this.buildNamespacedEventName(this.device.CANCEL_EVENT_NAME), _.bind(TipTap.onCancel, TipTap));
+
+				// instead of doing "if (jQuery)" everywhere, just set methods. I luv' it :)
+				this.usejQuery();
+				this.device.usejQuery();
 
 			} else {
 
-				// no support for old IEs (not used for now, only jQuery version is working)
-				document.addEventListener(this.device.DRAG_EVENT, _.bind(TipTap.onDrag, TipTap));
-				document.addEventListener(this.device.END_EVENT, _.bind(TipTap.onEnd, TipTap));
-				document.addEventListener(this.device.CANCEL_EVENT, _.bind(TipTap.onCancel, TipTap));
+				document.addEventListener(this.device.DRAG_EVENT_NAME, _.bind(TipTap.onDrag, TipTap));
+				document.addEventListener(this.device.END_EVENT_NAME, _.bind(TipTap.onEnd, TipTap));
+				document.addEventListener(this.device.CANCEL_EVENT_NAME, _.bind(TipTap.onCancel, TipTap));
 
 			}
 
@@ -96,14 +117,27 @@
 		/**
 		 * on
 		 *
-		 * @param elems : list of jQuery elements gathered by $(<filter)
+		 * @param nodesList : list of DOM elements gathered by querySelectorAll(<filter>)
 		 * @param combosList :  "list" of combos to match (see syntax reference)
 		 * @param filter : DOM filter expression for delegation
 		 * @param callback : callback
-		 * @param context : optional context in which to call the callback ($.bind, _.bind...)
+		 * @param context : optional context in which to call the callback (like .bind, $.bind, _.bind...)
 		 * @return {*}
 		 */
-		on: function (elems, combosList, filter, callback, context) {
+		on: function (nodesList, combosList, filter, callback, context) {
+
+			if (!nodesList) {
+
+				return false;
+
+			}
+
+			// make single value a list to unify treatment later. isArray test in case it's not present.
+			if (Object.prototype.toString.call(nodesList) !== "[object Array]") {
+
+				nodesList = [nodesList];
+
+			}
 
 			// if "filter" is a function, then we have no filter defined, and the filter var is the callback
 			if (typeof filter === "function") {
@@ -116,36 +150,102 @@
 
 			}
 
-			var tipTap = this;
+			for (var nodeIdx = 0, nodesCount = nodesList.length; nodeIdx < nodesCount; nodeIdx++) {
 
-			return elems.each(function () {
+				var curNode = nodesList[nodeIdx];
 
-				// the jQuery wrapped DOM element we're working on
-				var $this = $(this);
+				var router = null;
 
-				var router = _.find(tipTap.listOfRouters, function (rt) {
+				for (var routerIdx = 0, routersCount = this.listOfRouters.length; routerIdx < routersCount; routerIdx++) {
+
+					var rt = this.listOfRouters[routerIdx];
 
 					// if attaching to same element than a previous one, then use same Router
-					return rt.$el.is($this);
+					if (rt.isSameNode(curNode)) {
 
-				});
+						router = rt;
+
+						continue;
+
+					}
+
+				}
 
 				// No router found, create new and keep in list
 				if (!router) {
 
-					router = new TipTap.Router($this, tipTap.device);  // otherwise, create new
+					router = new this.Router(curNode, this.device);
+
+					this.listOfRouters.push(router);
+
+					// no support for old IEs
+					curNode.addEventListener(this.device.START_EVENT_NAME, _.bind(this.onStart, this, router));
+
+				}
+
+				// attach combo and related callbacks to the Router
+				router.bindCombos(combosList, filter, callback, context);
+
+			}
+
+			// all was ok
+			return true;
+
+		},
+
+		jQueryOn: function (nodesList, combosList, filter, callback, context) {
+
+			// if "filter" is a function, then we have no filter defined, and the filter var is the callback
+			if (typeof filter === "function") {
+
+				context = callback;
+
+				callback = filter;
+
+				filter = "";
+
+			}
+
+			// could use "TipTap", but cleaner.
+			var tipTap = this;
+
+			// todo jQuery; how to attach when no jQuery?
+			return nodesList.each(function () {
+
+				// the jQuery wrapped DOM element we're working on
+				var $this = $(this);
+
+				var router = null;
+
+				for (var routerIdx = 0, routersCount = tipTap.listOfRouters.length; routerIdx < routersCount; routerIdx++) {
+
+					var rt = tipTap.listOfRouters[routerIdx];
+
+					// if attaching to same element than a previous one, then use same Router
+					if (rt.$el.is($this)) {
+
+						router = rt;
+
+						continue;
+
+					}
+
+				}
+
+				// No router found, create new and keep in list
+				if (!router) {
+
+					router = new tipTap.Router($this, tipTap.device);  // otherwise, create new
 
 					tipTap.listOfRouters.push(router);
 
-					if (tipTap.use$) {
-						$this
-							.bind(tipTap.device.START_EVENT + ".TipTap", _.bind(tipTap.onStart, // calls onStart from TipTap
-						                                                      tipTap, // positioning "this" to TipTap
-						                                                      router));       // and sending router as 1st param
-					} else {
-						// no support for old IEs
-						//	<element>.addEventListener(device.START_EVENT, _.bind(this.onStart, this, router));
-					}
+					$this
+						.bind(
+						tipTap.buildNamespacedEventName(tipTap.device.START_EVENT_NAME),
+						_.bind(tipTap.onStart, // calls onStart from TipTap
+						       tipTap, // positioning "this" to TipTap
+						       router)
+					);       // and sending router as 1st param
 
 				}
 
@@ -311,7 +411,7 @@
 		},
 
 		stopEvent: function (e) {
-			e = TipTap.getEvent(e);
+			e = TipTap._getEvent(e);
 
 			e.preventDefault();
 			//e.stopPropagation();
@@ -334,6 +434,12 @@
 
 		},
 
+		usejQuery: function () {
+
+			this._getEvent = this._getEventjQuery;
+
+		},
+
 	};
 
 	TipTap.settings = {
@@ -352,7 +458,7 @@
 
 		moveThreshold_px: TipTap.touch ? 8 : 0, // min distance to consider that the move was intentional
 
-		rotoZoom: false,        // whether to activate the hack of CSS3 rotation/zoom
+		rotoZoom: false, // whether to activate the hack of CSS3 rotation/zoom
 
 		simultaneousMovesTimer_ms: 3 * TipTap.TOUCH_REFRESH_ms, // delay accepted between similar events/moves to be considered  as simultaneous
 
@@ -364,9 +470,11 @@
 
 		tapMaxDuration_ms: 150, // if down without move for longer than this, it's a tip. Otherwise, move or tap
 
-		useBorisSmusPointersPolyfill: false,  // use Boris Smus pointers polyfill
+		useBorisSmusPointersPolyfill: false, // use Boris Smus pointers polyfill
 
-		useTipPrefixes: false,  // include or not the "tip" prefixes in complex gestures: "tip-tap" or just "tap"
+		usejQuery: false, // whether to use jQuery or not
+
+		useTipPrefixes: false, // include or not the "tip" prefixes in complex gestures: "tip-tap" or just "tap"
 
 	};
 
@@ -384,7 +492,7 @@
 
 		on: function (combosList, filter, callback, context) {
 
-			return TipTap.on(this, combosList, filter, callback, context);
+			return TipTap.jQueryOn(this, combosList, filter, callback, context);
 
 		},
 
@@ -403,7 +511,7 @@
 	if ($) {
 		// Touchy does it "better" knowing that it takes normal DOM elements as parameter
 		// see once we move to jQuery-less code
-		$.fn.jTipTap = function (method, combosList, filter, callback) {
+		$.fn.tipTap = function (method, combosList, filter, callback) {
 
 			if (methods[method]) {
 
@@ -415,7 +523,7 @@
 
 			} else {
 
-				$.error('Method ' + method + ' does not exist in jQuery.TipTap');
+				$.error('Method ' + method + ' does not exist in jQuery.tipTap');
 
 			}
 
@@ -424,9 +532,6 @@
 	}
 
 }(window, document, window.jQuery));
-
-TipTap.KEEP_BUBBLING = false;
-TipTap.CANCEL_BUBBLING = true;
 
 // Helper debug function, very crappy to have it here, I'm shameful! :'(
 var md = (function () {

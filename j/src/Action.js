@@ -37,7 +37,7 @@
 
 		this.$target = $target;
 
-		// todo: change $target to target when no more jQuery dependency. Ideal would be a "plus" mode for jQuery
+		// todo jQuery: change $target to target when no more jQuery dependency. Ideal would be a "plus" mode for jQuery
 		//this.target = this.$target.get(0);
 
 		// check if the target has already been processed by RotoZoomer

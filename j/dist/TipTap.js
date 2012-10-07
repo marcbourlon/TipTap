@@ -20,7 +20,6 @@
 		// Stolen the touch test from Modernizr. Including 49KB for just this was a bit overkill, to me
 		touch:               ('ontouchstart' in window) || (window.DocumentTouch && document instanceof DocumentTouch),
 		TOUCH_REFRESH_ms:    1000 / 60, // iOS touch devices frequency is 60Hz
-		use$:                true, // use jQuery. Not used for now
 
 		disable: function (elems) {
 			/*
@@ -46,50 +45,60 @@
 
 		},
 
-		getEvent: function (e) {
-
-			if (this.use$) {
+		_getEvent: null,
+		TipTap.settings.usejQuery
+		_getEventjQuery: function(e) {
 
 				return e.originalEvent;
 
-			}
+		},
+
+		_getEventNojQuery: function(e) {
 
 			return e;
 
 		},
 
+
 		init: function (options) {
 
 			this.settings = _.extend(this.settings, options);
 
-			if ((this.settings.deviceType === this.DEVICE_TOUCH) || this.touch) {
+			if (this.settings.useBorisSmusPointersPolyfill) {
 
-				this.device = new TipTap.Touch();
+				this.device = TipTap.Pointer;
 
 			} else {
 
-				this.device = new TipTap.Mouse();
+				if ((this.settings.deviceType === this.DEVICE_TOUCH) || this.touch) {
+
+					this.device = TipTap.Touch;
+
+				} else {
+
+					this.device = TipTap.Mouse;
+
+				}
 
 			}
 
 			// only one global listener for move/end/cancel. Because fast mouse movement can move cursor out of element, and
 			// because end can be fired on another element, dynamically created during drag (same as in drag'n'drop, etc.)
-			if (TipTap.use$) {
+			if (TipTap.settings.usejQuery) {
 
 				$(document)
-					.bind(this.device.DRAG_EVENT + ".TipTap", _.bind(TipTap.onDrag, TipTap))
-					.bind(this.device.END_EVENT + ".TipTap", _.bind(TipTap.onEnd, TipTap))
-					.bind(this.device.CANCEL_EVENT + ".TipTap", _.bind(TipTap.onCancel, TipTap));
+					.bind(this.device.getDragEventName, _.bind(TipTap.onDrag, TipTap))
+					.bind(this.device.getEndEventName, _.bind(TipTap.onEnd, TipTap))
+					.bind(this.device.getCancelEventName, _.bind(TipTap.onCancel, TipTap));
 
 			} else {
 
 				// no support for old IEs (not used for now, only jQuery version is working)
-				document.addEventListener(this.device.DRAG_EVENT, _.bind(TipTap.onDrag, TipTap));
-				document.addEventListener(this.device.END_EVENT, _.bind(TipTap.onEnd, TipTap));
-				document.addEventListener(this.device.CANCEL_EVENT, _.bind(TipTap.onCancel, TipTap));
+				document.addEventListener(this.device.getDragEventName, _.bind(TipTap.onDrag, TipTap));
+				document.addEventListener(this.device.getEndEventName, _.bind(TipTap.onEnd, TipTap));
+				document.addEventListener(this.device.getCancelEventName, _.bind(TipTap.onCancel, TipTap));
 
 			}
-
 
 		},
 
@@ -139,7 +148,7 @@
 
 					if (tipTap.use$) {
 						$this
-							.bind(tipTap.device.START_EVENT + ".TipTap", _.bind(tipTap.onStart, // calls onStart from TipTap
+							.bind(tipTap.device.getStartEventName, _.bind(tipTap.onStart, // calls onStart from TipTap
 						                                                      tipTap, // positioning "this" to TipTap
 						                                                      router));       // and sending router as 1st param
 					} else {
@@ -311,7 +320,7 @@
 		},
 
 		stopEvent: function (e) {
-			e = TipTap.getEvent(e);
+			e = TipTap._getEvent(e);
 
 			e.preventDefault();
 			//e.stopPropagation();
@@ -352,7 +361,7 @@
 
 		moveThreshold_px: TipTap.touch ? 8 : 0, // min distance to consider that the move was intentional
 
-		rotoZoom: false,        // whether to activate the hack of CSS3 rotation/zoom
+		rotoZoom: false, // whether to activate the hack of CSS3 rotation/zoom
 
 		simultaneousMovesTimer_ms: 3 * TipTap.TOUCH_REFRESH_ms, // delay accepted between similar events/moves to be considered  as simultaneous
 
@@ -364,9 +373,9 @@
 
 		tapMaxDuration_ms: 150, // if down without move for longer than this, it's a tip. Otherwise, move or tap
 
-		useBorisSmusPointersPolyfill: false,  // use Boris Smus pointers polyfill
+		useBorisSmusPointersPolyfill: false, // use Boris Smus pointers polyfill
 
-		useTipPrefixes: false,  // include or not the "tip" prefixes in complex gestures: "tip-tap" or just "tap"
+		useTipPrefixes: false, // include or not the "tip" prefixes in complex gestures: "tip-tap" or just "tap"
 
 	};
 
@@ -2038,27 +2047,22 @@ var md = (function () {
 }(window.TipTap, _));
 
 (function (TipTap, _, $) {
-
 	// TODO: management of two buttons. click, clack, unclick, clickl, clickr, clackl, clackr
-	var Mouse = function () {
-		this.debugMe = true;
 
-		this.mouseDown = false;
+	// namespaces the thing
+	TipTap.Mouse = {
 
-		// initialize with a random identifier. Why not 0, btw? Hmm...
-		this.identifier = this.generateIdentifier();
+		debugMe: true,
 
-		this.START_EVENT = 'mousedown';
+		getStartEventName: 'mousedown' + ((TipTap.settings.usejQuery)?'.TipTap':''),
+		getDragEventName: 'mousemove' + ((TipTap.settings.usejQuery)?'.TipTap':''),
+		getEndEventName: 'mouseup' + ((TipTap.settings.usejQuery)?'.TipTap':''),
+		getCancelEventName: 'mousecancel' + ((TipTap.settings.usejQuery)?'.TipTap':''), // doesn't exist, but needed for common "Facade" pattern with Touch. Should be mouseout, but can't happen the way it's managed
 
-		this.DRAG_EVENT = 'mousemove';
+		mouseDown: false,
 
-		this.END_EVENT = 'mouseup';
+		identifier: 0,
 
-		this.CANCEL_EVENT = 'mousecancel'; // doesn't exist, but needed for common "Facade" pattern with Touch
-
-	}
-
-	Mouse.prototype = {
 		buildEtList: function (e) {
 			// if not left click, don't consider event
 			// todo: without jQuery :'(
@@ -2067,45 +2071,62 @@ var md = (function () {
 				return [];
 
 			}
+
 			e.identifier = this.identifier;
+
 			e.$target = $(e.target);
+
 			return [e];
+
 		},
 
-		generateIdentifier: function () {
+		_generateIdentifier: function () {
+
 			if (!this.identifier) {
+
 				return Math.pow(2, 32) * Math.random();
+
 			}
+
 			return this.identifier + 1;
+
 		},
 
 		onStart: function (eventTouch) {
+
 			this.mouseDown = true;
+
 		},
+
 
 		onDrag: function (e) {
 		},
 
 		onEnd: function (eventTouch) {
+
 			//md("Mouse up:" + e.timeStamp, debugMe);
 			this.mouseDown = false;
 
 			// generates another random identifier
-			this.identifier = this.generateIdentifier();
+			this.identifier = this._generateIdentifier();
+
 		},
 
-		onCancel: function (eventTouch) {  // this should never be called, the event simply doesn't exist for Mouse
+		onCancel: function (eventTouch) {
+
 			this.onEnd(eventTouch);
+
 		},
 
 		shouldCaptureDrag: function (e) {
 			// whether or not a move event should be captured (we deal with dragging only for now)
 			return this.mouseDown;
-		}
+
+		},
+
 	};
 
-	// namespaces the thing
-	TipTap.Mouse = Mouse;
+	TipTap.Mouse.identifier = TipTap.Mouse._generateIdentifier();
 
 }(window.TipTap, _, window.jQuery));
 
@@ -3046,39 +3067,51 @@ var md = (function () {
 
 (function (TipTap, _, $) {
 
-	var Touch = function () {
-		this.debugMe = true;
+	// namespacing
+	TipTap.Touch = {
+		debugMe: true,
 
-		this.START_EVENT = 'touchstart';
-		this.DRAG_EVENT = 'touchmove';
-		this.END_EVENT = 'touchend';
-		this.CANCEL_EVENT = 'touchcancel';
-	}
+		getStartEventName:       'touchstart' + ((TipTap.settings.usejQuery)?".TipTap":""),
+		getDragEventName:        'touchmove' + ((TipTap.settings.usejQuery)?".TipTap":""),
+		getEndEventName:         'touchend' + ((TipTap.settings.usejQuery)?".TipTap":""),
+		getCancelEventName:      'touchcancel' + ((TipTap.settings.usejQuery)?".TipTap":""),
 
-	Touch.prototype = {
 		buildEtList:       function (e) {
-			var l = TipTap.getEvent(e).changedTouches;
-			_.each(l, function (t) {
+
+			var enhancedTouchesList = TipTap._getEvent(e).changedTouches;
+
+			_.each(enhancedTouchesList, function (touch) {
+
 				// adds timestamp to each touch
-				t.timeStamp = e.timeStamp;
-				t.$target = $(t.target);  // todo: remove jQuery dependency (use isSameNode instead of is)
+				touch.timeStamp = e.timeStamp;
+
+				// and jQuery object wrapper for the DOM
+				touch.$target = $(touch.target);  // todo: remove jQuery dependency (use isSameNode instead of is)
+
 			});
-			return l;
+
+			return enhancedTouchesList;
+
 		},
+
 		onStart:           function (eventTouch) {
 		},
+
 		onDrag:            function (e) {
 		},
+
 		onEnd:             function (eventTouch) {
 		},
+
 		onCancel:          function (eventTouch) {
 		},
-		shouldCaptureDrag: function (e) {
-			return true;
-		}
-	};
 
-	// namespacing
-	TipTap.Touch = Touch;
+		shouldCaptureDrag: function (e) {
+
+			return true;
+
+		}
+
+	};
 
 }(window.TipTap, _, window.jQuery));

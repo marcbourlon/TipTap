@@ -31,8 +31,10 @@ var imgFiles = [
 $(function () {
 	TipTap.init(
 		{
-			rotoZoom:        true,
-			useTipPrefixes: false
+			rotoZoom:                     true,
+			usejQuery:                    true,
+			useTipPrefixes:               false,
+			useBorisSmusPointersPolyfill: false,
 		}
 	);
 	var boxCount = 0;
@@ -43,7 +45,7 @@ $(function () {
 	});
 
 	$('#box1')
-		.jTipTap('on',
+		.tipTap('on',
 	           "tap",
 	           function (action) {
 		           var debugMe = true && TipTap.settings.debug;
@@ -65,7 +67,7 @@ $(function () {
 		           md("app tap: (" + pointer + "-(" + $e.css("width") + " * " + $e.css("height") + ")", debugMe);
 
 	           })
-		.jTipTap('on',
+		.tipTap('on',
 	           "tap2>tap2",
 	           ".test",
 	           function (action) {
@@ -81,7 +83,7 @@ $(function () {
 			           $target.css('backgroundColor', '#' + (Math.round(Math.random() * (256 * 256 * 256 - 1))).toString(16));
 		           }
 	           })
-		.jTipTap('on',
+		.tipTap('on',
 	           "swipe_r",
 	           ".test",
 	           function (action) {
@@ -91,7 +93,7 @@ $(function () {
 
 		           action.$target.remove();
 	           })
-		.jTipTap('on',
+		.tipTap('on',
 	           "tap>tap",
 	           ".test",
 	           function (action) {
@@ -100,7 +102,7 @@ $(function () {
 		           $target.width($target.width() * 1.1);
 		           $target.height($target.height() * 1.1);
 	           })
-		.jTipTap('on',
+		.tipTap('on',
 	           "tap>tap>tap",
 	           ".test",
 	           function (action) {
@@ -112,7 +114,7 @@ $(function () {
 		           $target.width($target.width() / 1.1);
 		           $target.height($target.height() / 1.1);
 	           })
-		.jTipTap('on',
+		.tipTap('on',
 	           "tip+|dragStart+",
 	           ".test",
 	           function (action) {
@@ -129,7 +131,7 @@ $(function () {
 		           }
 
 	           })
-		.jTipTap('on',
+		.tipTap('on',
 	           "untip+|dragStop+",
 	           ".test",
 	           function (action) {
@@ -138,7 +140,7 @@ $(function () {
 		           action.$target.removeClass('dragging');
 
 	           })
-		.jTipTap('on',
+		.tipTap('on',
 	           "tip+|press+",
 	           ".test",
 	           function (action) {
@@ -167,13 +169,13 @@ $(function () {
 			           );
 		           });
 	           })
-		.jTipTap('on',
+		.tipTap('on',
 	           "drag",
 	           ".test",
 	           function (action) {
 		           dragResize(action.gesture, 1);
 	           })
-		.jTipTap('on',
+		.tipTap('on',
 	           "untip+|release+",
 	           ".test",
 	           function (action) {

@@ -1,25 +1,20 @@
 (function (TipTap, _, $) {
-
 	// TODO: management of two buttons. click, clack, unclick, clickl, clickr, clackl, clackr
-	var Mouse = function () {
-		this.debugMe = true;
 
-		this.mouseDown = false;
+	// namespaces the thing
+	TipTap.Mouse = {
 
-		// initialize with a random identifier. Why not 0, btw? Hmm...
-		this.identifier = this.generateIdentifier();
+		debugMe: true,
 
-		this.START_EVENT = 'mousedown';
+		START_EVENT_NAME:  'mousedown',
+		DRAG_EVENT_NAME:   'mousemove',
+		END_EVENT_NAME:    'mouseup',
+		CANCEL_EVENT_NAME: 'mousecancel', // doesn't exist, but needed for 		getStartEventName: 'mousedown' + ((TipTap.settings.usejQuery)?'.TipTap':''),
 
-		this.DRAG_EVENT = 'mousemove';
+		mouseDown: false,
 
-		this.END_EVENT = 'mouseup';
+		identifier: 0,
 
-		this.CANCEL_EVENT = 'mousecancel'; // doesn't exist, but needed for common "Facade" pattern with Touch
-
-	}
-
-	Mouse.prototype = {
 		buildEtList: function (e) {
 			// if not left click, don't consider event
 			// todo: without jQuery :'(
@@ -28,44 +23,79 @@
 				return [];
 
 			}
+
 			e.identifier = this.identifier;
-			e.$target = $(e.target);
+
+			this._addTarget(e, e);
+
 			return [e];
+
 		},
 
-		generateIdentifier: function () {
+		_generateIdentifier: function () {
+
 			if (!this.identifier) {
+
 				return Math.pow(2, 32) * Math.random();
+
 			}
+
 			return this.identifier + 1;
+
 		},
 
 		onStart: function (eventTouch) {
+
 			this.mouseDown = true;
+
 		},
 
-		onDrag: function (e) {
+		onDrag: function (eventTouch) {
 		},
 
 		onEnd: function (eventTouch) {
+
 			//md("Mouse up:" + e.timeStamp, debugMe);
 			this.mouseDown = false;
 
 			// generates another random identifier
-			this.identifier = this.generateIdentifier();
+			this.identifier = this._generateIdentifier();
+
 		},
 
-		onCancel: function (eventTouch) {  // this should never be called, the event simply doesn't exist for Mouse
+		onCancel:   function (eventTouch) {
+
 			this.onEnd(eventTouch);
+
+		},
+
+		// todo: create a base Device class with these jQuery-related methods
+		// will be set to either saveTargetNojQuery or saveTargetjQuery, depending.
+		_addTarget: function (dest, src) {
+
+		},
+
+		_addTargetjQuery: function (dest, src) {
+
+			// add jQuery object wrapper for the DOM
+			dest.$target = $(src.target);
+
+		},
+
+		usejQuery: function () {
+
+			this._addTarget = this._addTargetjQuery;
+
 		},
 
 		shouldCaptureDrag: function (e) {
 			// whether or not a move event should be captured (we deal with dragging only for now)
 			return this.mouseDown;
-		}
+
+		},
+
 	};
 
-	// namespaces the thing
-	TipTap.Mouse = Mouse;
+	TipTap.Mouse.identifier = TipTap.Mouse._generateIdentifier();
 
 }(window.TipTap, _, window.jQuery));
