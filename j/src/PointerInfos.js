@@ -1,29 +1,62 @@
 (function (TipTap, _) {
 
-	var PointerInfos = function (ptr, status) {
+	var PointerInfos = function (finger, status) {
 
-		this.identifier = ptr.identifier;
+		this.identifier = finger.identifier;
 
-		// do not set target from eventTouch, because it can be (mouse) other than initial Finger target
-		this.$target = ptr.$target;
+		this.target = null;
+		this.$target = null;
+		this._setTarget(finger.getTarget());
 
-		this.pageX = ptr.getPosition().pageX;
+		this.pageX = finger.getPosition().pageX;
 
-		this.pageY = ptr.getPosition().pageY;
+		this.pageY = finger.getPosition().pageY;
 
 		this.status = status;
 
-		this.direction = ptr.getDirection();
+		this.direction = finger.getDirection();
 
 	};
 
 	PointerInfos.prototype = {
+
+		getTarget: function () {
+
+			return this.target;
+
+		},
+
+		get$Target: function () {
+
+			return this.$target;
+
+		},
+
+		_setTarget: function (target) {
+
+			this.target = target;
+
+		},
+
+		_set$Target: function ($target) {
+
+			this.$target = $target;
+
+		},
 
 		toString: function () {
 
 			return "Ptr#" + this.identifier;
 
 		}
+
+	};
+
+	PointerInfos.use$ = function () {
+
+		this.prototype._setTarget = this.prototype._set$Target;
+
+		this.prototype.getTarget = this.prototype.get$Target;
 
 	};
 

@@ -2,8 +2,6 @@
 
 	var Position = function (eT) {
 
-		// do not set target from eventTouch, because it can be (in case of mouse) other than initial Finger target
-
 		this.timeStamp = eT.timeStamp;
 
 		this.pageX = eT.pageX;

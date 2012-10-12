@@ -1,7 +1,7 @@
-(function (TipTap, _, $) {
+(function (TipTap) {
 
 	// namespacing
-	TipTap.Touch = {
+	Touch = {
 		debugMe: true,
 
 		START_EVENT_NAME:  'touchstart',
@@ -9,22 +9,33 @@
 		END_EVENT_NAME:    'touchend',
 		CANCEL_EVENT_NAME: 'touchcancel',
 
-		buildEtList: function (e) {
+		buildEventList: function (event) {
 
-			var pointersList = TipTap._getEvent(e).changedTouches;
+			var touchesList = this._getTouches(event);
 
-			for (var i = 0, l = pointersList.length; i < l; i++) {
+			var pointersList = [];
 
-				var pointer = pointersList[i];
+			for (var i = 0, l = touchesList.length; i < l; i++) {
 
-				// adds timestamp to each touch
-				pointer.timeStamp = e.timeStamp;
+				var pointer = touchesList[i];
 
-				this._addTarget(pointer, pointer);
+				pointersList.push(new TipTap.TouchEvent(pointer, event));
 
 			}
 
 			return pointersList;
+
+		},
+
+		_getTouches: function (e) {
+
+			return e.changedTouches;
+
+		},
+
+		_getTouches$: function (e) {
+
+			return e.originalEvent.changedTouches;
 
 		},
 
@@ -40,22 +51,11 @@
 		onCancel:   function (eventTouch) {
 		},
 
-		// todo: base Device class with these jQuery-related methods
-		// will be set to either saveTargetNojQuery or saveTargetjQuery, depending.
-		_addTarget: function (dest, src) {
+		use$: function () {
 
-		},
+			this._getTouches = this._getTouches$;
 
-		_addTargetjQuery: function (dest, src) {
-
-			// add jQuery object wrapper for the DOM
-			dest.$target = $(src.target);
-
-		},
-
-		usejQuery: function () {
-
-			this._addTarget = this._addTargetjQuery;
+			TipTap.TouchEvent.use$();
 
 		},
 
@@ -67,4 +67,6 @@
 
 	};
 
-}(window.TipTap, _, window.jQuery));
+	TipTap.Touch = Touch;
+
+}(window.TipTap));

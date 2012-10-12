@@ -13,6 +13,7 @@ module.exports = function (grunt) {
 						'src/Action.js',
 						'src/Finger.js',
 						'src/Mouse.js',
+						'src/MouseEvent.js',
 						'src/PointerInfos.js',
 						'src/Position.js',
 						'src/RotoZoomer.js',

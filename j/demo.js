@@ -32,7 +32,7 @@ $(function () {
 	TipTap.init(
 		{
 			rotoZoom:                     true,
-			usejQuery:                    true,
+			use$:                    false,
 			useTipPrefixes:               false,
 			useBorisSmusPointersPolyfill: false,
 		}
@@ -44,190 +44,209 @@ $(function () {
 		TipTap.settings.debug = this.checked;
 	});
 
-	$('#box1')
-		.tipTap('on',
-	           "tap",
-	           function (action) {
-		           var debugMe = true && TipTap.settings.debug;
-		           var $e;
-		           var $b = $('#box1');
-		           var pointer = action.getPointer(0);
+	var box1 = document.getElementById('box1');
 
-		           if (boxCount < imgFiles.length) {
-			           $e = $('<img class="test" id="' + boxCount + '" src="i/' + imgFiles[boxCount++] + '"/>');
-		           } else {
-			           $e = $('<div class="test"></div>');
-			           $e.css('backgroundColor', '#' + (Math.round(Math.random() * (256 * 256 * 256 - 1))).toString(16));
-		           }
-		           $e.css('zIndex', zIndex++);
-		           $b.append($e);
-		           $e.css('left', (pointer.pageX - $e.width() / 2) + 'px')
-			           .css('top', (pointer.pageY - $e.height() / 2) + 'px');
+	TipTap.on(
+		box1,
+		[
+			{
+				combo:    'tap',
+				callback: function (action) {
+					var debugMe = true && TipTap.settings.debug;
+					var $e;
+					var $b = $('#box1');
+					var pointer = action.getPointer(0);
 
-		           md("app tap: (" + pointer + "-(" + $e.css("width") + " * " + $e.css("height") + ")", debugMe);
+					if (boxCount < imgFiles.length) {
+						$e = $('<img class="test" id="' + boxCount + '" src="i/' + imgFiles[boxCount++] + '"/>');
+					} else {
+						$e = $('<div class="test"></div>');
+						$e.css('backgroundColor', '#' + (Math.round(Math.random() * (256 * 256 * 256 - 1))).toString(16));
+					}
+					$e.css('zIndex', zIndex++);
+					$b.append($e);
+					$e.css('left', (pointer.pageX - $e.width() / 2) + 'px')
+						.css('top', (pointer.pageY - $e.height() / 2) + 'px');
 
-	           })
-		.tipTap('on',
-	           "tap2>tap2",
-	           ".test",
-	           function (action) {
-		           var debugMe = true && TipTap.settings.debug;
-		           var $target = action.$target;
-		           var id = parseInt($target[0].id, 10);
+					md("app tap: (" + pointer + "-(" + $e.css("width") + " * " + $e.css("height") + ")", debugMe);
 
-		           md("app change background(" + id + ")", debugMe);
+				}
+			},
+			{
+				combo:    "tap2>tap2",
+				filter:   ".test",
+				callback: function (action) {
+					var debugMe = true && TipTap.settings.debug;
+					var target = action.target;
+					var id = parseInt(target.id, 10);
 
-		           if (id < imgFiles.length) {
-			           $target.attr('src', 'i/' + imgFiles[Math.round(Math.random() * imgFiles.length)]);
-		           } else {
-			           $target.css('backgroundColor', '#' + (Math.round(Math.random() * (256 * 256 * 256 - 1))).toString(16));
-		           }
-	           })
-		.tipTap('on',
-	           "swipe_r",
-	           ".test",
-	           function (action) {
-		           var debugMe = true && TipTap.settings.debug;
+					md("app change background(" + id + ")", debugMe);
 
-		           md("app swipe_r", debugMe);
+					if (id < imgFiles.length) {
+						target.src = 'i/' + imgFiles[Math.round(Math.random() * imgFiles.length)];
+					} else {
+						target.style.backgroundColor = '#' + (Math.round(Math.random() * (256 * 256 * 256 - 1))).toString(16);
+					}
+				}
+			},
+			{
+				combo:    "swipe_r",
+				filter:   ".test",
+				callback: function (action) {
+					var debugMe = true && TipTap.settings.debug;
+					var target = action.target;
 
-		           action.$target.remove();
-	           })
-		.tipTap('on',
-	           "tap>tap",
-	           ".test",
-	           function (action) {
-		           var $target = action.$target;
+					md("app swipe_r", debugMe);
 
-		           $target.width($target.width() * 1.1);
-		           $target.height($target.height() * 1.1);
-	           })
-		.tipTap('on',
-	           "tap>tap>tap",
-	           ".test",
-	           function (action) {
-		           var debugMe = true && TipTap.settings.debug;
-		           var $target = action.$target;
+					target.parentNode.removeChild(target);
 
-		           md("app shrink by 1.1", debugMe);
+				}
+			},
+			{
+				combo:    "tap>tap",
+				filter:   ".test",
+				callback: function (action) {
+					var target = action.target;
+					var style = window.getComputedStyle(target);
 
-		           $target.width($target.width() / 1.1);
-		           $target.height($target.height() / 1.1);
-	           })
-		.tipTap('on',
-	           "tip+|dragStart+",
-	           ".test",
-	           function (action) {
-		           var $target = action.$target;
+					target.style.width = (parseInt(style.getPropertyValue("width"), 10) * 1.1) + "px";
+					target.style.height = (parseInt(style.getPropertyValue("height"), 10) * 1.1) + "px";
+				}
+			},
+			{
+				combo:    "tap>tap>tap",
+				filter:   ".test",
+				callback: function (action) {
+					var target = action.target;
+					var style = window.getComputedStyle(target);
 
-		           if (!$target.hasClass('dragging')) {
+					target.style.width = (parseInt(style.getPropertyValue("width"), 10) / 1.1) + "px";
+					target.style.height = (parseInt(style.getPropertyValue("height"), 10) / 1.1) + "px";
+				}
+			},
+			{
+				combo:    "tip+|dragStart+",
+				filter:   ".test",
+				callback: function (action) {
+					var target = action.target;
 
-			           $target
+					// if classname does not contain "dragging", add it and change z index
+					if ((' ' + target.className + ' ').indexOf(' dragging ') < 0) {
 
-				           .css('zIndex', zIndex++)
+						target.style.zIndex = zIndex++;
 
-				           .addClass('dragging');
+						target.className += ' dragging';
 
-		           }
+					}
 
-	           })
-		.tipTap('on',
-	           "untip+|dragStop+",
-	           ".test",
-	           function (action) {
+				}
+			},
+			{
+				combo:    "untip+|dragStop+",
+				filter:   ".test",
+				callback: function (action) {
+					var target = action.target;
 
-		           // if no more position, remove special class
-		           action.$target.removeClass('dragging');
+					// if no more position, remove special class
+					target.className = action.target.className.replace(' dragging', '');
 
-	           })
-		.tipTap('on',
-	           "tip+|press+",
-	           ".test",
-	           function (action) {
-		           var $target;
-		           var isMasterFinger;
-		           var debugMe = true && TipTap.settings.debug;
+				}
+			},
+			{
+				combo:    "tip+|press+",
+				filter:   ".test",
+				callback: function (action) {
+					var $target;
+					var isMasterFinger;
+					var debugMe = true && TipTap.settings.debug;
 
-		           _.each(action.listOfPointers, function (pointer) {
-			           $target = pointer.$target;
+					_.each(action.listOfPointers, function (pointer) {
+						$target = $(pointer.target);
 
-			           md("app tip-1: " + $target.attr('id') + ", " + pointer, debugMe);
+						md("app tip-1: " + $target.attr('id') + ", " + pointer, debugMe);
 
-			           // the master pointer is the one allowed to drag the element
-			           isMasterFinger = !_.any(positionsList, function (position) {
-				           return position.$target.is($target);
-			           });
+						// the master pointer is the one allowed to drag the element
+						isMasterFinger = !_.any(positionsList, function (position) {
 
-			           positionsList.push(
-				           {
-					           $target:    $target,
-					           isMaster:   isMasterFinger,
-					           identifier: pointer.identifier,
-					           dx:         pointer.pageX - parseInt($target.css('left'), 10),
-					           dy:         pointer.pageY - parseInt($target.css('top'), 10)
-				           }
-			           );
-		           });
-	           })
-		.tipTap('on',
-	           "drag",
-	           ".test",
-	           function (action) {
-		           dragResize(action.gesture, 1);
-	           })
-		.tipTap('on',
-	           "untip+|release+",
-	           ".test",
-	           function (action) {
-		           var debugMe = true && TipTap.settings.debug;
-		           var dl = positionsList.length;
-		           var position;
+							return position.$target.is($target);
 
-		           md("app untip", debugMe);
-		           _.each(action.gesture.listOfPointers, function (pointer) {
-			           md('app untip: ' + pointer + '.s: ' + pointer.status, debugMe);
+						});
 
-			           // why check this status? If it's untip, sooner or later, it'll need to get flushed from here. And
-			           // there's no other call, so how to remove if not now??
-			           positionsList = _.reject(positionsList, function (position) {
+						positionsList.push(
+							{
+								$target:    $target,
+								isMaster:   isMasterFinger,
+								identifier: pointer.identifier,
+								dx:         pointer.pageX - parseInt($target.css('left'), 10),
+								dy:         pointer.pageY - parseInt($target.css('top'), 10)
+							}
+						);
+					});
+				}
+			},
+			{
+				combo:    "drag",
+				filter:   ".test",
+				callback: function (action) {
+					dragResize(action.gesture, 1);
+				}
+			},
+			{
+				combo:    "untip+|release+",
+				filter:   ".test",
+				callback: function (action) {
+					var debugMe = true && TipTap.settings.debug;
+					var dl = positionsList.length;
+					var position;
 
-				           md("app untip: position=" + position.identifier, debugMe);
+					md("app untip", debugMe);
+					_.each(action.gesture.listOfPointers, function (pointer) {
+						md('app untip: ' + pointer + '.s: ' + pointer.status, debugMe);
 
-				           return position.identifier === pointer.identifier;
+						// why check this status? If it's untip, sooner or later, it'll need to get flushed from here. And
+						// there's no other call, so how to remove if not now??
+						positionsList = _.reject(positionsList, function (position) {
 
-			           });
+							md("app untip: position=" + position.identifier, debugMe);
 
-			           // once Master position removed, check if another one is still here
-			           position = _.find(positionsList, function (pos) {
+							return position.identifier === pointer.identifier;
 
-				           return pos.$target.is(pointer.$target);
+						});
 
-			           });
+						// once Master position removed, check if another one is still here
+						position = _.find(positionsList, function (pos) {
 
-			           if (position) {
+							return pos.$target.is($(pointer.target));
 
-				           // arbitrarily makes the next Pointer the new Master
-				           position.isMaster = true;
+						});
 
-			           }
+						if (position) {
 
-		           });
+							// arbitrarily makes the next Pointer the new Master
+							position.isMaster = true;
 
-		           md('<span style="' +
-			              (((dl === positionsList.length) && (positionsList.length > 0)) ? 'color: red; font-weight: bold;' : '') +
-			              '"> app untip: pll=' + positionsList.length + '</span>', debugMe);
+						}
 
-		           if ((dl === positionsList.length) && (positionsList.length > 0)) {
+					});
 
-			           md('<b style="color: red; font-weight: bold;">******</b>', debugMe);
+					md('<span style="' +
+						   (((dl === positionsList.length) && (positionsList.length > 0)) ? 'color: red; font-weight: bold;' : '') +
+						   '"> app untip: pll=' + positionsList.length + '</span>', debugMe);
 
-			           md('<b style="color: red; font-weight: bold;">******</b>', debugMe);
+					if ((dl === positionsList.length) && (positionsList.length > 0)) {
 
-			           md('<b style="color: red; font-weight: bold;">******</b>', debugMe);
+						md('<b style="color: red; font-weight: bold;">******</b>', debugMe);
 
-		           }
+						md('<b style="color: red; font-weight: bold;">******</b>', debugMe);
 
-	           });
+						md('<b style="color: red; font-weight: bold;">******</b>', debugMe);
+
+					}
+
+				}
+			},
+		]
+	);
 });
 
 function dragResize(gesture, factor) {
@@ -243,12 +262,13 @@ function dragResize(gesture, factor) {
 
 	pointer = pointersList[0];
 
-	$target = pointer.$target;
+	$target = $(pointer.target);
 
 	// find the position to apply
 	position = _.find(positionsList, function (pos) {
-		return ((pos.isMaster) &&
-			(pos.$target.is($target)));
+
+		return ((pos.isMaster) && (pos.$target.is($target)));
+
 	});
 
 	// happens in case of, for example, a tap-tip...
@@ -258,10 +278,10 @@ function dragResize(gesture, factor) {
 
 	md("app drag-2: $target=" + pointersList[0].$target.attr('id') + ", #" + position.identifier + " is master", debugMe);
 
-	md("app drag-3", debugMe);
-
 	pointer = _.find(pointersList, function (ptr) {
+
 		return (position.identifier === ptr.identifier);
+
 	});
 
 	md("app drag-4", debugMe);

@@ -1,13 +1,13 @@
 (function (TipTap, _) {
 
-	var Finger = function (eventTouch) {
+	var Finger = function (tiptapEvent) {
 		this.debugMe = true;
 
 		var debugMe = true && TipTap.settings.debug && this.debugMe;
 
 		this.direction = Finger._DIR_NONE;
 
-		this.identifier = eventTouch.identifier;
+		this.identifier = tiptapEvent.identifier;
 
 		// the flag is set if the Finger has tipped before doing other things. Simplifies FSM logic a lot!!
 		this.isTipping = false;
@@ -27,16 +27,16 @@
 		// index of the positions list of when the swipe started (to calculate values)
 		this.swipeStartPositionIndex = 0;
 
-		// important to keep $target to force it to new Pointers (fast moves can make mouse go out of initial $target)
-		this.$target = eventTouch.$target;
-
-		// methods calls at creation
+		// keep a reference to the initial target to force it to new Pointers (fast moves can make mouse move outside of it)
+		this.target = null;
+		this.$target = null;
+		this._setTarget(tiptapEvent.getTarget());
 
 		// create the Signals to send to listeners
 		this.createSignals();
 
 		// we store all positions
-		this.storePosition(eventTouch);
+		this.storePosition(tiptapEvent);
 
 		md(this + ".new()", debugMe)
 	};
@@ -382,6 +382,18 @@
 
 		},
 
+		getTarget: function () {
+
+			return this.target;
+
+		},
+
+		get$Target: function () {
+
+			return this.$target;
+
+		},
+
 		isSwipingOrDragging: function () {
 			var debugMe = true && TipTap.settings.debug && this.debugMe;
 
@@ -496,6 +508,19 @@
 
 		},
 
+		_setTarget: function (target) {
+
+			this.target = target;
+
+		},
+
+		_set$Target: function ($target) {
+
+			// add jQuery object wrapper for the DOM
+			this.$target = $target;
+
+		},
+
 		startPressedToTippedTimer: function () {
 			var debugMe = true && TipTap.settings.debug && this.debugMe;
 
@@ -536,6 +561,15 @@
 		}
 
 	};
+
+	Finger.use$ = function () {
+
+		this.prototype.getTarget = this.prototype.get$Target;
+
+		this.prototype._setTarget = this.prototype._set$Target;
+
+	};
+
 
 	// namespacing
 	TipTap.Finger = Finger;

@@ -4,13 +4,11 @@
 	 * pointer ended (mouseup, touchend). The small delay is here to allow combos of multiple Gestures, like double-tap (the
 	 * classical double-clic in a mouse-only world).
 	 */
-	var Action = function ($target) {
+	var Action = function (target$) {
 
 		var debugMe = true && this.debugMe && TipTap.settings.debug;
 
 		this.debugMe = true;
-
-		md(this + '.new(' + $target[0].id + '")', debugMe);
 
 		// function bound with the gesture to use when called. Allows to call it from setTimeout or immediate (untip)
 		this.boundEndComboAndMaybeAction = null;
@@ -29,22 +27,27 @@
 		// store the strings created from each Gesture. Combined to create the Combo
 		this.listOfFormattedGestures = [];
 
+		// will store the pointer list of pointers of the last gesture
+		this.listOfPointers =  null;
+
 		// count of Pointers "active" (fingers touching, mouse down...)
 		this.pressedPointersCount = 0;
 
 		// "pointer" on the setTimeout of Gesture FIFO processing (scheduler)
 		this.processGestureTimer = 0;
 
-		this.$target = $target;
+		// preallocating both to null might help optimizers / JIT
+		this.target = null;
+		this.$target = null;
+		this._setTarget(target$);
 
-		// todo jQuery: change $target to target when no more jQuery dependency. Ideal would be a "plus" mode for jQuery
-		//this.target = this.$target.get(0);
+		md(this + '.new(' + (this.target?this.target.id:this.$target[0].id)   + '")', debugMe);
 
 		// check if the target has already been processed by RotoZoomer
-		// $target, rotateable, zoomable, autoApply
 		if (TipTap.settings.rotoZoom) {
 
-			this.rotoZoomer = new TipTap.RotoZoomer(this.$target, true, true, true);
+		// $target, rotateable, zoomable, autoApply
+			this.rotoZoomer = new TipTap.RotoZoomer(target$, true, true, true);
 
 		}
 
@@ -307,9 +310,33 @@
 
 		},
 
+		getTarget: function() {
+
+			return this.target;
+
+		},
+
+		get$Target: function() {
+
+			return this.$target;
+
+		},
+
 		hasPressedPointers: function () {
 
 			return (this.pressedPointersCount > 0);
+
+		},
+
+		_setTarget:                       function (target) {
+
+			this.target = target;
+
+		},
+
+		_set$Target:                 function ($target) {
+
+			this.$target = $target;
 
 		},
 
@@ -404,7 +431,7 @@
 
 	};
 
-	// just to make things faster
+	// just to make things faster. Not sure it's *so* clean to have methods names based on another class' properties value
 	var gesture = TipTap.Gesture;
 
 	// status callback. Names are dynamically created from gestures codes, avoid keeping two source files in sync
@@ -532,6 +559,15 @@
 	};
 
 	Action._id = 0;
+
+	Action.use$ = function () {
+
+		// replaces methods. I know, I "should" use decorators, but it's a bit heavy for this.
+		this.prototype._setTarget = this.prototype._set$Target;
+
+		this.prototype.getTarget = this.prototype.get$Target;
+
+	};
 
 	// namespaces the thing
 	TipTap.Action = Action;

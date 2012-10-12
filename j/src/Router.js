@@ -1,10 +1,14 @@
 (function (TipTap, _, $) {
 
-	var Router = function ($el, device) {
+	var Router = function (el$, device) {
+
 		this.debugMe = true;
 
 		this.device = device;
-		this.$el = $el;
+
+		// el$ is DOM or jQuery element
+		this._setElement(el$);
+
 		this.listOfCallbacks = {};
 		this.listOfFilters = [];
 		this.listOfActions = [];    // list of all Actions for this Router
@@ -12,6 +16,7 @@
 		this.nofilter = false;  // special case when callback is set with no filter. While not set, is false
 
 	};
+
 
 	Router.prototype = {
 
@@ -30,18 +35,20 @@
 
 			var action;
 
+			// can be DOM element or jQuery!
+			var target$ = finger.getTarget();
+
 			md(this + ".allocateAction-1", debugMe);
 
 			// look for an existing Action on the same target
-			// todo: allow few simultaneous Actions on a same target, differentiate by distance of the pointers
-			action = this.findActionByTarget(finger.$target);
+			action = this._findActionByTarget(target$);
 
 			// if no matching Action found, we create a new one
 			if (!action) {
 
 				md(this + ".allocateAction-couldn't find Action by target", debugMe);
 
-				action = new TipTap.Action(finger.$target);
+				action = new TipTap.Action(target$);
 
 				md(this + ".allocateAction-new Action created", debugMe);
 
@@ -61,7 +68,7 @@
 			var comboRegexp;
 
 			// beware, filter can be empty string from the app call, so it's necessary to test this anyway
-			if (filter === "") {
+			if (!filter) {
 
 				this.nofilter = true; // makes event callback test faster
 
@@ -108,31 +115,32 @@
 
 			md("<b>" + this + ".callComboCallback(" + action + ", " + combo + ", " + action.gesture + ")</b>", debugMe);
 
+			// HACK: can be a DOM element or jQuery, depending if we use jQuery or not
+			var target$ = action.getTarget();
+
+			// if target$ is the global container, and some actions are global, set to true
+			var globalAction = this._isElementTheTarget(target$) && this.nofilter;
+
 			// finds all the callbacks based on combo matching
 			_.each(this.listOfCallbacks, function (listOfCallbacksForThisCombo) {
 
 				if (listOfCallbacksForThisCombo.regex.test(combo)) {
 
-					// simple optimization
-					var $target = action.$target;
-
-					// if target is the global container, and some actions are global, set to true
-					var globalAction = ($target.is(this.$el) && this.nofilter);
-
 					// for each matched combo, find the first filter matching the element (=> declare more restrictive filters first)
-					var cb = _.find(listOfCallbacksForThisCombo.callbacks, function (element) {
+					var comboObject = _.find(listOfCallbacksForThisCombo.callbacks, function (element) {
 
 						// if we are on an element catching some events, or if some global actions defined
-						return $target.is(element.filter);
+						return this._matchesFilter(target$, element.filter);
 
-					});
+					}, this);
 
 					// if couldn't find a sub-element specific callback, but global effect is defined, look for global callback
-					if (!cb && globalAction) {
-						// just for speed
+					if (!comboObject && globalAction) {
+
+						// variable just for speed, to avoid two lookups each time
 						var class_filler = TipTap.GLOBAL_CLASS_FILTER;
 
-						cb = _.find(listOfCallbacksForThisCombo.callbacks, function (element) {
+						comboObject = _.find(listOfCallbacksForThisCombo.callbacks, function (element) {
 
 							// if we are on an element catching some events, or if some global actions defined
 							return (element.filter === class_filler);
@@ -140,10 +148,10 @@
 						});
 					}
 
-					if (cb) {
+					if (comboObject) {
 
 						// uses given context
-						cb.callback.call(cb.context, action);
+						comboObject.callback.call(comboObject.context, action);
 
 					}
 
@@ -154,6 +162,7 @@
 		},
 
 		deallocateAction: function (action) {
+
 			var debugMe = true && this.debugMe && TipTap.settings.debug;
 
 			md(this + ".deAllocateAction(" + action + ")", debugMe)
@@ -162,26 +171,63 @@
 
 		},
 
-		findActionByTarget: function ($target) {
+		_matchesFilter: function (node, className) {
 
-			return _.find(this.listOfActions, function (a) {
-
-				// match action if same filter and same target
-				return a.$target.is($target);
-
-			});
+			return (' ' + node.className + ' ').indexOf(' ' + className + ' ') >= 0;
 
 		},
 
-		findMatchingFilterForEvent: function ($target) {
+		_matches$Filter: function ($node, filter) {
+
+			return $node.is(filter);
+
+		},
+
+		_isElementTheTarget: function (target) {
+
+			return target.isSameNode(this.el);
+
+		},
+
+		_isElementThe$Target: function ($target) {
+
+			return $target.is(this.$el);
+
+		},
+
+		_findActionByTarget: function (target$) {
+
+			// todo: allow several simultaneous Actions on a same target, differentiate by distance of the pointers
+			return _.find(this.listOfActions, function (action) {
+
+				return this._areTheseTheSameNode(action.getTarget(), target$);
+
+			}, this);
+
+		},
+
+		_areTheseTheSameNode: function (node1, node2) {
+
+			return node1.isSameNode(node2);
+
+		},
+
+		_areTheseTheSame$Node: function ($node1, $node2) {
+
+			return $node1.is($node2);
+
+		},
+
+		findMatchingFilterForEvent: function (target$) {
+
 			var filter;
 
 			// check if target is really allowed to capture events (matching filter BEFORE global callbacks)
 			filter = _.find(this.listOfFilters, function (fltr) {
 
-				return $target.is(fltr);
+				return this._matchesFilter(target$, fltr);
 
-			});
+			}, this);
 
 			// if filter was not matched, but the whole target is capturing, sends back the "-" filter
 			if (!filter && this.nofilter) {
@@ -192,6 +238,30 @@
 
 			// either the matched filter, or "undefined" if filter not found and no global capture
 			return filter;
+
+		},
+
+		getElement: function () {
+
+			return this.el;
+
+		},
+
+		get$Element: function () {
+
+			return this.$el;
+
+		},
+
+		_setElement: function (el) {
+
+			this.el = el;
+
+		},
+
+		_set$Element: function ($el) {
+
+			this.$el = $el;
 
 		},
 
@@ -251,17 +321,6 @@
 	Router.modifiersRE = /[\*\+\?]/;
 	Router.modifiersZeroOrRE = /[\*\?]/;
 	Router.numbersRE = /[0-9]/;
-
-	Router.transformComboIntoRegex = function (combo) {
-		var comboLength = combo.length - 1;
-
-		// analyze the combo from the end, because it's the way we must construct the regexp
-		var index = 0;
-
-		// the $ is added at the end of the inner most matching pattern!!
-		return "^" + Router.recursiveTransformCombo(combo, comboLength, index);
-
-	};
 
 	Router.recursiveTransformCombo = function (combo, comboLength, index) {
 
@@ -383,6 +442,28 @@
 			return "";
 
 		}
+
+	};
+
+	Router.transformComboIntoRegex = function (combo) {
+		var comboLength = combo.length - 1;
+
+		// analyze the combo from the end, because it's the way we must construct the regexp
+		var index = 0;
+
+		// the $ is added at the end of the inner most matching pattern!!
+		return "^" + Router.recursiveTransformCombo(combo, comboLength, index);
+
+	};
+
+	Router.use$ = function () {
+
+		// replaces methods. I know, I "should" use decorators, but it's a bit heavy for this.
+		this.prototype._areTheseTheSameNode = this.prototype._areTheseTheSame$Node;
+		this.prototype.getElement = this.prototype.get$Element;
+		this.prototype._isElementTheTarget = this.prototype._isElementThe$Target;
+		this.prototype._matchesFilter = this.prototype._matches$Filter;
+		this.prototype._setElement = this.prototype._set$Element;
 
 	};
 

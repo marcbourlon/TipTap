@@ -17,9 +17,25 @@
 		END_EVENT_NAME:    'pointerup',
 		CANCEL_EVENT_NAME: 'pointercancel',
 
-		buildEtList: function (e) {
+		// todo: base Device class with these jQuery-related methods
+		// will be set to either saveTargetNojQuery or saveTargetjQuery, depending.
+		_addTarget:        function (dest, src) {
 
-			var pointersList = TipTap._getEvent(e).getPointerList();
+			// nothing to do, target already exists
+
+		},
+
+		_addTargetjQuery: function (dest, src) {
+
+			// add jQuery object wrapper for the DOM
+			dest.$target = $(src.target);
+
+		},
+
+		buildEventList: function (e) {
+
+			// when using pointers lib, event contains this method
+			var pointersList = this._getEvent(e).getPointerList();
 
 			for (var i = 0, l = pointersList.length; i < l; i++) {
 
@@ -36,6 +52,18 @@
 
 		},
 
+		_getOriginalEvent: function (e) {
+
+			return e;
+
+		},
+
+		_getOriginalEvent$: function (e) {
+
+			return e.originalEvent;
+
+		},
+
 		onStart: function (eventTouch) {
 
 			this.mouseDown = true;
@@ -49,28 +77,17 @@
 
 		},
 
-		onCancel:   function (eventTouch) {
+		onCancel: function (eventTouch) {
 
 			this.onEnd(eventTouch);
 
 		},
 
-		// todo: base Device class with these jQuery-related methods
-		// will be set to either saveTargetNojQuery or saveTargetjQuery, depending.
-		_addTarget: function (dest, src) {
-
-		},
-
-		_addTargetjQuery: function (dest, src) {
-
-			// add jQuery object wrapper for the DOM
-			dest.$target = $(src.target);
-
-		},
-
-		usejQuery: function () {
+		use$: function () {
 
 			this._addTarget = this._addTargetjQuery;
+
+			this._getEvent = this._getOriginalEvent$;
 
 		},
 

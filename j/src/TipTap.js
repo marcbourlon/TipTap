@@ -47,18 +47,6 @@
 
 		},
 
-		_getEvent: function (e) {
-
-			return e;
-
-		},
-
-		_getEventjQuery: function (e) {
-
-			return e.originalEvent;
-
-		},
-
 		buildNamespacedEventName: function (eventBasename) {
 
 			return  eventBasename + '.TipTap';
@@ -88,29 +76,17 @@
 			}
 
 			// if user asks to use jQuery but this is not present, deny it
-			this.settings.usejQuery = this.settings.usejQuery && !!$;
+			this.settings.use$ = this.settings.use$ && !!$;
 
-			// only one global listener for move/end/cancel. Because fast mouse movement can move cursor out of element, and
-			// because end can be fired on another element, dynamically created during drag (same as in drag'n'drop, etc.)
-			if (TipTap.settings.usejQuery) {
-
-				$(document)
-					.bind(this.buildNamespacedEventName(this.device.DRAG_EVENT_NAME), _.bind(TipTap.onDrag, TipTap))
-					.bind(this.buildNamespacedEventName(this.device.END_EVENT_NAME), _.bind(TipTap.onEnd, TipTap))
-					.bind(this.buildNamespacedEventName(this.device.CANCEL_EVENT_NAME), _.bind(TipTap.onCancel, TipTap));
+			if (this.settings.use$) {
 
 				// instead of doing "if (jQuery)" everywhere, just set methods. I luv' it :)
-				this.usejQuery();
-				this.device.usejQuery();
-
-			} else {
-
-				document.addEventListener(this.device.DRAG_EVENT_NAME, _.bind(TipTap.onDrag, TipTap));
-				document.addEventListener(this.device.END_EVENT_NAME, _.bind(TipTap.onEnd, TipTap));
-				document.addEventListener(this.device.CANCEL_EVENT_NAME, _.bind(TipTap.onCancel, TipTap));
+				this._propagateUse$();
 
 			}
 
+			// set drag, end and cancel callbacks
+			this._setCallbacks();
 
 		},
 
@@ -118,17 +94,18 @@
 		 * on
 		 *
 		 * @param nodesList : list of DOM elements gathered by querySelectorAll(<filter>)
-		 * @param combosList :  "list" of combos to match (see syntax reference)
+		 * @param combosFiltersCallbacksList :  "list" of combos to match (see syntax reference)
 		 * @param filter : DOM filter expression for delegation
 		 * @param callback : callback
 		 * @param context : optional context in which to call the callback (like .bind, $.bind, _.bind...)
 		 * @return {*}
 		 */
-		on: function (nodesList, combosList, filter, callback, context) {
+		on: function (nodesList, combosFiltersCallbacksList, context) {
 
 			if (!nodesList) {
 
-				return false;
+				// if no nodeslist, return TipTap anyway for chaining
+				return this;
 
 			}
 
@@ -136,17 +113,6 @@
 			if (Object.prototype.toString.call(nodesList) !== "[object Array]") {
 
 				nodesList = [nodesList];
-
-			}
-
-			// if "filter" is a function, then we have no filter defined, and the filter var is the callback
-			if (typeof filter === "function") {
-
-				context = callback;
-
-				callback = filter;
-
-				filter = "";
 
 			}
 
@@ -183,13 +149,22 @@
 
 				}
 
-				// attach combo and related callbacks to the Router
-				router.bindCombos(combosList, filter, callback, context);
+				for (var combosIdx = 0, combosCount = combosFiltersCallbacksList.length; combosIdx < combosCount; combosIdx++) {
+
+					var comboFilterCallback = combosFiltersCallbacksList[combosIdx];
+					var combo = comboFilterCallback.combo;
+					var filter = comboFilterCallback.combo || "";
+					var callback = comboFilterCallback.callback;
+
+					// attach combo and related callbacks to the Router
+					router.bindCombos(combo, filter, callback, context);
+
+				}
 
 			}
 
-			// all was ok
-			return true;
+			// return TipTap for chaining
+			return this;
 
 		},
 
@@ -258,7 +233,7 @@
 
 		},
 
-		onStart: function (router, e) {
+		onStart: function (router, event) {
 			var debugMe = true && this.debugMe && TipTap.settings.debug;
 
 			var t = Date.now();
@@ -266,12 +241,12 @@
 			md(this + ".onStart-1: " + t + "<hr/>", debugMe);
 
 			// Pass "keep bubbling", that the _.reduce will transform into "cancel bubbling" if a matching event is found
-			if (TipTap.CANCEL_BUBBLING === _.reduce(this.device.buildEtList(e),
-			                                        _.bind(this.onStartDo, this, router),
-			                                        TipTap.KEEP_BUBBLING,
-			                                        this)) {
+			if (TipTap.CANCEL_BUBBLING === _.reduce(this.device.buildEventList(event),
+			                                      _.bind(this.onStartDo, this, router),
+			                                      TipTap.KEEP_BUBBLING,
+			                                      this)) {
 
-				this.stopEvent(e);
+				this.stopEvent(event);
 
 			}
 
@@ -287,7 +262,7 @@
 			md(this + ".onStartDo-1", debugMe);
 
 			// check if the event target element is matching at least one defined filter
-			filter = router.findMatchingFilterForEvent(eventTouch.$target);
+			filter = router.findMatchingFilterForEvent(eventTouch.getTarget());
 
 			// if no filter found, the component has no callback for this eT
 			if (!filter) {
@@ -325,9 +300,10 @@
 			 Actions to allow splitting elements, we'll have to deal with several Actions concerned by one event
 			 Will it work?
 			 */
-			var debugMe = true && this.debugMe && TipTap.settings.debug;
+			var debugMe = true && this.debugMe && this.settings.debug;
 
 			var cancelBubbling = TipTap.KEEP_BUBBLING;
+
 			var t = Date.now();
 
 			// todo: onMove which also tracks mouse move (not drag). for this, check if an Action exists, and if not, create one
@@ -341,7 +317,7 @@
 			this.device.onDrag(e);
 
 			// buildEtList unifies mouse and touch events/touchs in a list
-			_.each(this.device.buildEtList(e), function (eventTouch) {
+			_.each(this.device.buildEventList(e), function (eventTouch) {
 
 				// we store the touch identifier in the Finger, so we can match new incoming events. Obvious.
 				var finger = this.findFingerByIdentifier(eventTouch.identifier);
@@ -353,7 +329,7 @@
 
 				}
 
-				md(this + ".onDrag: " + t + ",l=" + this.device.buildEtList(e).length + "<hr/>", debugMe);
+				md(this + ".onDrag: " + t + ",l=" + this.device.buildEventList(e).length + "<hr/>", debugMe);
 
 				cancelBubbling = TipTap.CANCEL_BUBBLING;
 
@@ -373,7 +349,7 @@
 			var debugMe = true && this.debugMe && TipTap.settings.debug;
 
 			// odd (?) usage of _.reduce(): calls finger.end() on all fingers concerned
-			if (_.reduce(this.device.buildEtList(e), _.bind(this.onEndDo, this), TipTap.KEEP_BUBBLING, this)) {
+			if (_.reduce(this.device.buildEventList(e), _.bind(this.onEndDo, this), TipTap.KEEP_BUBBLING, this)) {
 
 				md(this + ".onEnd", debugMe);
 
@@ -410,8 +386,26 @@
 			this.onEnd(e);  // todo: better management of cancel ?
 		},
 
+		_setCallbacks: function () {
+
+			// only one global listener for move/end/cancel. Because fast mouse movement can move cursor out of element, and
+			// because end can be fired on another element, dynamically created during drag (same as in drag'n'drop, etc.)
+			document.addEventListener(this.device.DRAG_EVENT_NAME, _.bind(this.onDrag, this));
+			document.addEventListener(this.device.END_EVENT_NAME, _.bind(this.onEnd, this));
+			document.addEventListener(this.device.CANCEL_EVENT_NAME, _.bind(this.onCancel, this));
+
+		},
+
+		_setCallbacks$: function () {
+
+			$(document)
+				.bind(this.buildNamespacedEventName(this.device.DRAG_EVENT_NAME), _.bind(this.onDrag, this))
+				.bind(this.buildNamespacedEventName(this.device.END_EVENT_NAME), _.bind(this.onEnd, this))
+				.bind(this.buildNamespacedEventName(this.device.CANCEL_EVENT_NAME), _.bind(this.onCancel, this));
+
+		},
+
 		stopEvent: function (e) {
-			e = TipTap._getEvent(e);
 
 			e.preventDefault();
 			//e.stopPropagation();
@@ -434,9 +428,14 @@
 
 		},
 
-		usejQuery: function () {
+		_propagateUse$: function () {
 
-			this._getEvent = this._getEventjQuery;
+			this._setCallbacks = this._setCallbacks$;
+
+			this.device.use$();
+			this.Action.use$();
+			this.PointerInfos.use$();
+			this.Router.use$();
 
 		},
 
@@ -472,7 +471,7 @@
 
 		useBorisSmusPointersPolyfill: false, // use Boris Smus pointers polyfill
 
-		usejQuery: false, // whether to use jQuery or not
+		use$: false, // whether to use jQuery or not
 
 		useTipPrefixes: false, // include or not the "tip" prefixes in complex gestures: "tip-tap" or just "tap"
 
