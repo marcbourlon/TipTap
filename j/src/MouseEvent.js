@@ -19,7 +19,7 @@
 		this.$target = null;
 		this._setTarget(event);
 
-		this.timestamp = event.timestamp;
+		this.timeStamp = event.timeStamp;
 
 	};
 

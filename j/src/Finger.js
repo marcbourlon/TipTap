@@ -249,9 +249,9 @@
 
 	Finger.prototype = {
 
-		addPosition: function (pointer) {
+		addPosition: function (position) {
 
-			this.listOfPositions.push(pointer);
+			this.listOfPositions.push(position);
 
 		},
 

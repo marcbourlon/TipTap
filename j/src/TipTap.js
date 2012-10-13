@@ -153,7 +153,7 @@
 
 					var comboFilterCallback = combosFiltersCallbacksList[combosIdx];
 					var combo = comboFilterCallback.combo;
-					var filter = comboFilterCallback.combo || "";
+					var filter = comboFilterCallback.filter || "";
 					var callback = comboFilterCallback.callback;
 
 					// attach combo and related callbacks to the Router
@@ -254,7 +254,7 @@
 
 		},
 
-		onStartDo: function (router, bubblingStatus, eventTouch) {
+		onStartDo: function (router, bubblingStatus, tiptapEvent) {
 			var debugMe = true && this.debugMe && TipTap.settings.debug;
 			var finger;
 			var filter;
@@ -262,7 +262,7 @@
 			md(this + ".onStartDo-1", debugMe);
 
 			// check if the event target element is matching at least one defined filter
-			filter = router.findMatchingFilterForEvent(eventTouch.getTarget());
+			filter = router.findMatchingFilterForEvent(tiptapEvent.getTarget());
 
 			// if no filter found, the component has no callback for this eT
 			if (!filter) {
@@ -273,7 +273,7 @@
 
 			md(this + ".onStartDo-2", debugMe);
 
-			finger = new TipTap.Finger(eventTouch);
+			finger = new TipTap.Finger(tiptapEvent);
 
 			// Keep track of the finger to dispatch further moves
 			this.listOfFingers.push(finger);
@@ -286,7 +286,7 @@
 			// in case the device has something to do with the EventTouch before this one is processed by the Finger
 			this.device.onStart();
 
-			finger.onStart(eventTouch);
+			finger.onStart(tiptapEvent);
 
 			md(this + ".onStartDo-4", debugMe);
 

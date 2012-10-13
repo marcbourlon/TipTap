@@ -31,8 +31,8 @@ var imgFiles = [
 $(function () {
 	TipTap.init(
 		{
-			rotoZoom:                     true,
-			use$:                    false,
+			rotoZoom:                     false,
+			use$:                         false,
 			useTipPrefixes:               false,
 			useBorisSmusPointersPolyfill: false,
 		}
@@ -74,10 +74,10 @@ $(function () {
 			},
 			{
 				combo:    "tap2>tap2",
-				filter:   ".test",
+				filter:   "test",
 				callback: function (action) {
 					var debugMe = true && TipTap.settings.debug;
-					var target = action.target;
+					var target = action.getTarget();
 					var id = parseInt(target.id, 10);
 
 					md("app change background(" + id + ")", debugMe);
@@ -91,10 +91,10 @@ $(function () {
 			},
 			{
 				combo:    "swipe_r",
-				filter:   ".test",
+				filter:   "test",
 				callback: function (action) {
 					var debugMe = true && TipTap.settings.debug;
-					var target = action.target;
+					var target = action.getTarget();
 
 					md("app swipe_r", debugMe);
 
@@ -104,9 +104,9 @@ $(function () {
 			},
 			{
 				combo:    "tap>tap",
-				filter:   ".test",
+				filter:   "test",
 				callback: function (action) {
-					var target = action.target;
+					var target = action.getTarget();
 					var style = window.getComputedStyle(target);
 
 					target.style.width = (parseInt(style.getPropertyValue("width"), 10) * 1.1) + "px";
@@ -115,9 +115,9 @@ $(function () {
 			},
 			{
 				combo:    "tap>tap>tap",
-				filter:   ".test",
+				filter:   "test",
 				callback: function (action) {
-					var target = action.target;
+					var target = action.getTarget();
 					var style = window.getComputedStyle(target);
 
 					target.style.width = (parseInt(style.getPropertyValue("width"), 10) / 1.1) + "px";
@@ -126,9 +126,9 @@ $(function () {
 			},
 			{
 				combo:    "tip+|dragStart+",
-				filter:   ".test",
+				filter:   "test",
 				callback: function (action) {
-					var target = action.target;
+					var target = action.getTarget();
 
 					// if classname does not contain "dragging", add it and change z index
 					if ((' ' + target.className + ' ').indexOf(' dragging ') < 0) {
@@ -143,18 +143,18 @@ $(function () {
 			},
 			{
 				combo:    "untip+|dragStop+",
-				filter:   ".test",
+				filter:   "test",
 				callback: function (action) {
-					var target = action.target;
+					var target = action.getTarget();
 
 					// if no more position, remove special class
-					target.className = action.target.className.replace(' dragging', '');
+					target.className = action.getTarget().className.replace(' dragging', '');
 
 				}
 			},
 			{
 				combo:    "tip+|press+",
-				filter:   ".test",
+				filter:   "test",
 				callback: function (action) {
 					var $target;
 					var isMasterFinger;
@@ -186,14 +186,14 @@ $(function () {
 			},
 			{
 				combo:    "drag",
-				filter:   ".test",
+				filter:   "test",
 				callback: function (action) {
 					dragResize(action.gesture, 1);
 				}
 			},
 			{
 				combo:    "untip+|release+",
-				filter:   ".test",
+				filter:   "test",
 				callback: function (action) {
 					var debugMe = true && TipTap.settings.debug;
 					var dl = positionsList.length;
@@ -250,8 +250,6 @@ $(function () {
 });
 
 function dragResize(gesture, factor) {
-	var pointer;
-	var $target;
 	var position;
 	var x;
 	var y;
@@ -260,9 +258,9 @@ function dragResize(gesture, factor) {
 
 	md("app drag-1", debugMe);
 
-	pointer = pointersList[0];
+	var pointer = pointersList[0];
 
-	$target = $(pointer.target);
+	var $target = $(pointer.getTarget());
 
 	// find the position to apply
 	position = _.find(positionsList, function (pos) {
@@ -276,7 +274,7 @@ function dragResize(gesture, factor) {
 		return;
 	}
 
-	md("app drag-2: $target=" + pointersList[0].$target.attr('id') + ", #" + position.identifier + " is master", debugMe);
+	md("app drag-2: $target=" + $target.attr('id') + ", #" + position.identifier + " is master", debugMe);
 
 	pointer = _.find(pointersList, function (ptr) {
 

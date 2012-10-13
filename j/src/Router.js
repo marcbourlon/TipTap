@@ -220,10 +220,9 @@
 
 		findMatchingFilterForEvent: function (target$) {
 
-			var filter;
 
 			// check if target is really allowed to capture events (matching filter BEFORE global callbacks)
-			filter = _.find(this.listOfFilters, function (fltr) {
+			var filter = _.find(this.listOfFilters, function (fltr) {
 
 				return this._matchesFilter(target$, fltr);
 
