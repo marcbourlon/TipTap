@@ -6,7 +6,7 @@
 
 		this.target = null;
 		this.$target = null;
-		this._setTarget(finger.getTarget());
+		this._setTarget$(finger.getTarget$());
 
 		this.pageX = finger.getPosition().pageX;
 
@@ -20,6 +20,8 @@
 
 	PointerInfos.prototype = {
 
+		getTarget$: null,
+
 		getTarget: function () {
 
 			return this.target;
@@ -31,6 +33,8 @@
 			return this.$target;
 
 		},
+
+		_setTarget$: null,
 
 		_setTarget: function (target) {
 
@@ -52,11 +56,19 @@
 
 	};
 
-	PointerInfos.use$ = function () {
+	PointerInfos.use$ = function (use$) {
 
-		this.prototype._setTarget = this.prototype._set$Target;
+		if (use$) {
 
-		this.prototype.getTarget = this.prototype.get$Target;
+			this.prototype._setTarget$ = this.prototype._set$Target;
+			this.prototype.getTarget$ = this.prototype.get$Target;
+
+		} else {
+
+			this.prototype._setTarget$ = this.prototype._setTarget;
+			this.prototype.getTarget$ = this.prototype.getTarget;
+
+		}
 
 	};
 

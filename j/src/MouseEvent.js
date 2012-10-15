@@ -17,7 +17,7 @@
 		// preallocating both to null might help optimizers / JIT
 		this.target = null;
 		this.$target = null;
-		this._setTarget(event);
+		this._setTarget$FromEvent(event);
 
 		this.timeStamp = event.timeStamp;
 
@@ -25,18 +25,7 @@
 
 	MouseEvent.prototype = {
 
-		_setTarget: function (event) {
-
-			this.target = event.target;
-
-		},
-
-		_set$Target: function (event) {
-
-			// add jQuery object wrapper for the DOM
-			this.$target = $(event.target);
-
-		},
+		getTarget$: null,
 
 		getTarget: function () {
 
@@ -50,13 +39,36 @@
 
 		},
 
+		_setTarget$FromEvent: null,
+
+		_setTargetFromEvent: function (event) {
+
+			this.target = event.target;
+
+		},
+
+		_set$TargetFromEvent: function (event) {
+
+			// add jQuery object wrapper for the DOM
+			this.$target = $(event.target);
+
+		},
+
 	};
 
-	MouseEvent.use$ = function () {
+	MouseEvent.use$ = function (use$) {
 
-		this.prototype.getTarget = this.prototype.get$Target;
+		if (use$) {
+			// replaces methods. I know, I "should" use decorators, but it's a bit heavy for this.
+			this.prototype._setTarget$FromEvent = this.prototype._set$TargetFromEvent;
+			this.prototype.getTarget$ = this.prototype.get$Target;
 
-		this.prototype._setTarget = this.prototype._set$Target;
+		} else {
+
+			this.prototype._setTarget$FromEvent = this.prototype._setTargetFromEvent;
+			this.prototype.getTarget$ = this.prototype.getTarget;
+
+		}
 
 	};
 

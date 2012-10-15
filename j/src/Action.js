@@ -28,7 +28,7 @@
 		this.listOfFormattedGestures = [];
 
 		// will store the pointer list of pointers of the last gesture
-		this.listOfPointers =  null;
+		this.listOfPointers = null;
 
 		// count of Pointers "active" (fingers touching, mouse down...)
 		this.pressedPointersCount = 0;
@@ -39,14 +39,14 @@
 		// preallocating both to null might help optimizers / JIT
 		this.target = null;
 		this.$target = null;
-		this._setTarget(target$);
+		this._setTarget$(target$);
 
-		md(this + '.new(' + (this.target?this.target.id:this.$target[0].id)   + '")', debugMe);
+		md(this + '.new(' + (this.target ? this.target.id : this.$target[0].id) + '")', debugMe);
 
 		// check if the target has already been processed by RotoZoomer
 		if (TipTap.settings.rotoZoom) {
 
-		// $target, rotateable, zoomable, autoApply
+			// $target, rotateable, zoomable, autoApply
 			this.rotoZoomer = new TipTap.RotoZoomer(target$, true, true, true);
 
 		}
@@ -310,13 +310,15 @@
 
 		},
 
-		getTarget: function() {
+		getTarget$: null,
+
+		getTarget: function () {
 
 			return this.target;
 
 		},
 
-		get$Target: function() {
+		get$Target: function () {
 
 			return this.$target;
 
@@ -328,13 +330,15 @@
 
 		},
 
-		_setTarget:                       function (target) {
+		_setTarget$: null,
+
+		_setTarget: function (target) {
 
 			this.target = target;
 
 		},
 
-		_set$Target:                 function ($target) {
+		_set$Target: function ($target) {
 
 			this.$target = $target;
 
@@ -560,12 +564,19 @@
 
 	Action._id = 0;
 
-	Action.use$ = function () {
+	Action.use$ = function (use$) {
 
-		// replaces methods. I know, I "should" use decorators, but it's a bit heavy for this.
-		this.prototype._setTarget = this.prototype._set$Target;
+		if (use$) {
+			// replaces methods. I know, I "should" use decorators, but it's a bit heavy for this.
+			this.prototype._setTarget$ = this.prototype._set$Target;
+			this.prototype.getTarget$ = this.prototype.get$Target;
 
-		this.prototype.getTarget = this.prototype.get$Target;
+		} else {
+
+			this.prototype._setTarget$ = this.prototype._setTarget;
+			this.prototype.getTarget$ = this.prototype.getTarget;
+
+		}
 
 	};
 

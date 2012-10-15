@@ -78,12 +78,7 @@
 			// if user asks to use jQuery but this is not present, deny it
 			this.settings.use$ = this.settings.use$ && !!$;
 
-			if (this.settings.use$) {
-
-				// instead of doing "if (jQuery)" everywhere, just set methods. I luv' it :)
-				this._propagateUse$();
-
-			}
+			this._propagateUse$(this.settings.use$);
 
 			// set drag, end and cancel callbacks
 			this._setCallbacks();
@@ -242,9 +237,9 @@
 
 			// Pass "keep bubbling", that the _.reduce will transform into "cancel bubbling" if a matching event is found
 			if (TipTap.CANCEL_BUBBLING === _.reduce(this.device.buildEventList(event),
-			                                      _.bind(this.onStartDo, this, router),
-			                                      TipTap.KEEP_BUBBLING,
-			                                      this)) {
+			                                        _.bind(this.onStartDo, this, router),
+			                                        TipTap.KEEP_BUBBLING,
+			                                        this)) {
 
 				this.stopEvent(event);
 
@@ -262,7 +257,7 @@
 			md(this + ".onStartDo-1", debugMe);
 
 			// check if the event target element is matching at least one defined filter
-			filter = router.findMatchingFilterForEvent(tiptapEvent.getTarget());
+			filter = router.findMatchingFilterForEvent(tiptapEvent.getTarget$());
 
 			// if no filter found, the component has no callback for this eT
 			if (!filter) {
@@ -432,10 +427,12 @@
 
 			this._setCallbacks = this._setCallbacks$;
 
-			this.device.use$();
-			this.Action.use$();
-			this.PointerInfos.use$();
-			this.Router.use$();
+			var use$ = this.settings.use$;
+
+			this.device.use$(use$);
+			this.Action.use$(use$);
+			this.PointerInfos.use$(use$);
+			this.Router.use$(use$);
 
 		},
 
@@ -477,7 +474,7 @@
 
 	};
 
-	// there's more elegants way to do so, but I'll do when I'm a grown up js developer :-P
+	// there are more elegant ways to do so, but I'll do when I'm a grown up js developer :-P
 	window.TipTap = TipTap;
 
 	// jQuery "pluginification"

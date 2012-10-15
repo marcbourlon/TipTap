@@ -355,30 +355,60 @@ and just makes combos definitions counter-intuitive.
 
 ## Setting a callback
 
-### The syntax
+#### With jQuery
+
 ```javascript
-$(<jQuery filter>).jTipTap("on", <combo>[, <sub elements filter>], callback[, bound object])
+$(<targets filter>).jTipTap("on", <combo>[, <filter>], callback[, bound object])
 ```
-- "on": means we created a new TipTap "event". "off" doesn't exist yet.
-- combo: any string defining a valid combo (syntax correctness checking is, let's be fair, inexistant): "tap", "tip-tap",
-"tap2>tap3", "tip2-swipe_r", "press|tip", "tip*-dragStart", etc.
-- filter: any jQuery valid filter: .classname, #id, not:input, etc.
-- callback: a function receiving an Action object as parameter
-- object: if specified, the **this** in the callback will be valued to this object. Equivalent of $.bind or _.bind
+- _targets filter_: any CSS path as used in jQuery
+- _"on"_: means we created a new TipTap "event". "off" doesn't exist yet.
+- _combo_: any string defining a valid combo (syntax validation is, let's be fair, inexistant): "tap",
+"tip-tap", "tap2>tap3", "tip2-swipe_r", "press|tip", "tip*-dragStart", etc.
+- _filter_ (optional): again, any CSS/jQuery valid filter, to define which objects will really receive be targeted by the
+call. This is very like event delegation: ".classname", "not:input", etc.
+- _callback_: a function receiving an Action object as parameter
+- _bound object_ (optional): if specified, the **this** in the callback will be valued to this object. Equivalent of $.bind or _.bind
+
+#### Without jQuery
+
+The lib has been made usable without jQuery. The biggest (only?) drawback is the fact that the "filter" option for delegation only accepts classname. Beware: it's "_classname_", and not "_.classname_"!
+
+The syntax is then a bit different:
+``` javascript
+	TipTap.on(
+		<DOM element|DOM elements list>,
+		[
+			{
+				combo:    '<combo>',
+				filter:   "<filter>",
+				callback: function (action) {
+				  // do your stuff here
+				}
+			},
+		],
+		<bound object>);
+```
+
+- DOM element: as retrieved by document.getElementById()
+- DOM elements list: untested. Should allow to work on list of DOM elements sent back by getElementByClassName, getElementByTagName, querySelectorAll, etc. **FULLY NOT TESTED**
+- _combo_: as in jQuery version. Any string defining a valid combo.
+- _filter_: only a string being a classname. Does NOT include the "." in opposition to jQuery (because there, it's
+a CSS syntax...
+- _callback_: as in jQuery version, callback receiving the Action as parameter
+- _bound object_: as in jQuery version, will be the _this_ in the callback
+
 
 ### A simple callback on an element
 
 Setting up a callback is a simple as this:
 ```javascript
-$('#myID').jTipTap('on',"tap",
+$('#myID').jTipTap('on', 'tap',
            function (action) {
-           	alert("You tapped me!");
+           	alert('You tapped me!');
            });
 ```
 
-As you could guess, this will pop an alert when you **tap** the element of id **myID**. Defining more complex gestures
-and combos is as simple as this, and this is why this library was made for.
-all is done so that the 
+As you could guess, this will pop an alert when you **tap** the element of id **myID**. Defining more complex gestures and combos is as simple as this, and this is why this library was made for.
 
 ### A callback delegated to sub-elements
 

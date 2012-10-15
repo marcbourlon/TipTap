@@ -30,7 +30,7 @@
 		// keep a reference to the initial target to force it to new Pointers (fast moves can make mouse move outside of it)
 		this.target = null;
 		this.$target = null;
-		this._setTarget(tiptapEvent.getTarget());
+		this._setTarget$(tiptapEvent.getTarget$());
 
 		// create the Signals to send to listeners
 		this.createSignals();
@@ -382,6 +382,8 @@
 
 		},
 
+		getTarget$: null,
+
 		getTarget: function () {
 
 			return this.target;
@@ -508,6 +510,8 @@
 
 		},
 
+		_setTarget$: null,
+
 		_setTarget: function (target) {
 
 			this.target = target;
@@ -562,11 +566,20 @@
 
 	};
 
-	Finger.use$ = function () {
+	Finger.use$ = function (use$) {
 
-		this.prototype.getTarget = this.prototype.get$Target;
+		if (use$) {
 
-		this.prototype._setTarget = this.prototype._set$Target;
+			this.prototype.getTarget$ = this.prototype.get$Target;
+			this.prototype._setTarget$ = this.prototype._set$Target;
+
+		} else {
+
+			this.prototype.getTarget$ = this.prototype.getTarget;
+			this.prototype._setTarget$ = this.prototype._setTarget;
+
+		}
+
 
 	};
 

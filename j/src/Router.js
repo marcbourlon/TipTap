@@ -36,7 +36,7 @@
 			var action;
 
 			// can be DOM element or jQuery!
-			var target$ = finger.getTarget();
+			var target$ = finger.getTarget$();
 
 			md(this + ".allocateAction-1", debugMe);
 
@@ -116,7 +116,7 @@
 			md("<b>" + this + ".callComboCallback(" + action + ", " + combo + ", " + action.gesture + ")</b>", debugMe);
 
 			// HACK: can be a DOM element or jQuery, depending if we use jQuery or not
-			var target$ = action.getTarget();
+			var target$ = action.getTarget$();
 
 			// if target$ is the global container, and some actions are global, set to true
 			var globalAction = this._isElementTheTarget(target$) && this.nofilter;
@@ -200,7 +200,7 @@
 			// todo: allow several simultaneous Actions on a same target, differentiate by distance of the pointers
 			return _.find(this.listOfActions, function (action) {
 
-				return this._areTheseTheSameNode(action.getTarget(), target$);
+				return this._areTheseTheSameNode(action.getTarget$(), target$);
 
 			}, this);
 
