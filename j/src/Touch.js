@@ -27,13 +27,15 @@
 
 		},
 
+		_getTouches$: null,
+
 		_getTouches: function (e) {
 
 			return e.changedTouches;
 
 		},
 
-		_getTouches$: function (e) {
+		_get$Touches: function (e) {
 
 			return e.originalEvent.changedTouches;
 
@@ -48,14 +50,22 @@
 		onEnd: function (eventTouch) {
 		},
 
-		onCancel:   function (eventTouch) {
+		onCancel: function (eventTouch) {
 		},
 
-		use$: function () {
+		use$: function (use$) {
 
-			this._getTouches = this._getTouches$;
+			if (use$) {
 
-			TipTap.TouchEvent.use$();
+				this._getTouches$ = this._get$Touches;
+
+			} else {
+
+				this._getTouches$ = this._getTouches;
+
+			}
+
+			TipTap.TouchEvent.use$(use$);
 
 		},
 

@@ -1,3 +1,4 @@
+// TODO: Pointer currently NOT WORKING AT ALL
 /**
  * User: marcbourlon
  * Date: 30/09/12
@@ -19,13 +20,15 @@
 
 		// todo: base Device class with these jQuery-related methods
 		// will be set to either saveTargetNojQuery or saveTargetjQuery, depending.
-		_addTarget:        function (dest, src) {
+		_addTarget$:       null,
+
+		_addTarget: function (dest, src) {
 
 			// nothing to do, target already exists
 
 		},
 
-		_addTargetjQuery: function (dest, src) {
+		_add$Target: function (dest, src) {
 
 			// add jQuery object wrapper for the DOM
 			dest.$target = $(src.target);
@@ -52,42 +55,54 @@
 
 		},
 
+		_getOriginalEvent$: null,
+
 		_getOriginalEvent: function (e) {
 
 			return e;
 
 		},
 
-		_getOriginalEvent$: function (e) {
+		_getOriginal$Event: function (e) {
 
 			return e.originalEvent;
 
 		},
 
-		onStart: function (eventTouch) {
+		onStart: function (tiptapEvent) {
 
 			this.mouseDown = true;
 
 		},
 
-		onDrag: function (eventTouch) {
+		onDrag: function (tiptapEvent) {
 		},
 
-		onEnd: function (eventTouch) {
-
-		},
-
-		onCancel: function (eventTouch) {
-
-			this.onEnd(eventTouch);
+		onEnd: function (tiptapEvent) {
 
 		},
 
-		use$: function () {
+		onCancel: function (tiptapEvent) {
 
-			this._addTarget = this._addTargetjQuery;
+			this.onEnd(tiptapEvent);
 
-			this._getEvent = this._getOriginalEvent$;
+		},
+
+		use$: function (use$) {
+
+			if (use$) {
+
+				this._addTarget$ = this._add$Target;
+
+				this._getOriginalEvent$ = this._getOriginal$Event;
+
+			} else {
+
+				this._addTarget$ = this._addTarget;
+
+				this._getOriginalEvent$ = this._getOriginalEvent;
+
+			}
 
 		},
 

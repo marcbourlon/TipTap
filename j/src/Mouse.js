@@ -55,9 +55,9 @@
 
 		},
 
-		use$: function () {
+		use$: function (use$) {
 
-			TipTap.MouseEvent.use$();
+			TipTap.MouseEvent.use$(use$);
 
 		},
 

@@ -189,12 +189,12 @@
 
 				for (var routerIdx = 0, routersCount = tipTap.listOfRouters.length; routerIdx < routersCount; routerIdx++) {
 
-					var rt = tipTap.listOfRouters[routerIdx];
+					var tmpRouter = tipTap.listOfRouters[routerIdx];
 
 					// if attaching to same element than a previous one, then use same Router
-					if (rt.$el.is($this)) {
+					if (tmpRouter.get$Element().is($this)) {
 
-						router = rt;
+						router = tmpRouter;
 
 						continue;
 
@@ -431,6 +431,7 @@
 
 			this.device.use$(use$);
 			this.Action.use$(use$);
+			this.Finger.use$(use$);
 			this.PointerInfos.use$(use$);
 			this.Router.use$(use$);
 

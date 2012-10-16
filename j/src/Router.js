@@ -7,7 +7,7 @@
 		this.device = device;
 
 		// el$ is DOM or jQuery element
-		this._setElement(el$);
+		this._setElement$(el$);
 
 		this.listOfCallbacks = {};
 		this.listOfFilters = [];
@@ -61,6 +61,20 @@
 			action.addFingerListeners(finger);
 
 			md(this + ".allocateAction-end(" + action + ")", debugMe);
+
+		},
+
+		_areTheseTheSameNode$: null,
+
+		_areTheseTheSameNode: function (node1, node2) {
+
+			return node1.isSameNode(node2);
+
+		},
+
+		_areTheseTheSame$Node: function ($node1, $node2) {
+
+			return $node1.is($node2);
 
 		},
 
@@ -119,7 +133,7 @@
 			var target$ = action.getTarget$();
 
 			// if target$ is the global container, and some actions are global, set to true
-			var globalAction = this._isElementTheTarget(target$) && this.nofilter;
+			var globalAction = this._isElementTheTarget$(target$) && this.nofilter;
 
 			// finds all the callbacks based on combo matching
 			_.each(this.listOfCallbacks, function (listOfCallbacksForThisCombo) {
@@ -130,7 +144,7 @@
 					var comboObject = _.find(listOfCallbacksForThisCombo.callbacks, function (element) {
 
 						// if we are on an element catching some events, or if some global actions defined
-						return this._matchesFilter(target$, element.filter);
+						return this._matchesFilter$(target$, element.filter);
 
 					}, this);
 
@@ -171,17 +185,7 @@
 
 		},
 
-		_matchesFilter: function (node, className) {
-
-			return (' ' + node.className + ' ').indexOf(' ' + className + ' ') >= 0;
-
-		},
-
-		_matches$Filter: function ($node, filter) {
-
-			return $node.is(filter);
-
-		},
+		_isElementTheTarget$: null,
 
 		_isElementTheTarget: function (target) {
 
@@ -200,21 +204,9 @@
 			// todo: allow several simultaneous Actions on a same target, differentiate by distance of the pointers
 			return _.find(this.listOfActions, function (action) {
 
-				return this._areTheseTheSameNode(action.getTarget$(), target$);
+				return this._areTheseTheSameNode$(action.getTarget$(), target$);
 
 			}, this);
-
-		},
-
-		_areTheseTheSameNode: function (node1, node2) {
-
-			return node1.isSameNode(node2);
-
-		},
-
-		_areTheseTheSame$Node: function ($node1, $node2) {
-
-			return $node1.is($node2);
 
 		},
 
@@ -224,7 +216,7 @@
 			// check if target is really allowed to capture events (matching filter BEFORE global callbacks)
 			var filter = _.find(this.listOfFilters, function (fltr) {
 
-				return this._matchesFilter(target$, fltr);
+				return this._matchesFilter$(target$, fltr);
 
 			}, this);
 
@@ -240,6 +232,8 @@
 
 		},
 
+		getElement$: null,
+
 		getElement: function () {
 
 			return this.el;
@@ -251,6 +245,22 @@
 			return this.$el;
 
 		},
+
+		_matchesFilter$: null,
+
+		_matchesFilter: function (node, className) {
+
+			return (' ' + node.className + ' ').indexOf(' ' + className + ' ') >= 0;
+
+		},
+
+		_matches$Filter: function ($node, filter) {
+
+			return $node.is(filter);
+
+		},
+
+		_setElement$: null,
 
 		_setElement: function (el) {
 
@@ -455,15 +465,26 @@
 
 	};
 
-	Router.use$ = function () {
+	Router.use$ = function (use$) {
 
-		// replaces methods. I know, I "should" use decorators, but it's a bit heavy for this.
-		this.prototype._areTheseTheSameNode = this.prototype._areTheseTheSame$Node;
-		this.prototype.getElement = this.prototype.get$Element;
-		this.prototype._isElementTheTarget = this.prototype._isElementThe$Target;
-		this.prototype._matchesFilter = this.prototype._matches$Filter;
-		this.prototype._setElement = this.prototype._set$Element;
+		// replaces a method. I know, I "should" use decorators, but it's a bit heavy for this.
+		if (use$) {
 
+			this.prototype._areTheseTheSameNode$ = this.prototype._areTheseTheSame$Node;
+			this.prototype.getElement$ = this.prototype.get$Element;
+			this.prototype._isElementTheTarget$ = this.prototype._isElementThe$Target;
+			this.prototype._matchesFilter$ = this.prototype._matches$Filter;
+			this.prototype._setElement$ = this.prototype._set$Element;
+
+		} else {
+
+			this.prototype._areTheseTheSameNode$ = this.prototype._areTheseTheSameNode;
+			this.prototype.getElement$ = this.prototype.getElement;
+			this.prototype._isElementTheTarget$ = this.prototype._isElementTheTarget;
+			this.prototype._matchesFilter$ = this.prototype._matchesFilter;
+			this.prototype._setElement$ = this.prototype._setElement;
+
+		}
 	};
 
 	// namespaces the thing
