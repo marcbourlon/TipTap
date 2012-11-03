@@ -29,6 +29,9 @@ var imgFiles = [
 ];
 
 $(function () {
+
+	md("jQuery version", true, "#F00");
+
 	TipTap.init(
 		{
 			rotoZoom:                     true,

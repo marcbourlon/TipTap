@@ -29,6 +29,9 @@ var imgFiles = [
 ];
 
 $(function () {
+
+	md("normal version", true, "#F00");
+
 	TipTap.init(
 		{
 			rotoZoom:                     false,

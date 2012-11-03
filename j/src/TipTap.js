@@ -22,7 +22,7 @@
 		listOfFingers:       [],
 		listOfRouters:       [], // list of all Routers objects
 		// Stolen the touch test from Modernizr. Including 49KB for just this was a bit overkill, to me
-		touch:               ('ontouchstart' in window) || (window.DocumentTouch && document instanceof DocumentTouch),
+		isTouchInterface:    false,
 		TOUCH_REFRESH_ms:    1000 / 60, // iOS touch devices frequency is 60Hz
 
 		disable: function (elems) {
@@ -59,13 +59,32 @@
 
 			this.settings = _.extend(this.settings, options);
 
+			this.isTouchInterface = ('ontouchstart' in window) || (window.DocumentTouch && document instanceof DocumentTouch);
+
+			// must test stronger due to this f**king Chrome sending back yes for "ontouchstart"!!
+			if (this.isTouchInterface) {
+
+				try {
+
+					document.createEvent('TouchEvent');
+
+				} catch (e) {
+
+					this.isTouchInterface = false;
+
+				}
+			}
+
+			// avoids too accurate movements to be detected, preventing proper gestures
+			this.settings.moveThreshold_px = this.isTouchInterface ? 8 : 0
+
 			if (this.settings.useBorisSmusPointersPolyfill) {
 
 				this.device = this.Pointer;
 
 			} else {
 
-				if ((this.settings.deviceType === this.DEVICE_TOUCH) || this.touch) {
+				if ((this.settings.deviceType === this.DEVICE_TOUCH) || this.isTouchInterface) {
 
 					this.device = this.Touch;
 
@@ -80,16 +99,16 @@
 			// if user asks to use jQuery but this is not present, deny it
 			this.settings.use$ = this.settings.use$ && !!$;
 
-			this._propagateUse$(this.settings.use$);
+			this._use$(this.settings.use$);
 
 			// set drag, end and cancel callbacks
-			this._setCallbacks();
+			this._setCallbacks$();
 
 		},
 
 		_isArray: function (testVariable) {
 
-			return (Object.prototype.toString.call(nodesList) === "[object Array]");
+			return (Object.prototype.toString.call(testVariable) === "[object Array]");
 
 		},
 
@@ -370,7 +389,7 @@
 			// odd (?) usage of _.reduce(): calls finger.end() on all fingers concerned
 			if (_.reduce(this.device.buildEventList(e), _.bind(this.onEndDo, this), TipTap._KEEP_BUBBLING, this)) {
 
-				md(this + ".onEnd", debugMe);
+				md(this + ".onEnd", debugMe, "#F00");
 
 				this.stopEvent(e);
 
@@ -379,6 +398,10 @@
 		},
 
 		onEndDo: function (cancelBubbling, eventTouch) {
+
+			var debugMe = true && this.debugMe && TipTap.settings.debug;
+
+			md(this + ".onEndDo", debugMe, "#F00");
 
 			var finger = this.findFingerByIdentifier(eventTouch.identifier);
 
@@ -404,6 +427,8 @@
 
 			this.onEnd(e);  // todo: better management of cancel ?
 		},
+
+		_setCallbacks$: null,
 
 		_setCallbacks: function () {
 
@@ -447,11 +472,9 @@
 
 		},
 
-		_propagateUse$: function () {
+		_use$: function (use$) {
 
-			this._setCallbacks = this._set$Callbacks;
-
-			var use$ = this.settings.use$;
+			this._setCallbacks$ = (use$) ? this._set$Callbacks : this._setCallbacks;
 
 			this.device.use$(use$);
 			this.Action.use$(use$);
@@ -477,7 +500,7 @@
 
 		deviceType: TipTap.DEVICE_MOUSE, // which kind of device do we use
 
-		moveThreshold_px: TipTap.touch ? 8 : 0, // min distance to consider that the move was intentional
+		moveThreshold_px: 0, // min distance to consider that the move was intentional
 
 		rotoZoom: false, // whether to activate the hack of CSS3 rotation/zoom
 
