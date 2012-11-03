@@ -16,9 +16,11 @@ statement as done by Boris Smus about "broken" touch events in browsers, leading
 [pointers](http://smus.com/mouse-touch-pointer/) library. You could see TipTap as a more complete version of "pointers",
 except that Mr Smus codes much better than me :-D
 
+
 # License
 
 Let's give back to a community who gives me so much: [MIT License](http://www.opensource.org/licenses/mit-license.php)
+
 
 # The TipTap library
 
@@ -47,30 +49,27 @@ event together, a bit like what is done natively by iOS with its touch events an
 ## Dependencies
 
 The library currently relies on:
-- [jQuery](http://jquery.com/) (1.7.2+)
 - [Underscore](http://underscorejs.org) by Jeremy Ashkenas, or [Lodash](https://github.com/bestiejs/lodash) by John-David Dalton
 - [Signals](http://millermedeiros.github.com/js-signals/) by Miller Medeiros
+
+Dependency on [jQuery](http://jquery.com/) is now optional. It has been proven to work with 1.7.2+ versions,
+and could probably work with older ones.
 
 I would love to have no dependency at all, but...
 
 
 ## Current status
 
-Currently, the library is usable, but is still missing few things, which doesn't make it suitable for immediate production
-use. However, it gives curious people (or people in the need for such a lib) the ability to start playing with it and give
-feedback (mommy I'm scared!). Known missing points:
+Currently, the library is usable, but is still missing few things, which could make it not suitable for immediate production use. However, it gives curious people (or people in the need for such a lib) the ability to start playing with it and give feedback (mommy I'm scared!). Known missing points:
 * real (usable) handling of rotation and zoom
 * cleaner/better coding, like using the Markus Gundersen's work-(strongly) inspired rotation-zoomer class as a plugin
 * identify a gesture by the proximity of the pointers: it will prevent two almost simultaneous taps at both ends of the
 surface to be considered as a same gesture, which is in general never the case. Will be even more important on large
 interaction surface like Microsoft Surface tables
 * give ability to the application using the lib to split a gesture into several ones
-* making it more a module than a plugin (see Miller Medeiros' articles about this), and have jQuery pluginification as
-	a plus (it's more or less done, but not great)
+* making it more a module than a plugin (see Miller Medeiros' articles about this)
 * unit tests: I need to take a deep dive into this, and didn't have the time (courage?) to do it yet
 * making it both script-tag and AMD-compatible (I shamefully failed to do this)
-
-Consider this as a something like a 0.4 release, not ready for production.
 
 
 # The elements
@@ -83,9 +82,7 @@ remove this dependency, I think I would have to go to simpler things like class 
 
 # The gestures
 
-
 ## Simple gestures supported
-
 
 ### Normal gestures
 

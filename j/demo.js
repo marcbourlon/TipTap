@@ -73,6 +73,15 @@ $(function () {
 				}
 			},
 			{
+				combo:    "tap3",
+				catching: TipTap.CAPTURE_CAPTURE,
+				callback: function (action) {
+					var debugMe = true && TipTap.settings.debug;
+
+					md("app tap3 caught on the main div!", debugMe, "#F00");
+				}
+			},
+			{
 				combo:    "tap2>tap2",
 				filter:   "test",
 				callback: function (action) {

@@ -11,12 +11,14 @@
 	var TipTap = {
 		debugMe:             true,
 		device:              null,
-		CANCEL_BUBBLING:     true,
+		CAPTURE_BUBBLE:      0,   // let the app define how some gesture are captured. Very useful to
+		CAPTURE_CAPTURE:     1,   // define gestures on containers, despite lots of underneath objects (so, different targets!)
+		_CANCEL_BUBBLING:     true,
 		DEVICE_DEFAULT:      0, // if nothing specified, will bind device events (mouse OR touch)
 		DEVICE_MOUSE:        1, // allows to force usage of mouse device input
 		DEVICE_TOUCH:        2, // allows to force usage of touch device input
 		GLOBAL_CLASS_FILTER: "-", // char used internally for global container class
-		KEEP_BUBBLING:       false,
+		_KEEP_BUBBLING:       false,
 		listOfFingers:       [],
 		listOfRouters:       [], // list of all Routers objects
 		// Stolen the touch test from Modernizr. Including 49KB for just this was a bit overkill, to me
@@ -144,6 +146,7 @@
 
 				}
 
+				// deal with the list of combos
 				for (var combosIdx = 0, combosCount = combosFiltersCallbacksList.length; combosIdx < combosCount; combosIdx++) {
 
 					var comboFilterCallback = combosFiltersCallbacksList[combosIdx];
@@ -163,7 +166,7 @@
 
 		},
 
-		jQueryOn: function (nodesList, combosList, filter, callback, context) {
+		$on: function (nodesList, combosFiltersCallbacksList, context) {
 
 			// if "filter" is a function, then we have no filter defined, and the filter var is the callback
 			if (typeof filter === "function") {
@@ -219,8 +222,18 @@
 
 				}
 
-				// attach combo and related callbacks to the Router
-				router.bindCombos(combosList, filter, callback, context);
+				// deal with the list of combos
+				for (var combosIdx = 0, combosCount = combosFiltersCallbacksList.length; combosIdx < combosCount; combosIdx++) {
+
+					var comboFilterCallback = combosFiltersCallbacksList[combosIdx];
+					var combo = comboFilterCallback.combo;
+					var filter = comboFilterCallback.filter || "";
+					var callback = comboFilterCallback.callback;
+
+					// attach combo and related callbacks to the Router
+					router.bindCombos(combo, filter, callback, context);
+
+				}
 
 				return $this;
 
@@ -236,10 +249,13 @@
 			md(this + ".onStart-1: " + t + "<hr/>", debugMe);
 
 			// Pass "keep bubbling", that the _.reduce will transform into "cancel bubbling" if a matching event is found
-			if (TipTap.CANCEL_BUBBLING === _.reduce(this.device.buildEventList(event),
-			                                        _.bind(this.onStartDo, this, router),
-			                                        TipTap.KEEP_BUBBLING,
-			                                        this)) {
+			if (_.reduce(this.device.buildEventList(event),
+
+			             _.bind(this.onStartDo, this, router),
+
+			             TipTap._KEEP_BUBBLING,
+
+			             this) === TipTap._CANCEL_BUBBLING) {
 
 				this.stopEvent(event);
 
@@ -285,7 +301,7 @@
 
 			md(this + ".onStartDo-4", debugMe);
 
-			return TipTap.CANCEL_BUBBLING;
+			return TipTap._CANCEL_BUBBLING;
 
 		},
 
@@ -297,7 +313,7 @@
 			 */
 			var debugMe = true && this.debugMe && this.settings.debug;
 
-			var cancelBubbling = TipTap.KEEP_BUBBLING;
+			var cancelBubbling = TipTap._KEEP_BUBBLING;
 
 			var t = Date.now();
 
@@ -326,7 +342,7 @@
 
 				md(this + ".onDrag: " + t + ",l=" + this.device.buildEventList(e).length + "<hr/>", debugMe);
 
-				cancelBubbling = TipTap.CANCEL_BUBBLING;
+				cancelBubbling = TipTap._CANCEL_BUBBLING;
 
 				finger.onDrag(eventTouch);
 
@@ -344,7 +360,7 @@
 			var debugMe = true && this.debugMe && TipTap.settings.debug;
 
 			// odd (?) usage of _.reduce(): calls finger.end() on all fingers concerned
-			if (_.reduce(this.device.buildEventList(e), _.bind(this.onEndDo, this), TipTap.KEEP_BUBBLING, this)) {
+			if (_.reduce(this.device.buildEventList(e), _.bind(this.onEndDo, this), TipTap._KEEP_BUBBLING, this)) {
 
 				md(this + ".onEnd", debugMe);
 
@@ -370,7 +386,7 @@
 
 			this.unlinkFinger(finger);
 
-			return TipTap.CANCEL_BUBBLING;
+			return TipTap._CANCEL_BUBBLING;
 
 		},
 
@@ -391,7 +407,7 @@
 
 		},
 
-		_setCallbacks$: function () {
+		_set$Callbacks: function () {
 
 			$(document)
 				.bind(this.buildNamespacedEventName(this.device.DRAG_EVENT_NAME), _.bind(this.onDrag, this))
@@ -425,7 +441,7 @@
 
 		_propagateUse$: function () {
 
-			this._setCallbacks = this._setCallbacks$;
+			this._setCallbacks = this._set$Callbacks;
 
 			var use$ = this.settings.use$;
 
@@ -467,7 +483,7 @@
 
 		tapMaxDuration_ms: 150, // if down without move for longer than this, it's a tip. Otherwise, move or tap
 
-		useBorisSmusPointersPolyfill: false, // use Boris Smus pointers polyfill
+		useBorisSmusPointersPolyfill: false, // use Boris Smus pointers polyfill. TODO: make it work.
 
 		use$: false, // whether to use jQuery or not
 
@@ -489,7 +505,7 @@
 
 		on: function (combosList, filter, callback, context) {
 
-			return TipTap.jQueryOn(this, combosList, filter, callback, context);
+			return TipTap.$on(this, combosList, filter, callback, context);
 
 		},
 
@@ -530,13 +546,13 @@
 
 }(window, document, window.jQuery));
 
-// Helper debug function, very crappy to have it here, I'm shameful! :'(
+// Hack: helper debug function, very crappy to have it here, I'm shameful! :'(
 var md = (function () {
 	var dl = $('#debuglog');
 	return function (t, display, color) {
 		if (display) {
 			if (color) {
-				t = '<span style="color:' + color + '">' + t + '</span>';
+				t = '<span style="color: ' + color + '; ">' + t + '</span>';
 			}
 			// prepend to have latest messages on top, without scrolling
 			dl.prepend(t + "<br/>");
