@@ -34,7 +34,8 @@ Think of double bi-tap for example, chances are that you will not tap both finge
 Even if you do, you will not always. And now, try with tri-tap, or worse, double tri-swipe! This inaccuracy was one of
 the main reason to create this lib, and by far the biggest technical issue to solve. To do this, when a pointer event
 occurs, it will wait for a tiny amount of time to see if other similar events come. If it happens, it will group the
-event together, a bit like what is done natively by iOS with its touch events and the touches* arrays.
+event together, a bit like what is done natively by iOS with its touch events and the touches\* arrays. Let's call
+this HIC (Human Inaccuracy Compensation).
 * despite the previous step, not miss any event! 
 * differenciate simply between tap, tip (long tap), swipe, move, pinch, spread, rotate...
 * give a rich but simple language to define complex gestures, in an Event-like syntax. Example:
@@ -352,57 +353,112 @@ and just makes combos definitions counter-intuitive.
 
 ## Setting a callback
 
+#### Without jQuery
+
+When the lib is used without jQuery, the biggest (only?) drawback is the fact that the "filter" option for delegation only accepts classname. Beware: it's "_classname_", and not "_.classname_"!
+
+The syntax is the following:
+``` javascript
+TipTap.on(
+	<DOM element|DOM elements list>,
+	[   // if you attach a single combo/callback, you don't need to use an array. Use the object right away
+		{
+			combo:    '<combo>',
+			filter:   '<filter aka a classname>',
+			capture:  TipTap.CAPTURE_CAPTURE|TipTap.CAPTURE_BUBBLE,
+			callback: <callback>
+		},
+		// repeat the above structure for all the combos you need
+	],
+	<bound object>
+);
+```
+
+- _DOM element_ \*: as retrieved by document.getElementById()
+- _DOM elements list_ \*: Should allow to work on list of DOM elements sent back by getElementByClassName, getElementByTagName, querySelectorAll, etc. **NOT TESTED AT ALL**
+- _combo_ \*: any string defining a valid combo (syntax validation is, let's be fair, inexistant): 'tap',
+'tip-tap', 'tap2>tap3', 'tip2-swipe_r', 'press|tip', 'tip\*-dragStart', etc.
+- _filter_: only a string being a classname. DO NOT include the "." in opposition to jQuery (because there, it's
+a CSS syntax...), don't set if you want the elements passed to be the ones dealing with the "events"
+- _capture_: defines if the combo must be treated by parents first (like in DOM2 even model "capture",
+or by children first (bubbling)). It allows to benefit TipTap's HIC, while still, managing multi-pointers gestures on a container full of elements with gestures attached. Say that you touch your container area with 3 fingers simultaneously. If you didn't use this _capture_ mode, then chances are high that each finger touches a child element, which will then capture the event, meaning your 3 fingers gesture won't work anymore once the container is filled. Using _capture_ lets you define higher-level gestures (like, 3 fingers pinch to zoom the whole) even when the touchable area is crowded. In other words, using **TipTap.CAPTURE_CAPTURE** when attaching a gesture to a parent element gives the gesture a higher priority than the ones of its children. If not specified, defaults to **TipTap.CAPTURE_BUBBLE**, which is the opposite.
+- _callback_ \*: the callback receiving the Action as parameter (_function(action) { <do something> }_)
+- _bound object_: will be set as the _this_ in the callback.
+
+Elements with \* are mandatory.
+
+Example, one combo:
+``` javascript
+TipTap.on(
+	document.getElementById('myDiv'),
+	{
+		combo:    'tap',
+		filter:   '',
+		callback: function(action) { alert("Tapped !"); }
+	},
+	this
+);
+```
+
+Example, few combos:
+``` javascript
+TipTap.on(
+	document.getElementById('myDiv'),
+	[
+		{
+			combo:    'tap',
+			filter:   '',
+			callback: function(action) { alert("Tapped !"); }
+		},
+		{
+			combo:    'tip',
+			filter:   '',
+			callback: function(action) { alert("Tiiiip !"); }
+		},
+		{
+			combo:    'tap>tap',
+			filter:   '',
+			callback: function(action) { alert("Double tap !"); }
+		}
+	],
+	this
+);
+```
+
+
 #### With jQuery
 
 ```javascript
-$(<targets filter>).jTipTap("on", <combo>[, <filter>], callback[, bound object])
+$(<targets filter>).jTipTap(
+  "on",
+  [
+    {
+      combo:    '<combo>',
+      filter:   '<filter aka a classname>',
+      capture:  TipTap.CAPTURE_CAPTURE|TipTap.CAPTURE_BUBBLE,
+      callback: <callback>
+    },
+    // repeat the above structure for all the combos you need
+  ],
+  bound object);
 ```
-- _targets filter_: any CSS path as used in jQuery
-- _"on"_: means we created a new TipTap "event". "off" doesn't exist yet.
-- _combo_: any string defining a valid combo (syntax validation is, let's be fair, inexistant): "tap",
-"tip-tap", "tap2>tap3", "tip2-swipe_r", "press|tip", "tip*-dragStart", etc.
-- _filter_ (optional): again, any CSS/jQuery valid filter, to define which objects will really receive be targeted by the
-call. This is very like event delegation: ".classname", "not:input", etc.
-- _callback_: a function receiving an Action object as parameter
-- _bound object_ (optional): if specified, the **this** in the callback will be valued to this object. Equivalent of $.bind or _.bind
+- _"on"_ \*: means we created a new TipTap "event". "off" doesn't exist yet.
+- _filter_: here, any CSS/jQuery valid filter, to define which objects will really receive be targeted by the
+call. This is very like event delegation: ".myclass", "not:input", etc.
 
-#### Without jQuery
-
-The lib has been made usable without jQuery. The biggest (only?) drawback is the fact that the "filter" option for delegation only accepts classname. Beware: it's "_classname_", and not "_.classname_"!
-
-The syntax is then a bit different:
-``` javascript
-	TipTap.on(
-		<DOM element|DOM elements list>,
-		[
-			{
-				combo:    '<combo>',
-				filter:   "<filter>",
-				callback: function (action) {
-				  // do your stuff here
-				}
-			},
-		],
-		<bound object>);
-```
-
-- DOM element: as retrieved by document.getElementById()
-- DOM elements list: untested. Should allow to work on list of DOM elements sent back by getElementByClassName, getElementByTagName, querySelectorAll, etc. **FULLY NOT TESTED**
-- _combo_: as in jQuery version. Any string defining a valid combo.
-- _filter_: only a string being a classname. Does NOT include the "." in opposition to jQuery (because there, it's
-a CSS syntax...
-- _callback_: as in jQuery version, callback receiving the Action as parameter
-- _bound object_: as in jQuery version, will be the _this_ in the callback
-
+Other comments are the same.
 
 ### A simple callback on an element
 
 Setting up a callback is a simple as this:
 ```javascript
-$('#myID').jTipTap('on', 'tap',
-           function (action) {
-           	alert('You tapped me!');
-           });
+$('#myID').jTipTap(
+	'on',
+	{
+		combo: 'tap',
+		callback: function (action) { alert('You tapped me!'); }
+	}
+);
 ```
 
 As you could guess, this will pop an alert when you **tap** the element of id **myID**. Defining more complex gestures and combos is as simple as this, and this is why this library was made for.
@@ -411,16 +467,18 @@ As you could guess, this will pop an alert when you **tap** the element of id **
 
 This is hardly harder:
 ```javascript
-$('#myID').jTipTap('on',"tap", ".sub"
-           function (action) {
-           	alert("You tapped element: " + action.getPointer(0).$target[0].id);
-           });
+$('#myID').jTipTap(
+	'on',
+	{
+		combo: 'tap',
+		filter: 'sub'
+		callback: function (action) { alert("You tapped element: " + action.getPointer(0).target.id); }
+	}
+);
 ```
-The third (optional) parameter is any valid jQuery filter (since all tests are made using jQuery **is()**), allowing some quite
-rich way of choosing which elements to pick, including usage of **not:**, elements names, classes, ids...
+
 The method **getPointer()** from parameter **action** retrieves the pointer by the given number FROM THE LAST GESTURE.
-This is important to know that we can get such informations only for the last gesture done. We could keep track of all the
-gestures which made the combo, but I didn't have the usage yet, so it is this way for now.
+This is important to know that we can get such informations only for the last gesture done. We could keep track of all the gestures which made the combo, but I didn't have the usage yet, so it will remain this way for now.
 
 ### The Pointer object
 
@@ -446,12 +504,13 @@ pageY
 ```
 The pageY (like in DOM) where the gesture happened
 
+
 ## The included demo
 
 ### Dependencies
 
 To run the demo, you need to have a /libs/ folder containing the following files:
-- jquery-1.8.1.min.js
+- jquery-1.8.1.min.js (if you use demo-jQuery.js)
 - lodash.min.js
 - signals.min.js
 They were not included in this repo because I think it's not the way to do.
@@ -463,8 +522,9 @@ children, pretty much like event delegation. Because the only events created are
 to clean anything when removing these sub elements. It also shows some small tips, like using
 **tip\*-tip\+\|tip\*-press\+** and **tip\+\|dragStart\+** to deal with highlighting the selected image correctly (only
 on tip or dragStart (in case the user moves the finger too fast for a **tip**), while the recording of the finger must 
-happen during tip or press (in case of fast drag start, again). If highlighting was set for **press** for example, a double
-tap would flash the highlighting because of the two **press** events sent.
+happen during tip or press (in case of fast drag start, again). If highlighting was set for **press** for example, a double tap would flash the highlighting because of the two **press** events sent.
+The "demo.js" version use jquery internally (I was too lazy to change the code), but it uses TipTap without jQuery at
+ all.
 
 ### Actions
 - tap the background to pop new images

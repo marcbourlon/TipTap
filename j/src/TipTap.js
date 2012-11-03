@@ -11,14 +11,14 @@
 	var TipTap = {
 		debugMe:             true,
 		device:              null,
-		CAPTURE_BUBBLE:      0,   // let the app define how some gesture are captured. Very useful to
-		CAPTURE_CAPTURE:     1,   // define gestures on containers, despite lots of underneath objects (so, different targets!)
-		_CANCEL_BUBBLING:     true,
+		CAPTURE_BUBBLE:      0, // let the app define how some gesture are captured. Very useful to
+		CAPTURE_CAPTURE:     1, // define gestures on containers, despite lots of underneath objects (so, different targets!)
+		_CANCEL_BUBBLING:    true,
 		DEVICE_DEFAULT:      0, // if nothing specified, will bind device events (mouse OR touch)
 		DEVICE_MOUSE:        1, // allows to force usage of mouse device input
 		DEVICE_TOUCH:        2, // allows to force usage of touch device input
 		GLOBAL_CLASS_FILTER: "-", // char used internally for global container class
-		_KEEP_BUBBLING:       false,
+		_KEEP_BUBBLING:      false,
 		listOfFingers:       [],
 		listOfRouters:       [], // list of all Routers objects
 		// Stolen the touch test from Modernizr. Including 49KB for just this was a bit overkill, to me
@@ -87,6 +87,12 @@
 
 		},
 
+		_isArray: function (testVariable) {
+
+			return (Object.prototype.toString.call(nodesList) === "[object Array]");
+
+		},
+
 		/**
 		 * on
 		 *
@@ -107,9 +113,16 @@
 			}
 
 			// make single value a list to unify treatment later. isArray test in case it's not present.
-			if (Object.prototype.toString.call(nodesList) !== "[object Array]") {
+			if (!this._isArray(nodesList)) {
 
 				nodesList = [nodesList];
+
+			}
+
+			// make single value a list to unify treatment later. isArray test in case it's not present.
+			if (!this._isArray(combosFiltersCallbacksList)) {
+
+				combosFiltersCallbacksList = [combosFiltersCallbacksList];
 
 			}
 
@@ -168,21 +181,16 @@
 
 		$on: function (nodesList, combosFiltersCallbacksList, context) {
 
-			// if "filter" is a function, then we have no filter defined, and the filter var is the callback
-			if (typeof filter === "function") {
+			// make single value a list to unify treatment later. isArray test in case it's not present.
+			if (!this._isArray(combosFiltersCallbacksList)) {
 
-				context = callback;
-
-				callback = filter;
-
-				filter = "";
+				combosFiltersCallbacksList = [combosFiltersCallbacksList];
 
 			}
 
 			// could use "TipTap", but cleaner.
 			var tipTap = this;
 
-			// todo jQuery; how to attach when no jQuery?
 			return nodesList.each(function () {
 
 				// the jQuery wrapped DOM element we're working on
