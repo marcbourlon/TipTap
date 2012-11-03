@@ -11,7 +11,7 @@
 
 		buildEventList: function (event) {
 
-			var touchesList = this._getTouches(event);
+			var touchesList = this._getTouches$(event);
 
 			var pointersList = [];
 

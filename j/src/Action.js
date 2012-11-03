@@ -435,11 +435,12 @@
 
 	};
 
-	// just to make things faster. Not sure it's *so* clean to have methods names based on another class' properties value
+	// just to make things faster. Not sure it's *so* clean to have methods names based on another class' properties value, seems a bit a class smell :'(
 	var gesture = TipTap.Gesture;
+	var methodNames = gesture.statusMatchCode;
 
 	// status callback. Names are dynamically created from gestures codes, avoid keeping two source files in sync
-	Action.prototype[gesture.statusMatchCode[gesture._PRESSED].code] = function (gesture) {
+	Action.prototype[methodNames[gesture._PRESSED].code] = function (gesture) {
 
 		if (TipTap.settings.rotoZoom) {
 
@@ -452,8 +453,8 @@
 	};
 
 	// tap and swipe are treated the same
-	Action.prototype[gesture.statusMatchCode[gesture._SWIPED].code] =
-		Action.prototype[gesture.statusMatchCode[gesture._TAPPED].code] =
+	Action.prototype[methodNames[gesture._SWIPED].code] =
+		Action.prototype[methodNames[gesture._TAPPED].code] =
 			function (gesture) {
 
 				this.cancelSendComboAndEndActionTimer();
@@ -466,7 +467,7 @@
 
 			};
 
-	Action.prototype[gesture.statusMatchCode[gesture._TIPPED].code] = function (gesture) {
+	Action.prototype[methodNames[gesture._TIPPED].code] = function (gesture) {
 		var debugMe = true && this.debugMe && TipTap.settings.debug;
 
 		this.formatAndStoreGesture(gesture);
@@ -478,7 +479,7 @@
 
 	};
 
-	Action.prototype[gesture.statusMatchCode[gesture._UNTIPPED].code] = function (gesture) {
+	Action.prototype[methodNames[gesture._UNTIPPED].code] = function (gesture) {
 		var debugMe = true && this.debugMe && TipTap.settings.debug;
 
 		/* we remove tips from "tips count" BEFORE, because we it's not logical to see the untipped fingers counted as tip.
@@ -503,7 +504,7 @@
 
 	};
 
-	Action.prototype[gesture.statusMatchCode[gesture._DRAG_STARTED].code] = function (gesture) {
+	Action.prototype[methodNames[gesture._DRAG_STARTED].code] = function (gesture) {
 
 		// notification gestures are not stored in the formatted list
 
@@ -511,7 +512,7 @@
 
 	};
 
-	Action.prototype[gesture.statusMatchCode[gesture._DRAGGED].code] = function (gesture) {
+	Action.prototype[methodNames[gesture._DRAGGED].code] = function (gesture) {
 		var debugMe = true && this.debugMe && TipTap.settings.debug;
 
 		md(this + ".drag", debugMe);
@@ -529,7 +530,7 @@
 
 	};
 
-	Action.prototype[gesture.statusMatchCode[gesture._DRAG_STOPPED].code] = function (gesture) {
+	Action.prototype[methodNames[gesture._DRAG_STOPPED].code] = function (gesture) {
 
 		if (TipTap.settings.rotoZoom) {
 
@@ -542,7 +543,7 @@
 
 	};
 
-	Action.prototype[gesture.statusMatchCode[gesture._RELEASED].code] = function (gesture) {
+	Action.prototype[methodNames[gesture._RELEASED].code] = function (gesture) {
 
 		if (TipTap.settings.rotoZoom) {
 
