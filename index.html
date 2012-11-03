@@ -31,32 +31,507 @@
         <hr>
 
         <section id="main_content">
-          <h3>Welcome to GitHub Pages.</h3>
+          <h1>Introduction</h1>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
+<h2>What is the <em>TipTap</em> library?</h2>
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
-</code></pre>
+<p>The <em>TipTap</em> library is a javascript library to ease mouse and touch complex gestures definition and management on HTML
+DOM elements (so, though not tested, on SVG and Canvas too), as well as to provide a unified way of managing different
+input devices systems: mouse, touch systems and their specific data structure (iOS, Android, Windows...), Leap Motion
+hopefully, etc. In fact, it's mostly a present &amp; future based library, mostly aimed at multi-pointers interactivity,
+instead of our old-fashioned and already outdated mouse. But it of course supports mouse!</p>
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+<p>This library was meant to fill a hole that I couldn't fill immediately with any other initiative around here,
+see <a href="https://github.com/bebraw/jswiki/wiki/Touch">this page</a> for a quite comprehensive list of touch libs around. See
+it as a mix between <a href="http://eightmedia.github.com/hammer.js/">Hammer.js</a>, <a href="https://github.com/HotStudio/touchy">Touchy</a>,
+<a href="http://dojotoolkit.org/reference-guide/1.7/dojox/gesture.html#dojox-gesture">Dojox.gesture</a>, and coming from the same
+statement as done by Boris Smus about "broken" touch events in browsers, leading him to create his
+<a href="http://smus.com/mouse-touch-pointer/">pointers</a> library. You could see TipTap as a more complete version of "pointers",
+except that Mr Smus codes much better than me :-D</p>
 
-<h3>Designer Templates</h3>
+<h1>License</h1>
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
+<p>Let's give back to a community who gives me so much: <a href="http://www.opensource.org/licenses/mit-license.php">MIT License</a></p>
 
-<h3>Rather Drive Stick?</h3>
+<h1>The TipTap library</h1>
 
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+<h2>So, was it meant to do?</h2>
 
-<h3>Authors and Contributors</h3>
+<p>Essentially, its goal is to:</p>
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+<ul>
+<li>provide a unified, input-device agnostic events capturing system: dealing with Mouse, Touch, Augmented Gestures
+(see <a href="https://github.com/jeromeetienne/augmentedgesture.js">Jérôme Etienne's work</a>), Leap Motion, etc.</li>
+<li>compensate for human lack of accuracy, leading to almost-simultaneous actions of fingers, instead of simultaneous.
+Think of double bi-tap for example, chances are that you will not tap both fingers twice exactly simultaneously.
+Even if you do, you will not always. And now, try with tri-tap, or worse, double tri-swipe! This inaccuracy was one of
+the main reason to create this lib, and by far the biggest technical issue to solve. To do this, when a pointer event
+occurs, it will wait for a tiny amount of time to see if other similar events come. If it happens, it will group the
+event together, a bit like what is done natively by iOS with its touch events and the touches* arrays.</li>
+<li>despite the previous step, not miss any event! </li>
+<li>differenciate simply between tap, tip (long tap), swipe, move, pinch, spread, rotate...</li>
+<li>give a rich but simple language to define complex gestures, in an Event-like syntax. Example:
+$('#element').jTiptap ('on', 'tap', );
+allowing gestures like: double two fingers tap, double finger tip plus simultaneous swipe, etc.</li>
+<li>allow attachment of such listeners to several elements in the same page</li>
+<li>allow attachment of several such listeners to a same element</li>
+<li>allow delegation, attaching to a parent element, with a filter to define which children it applies. As you would expect,
+it lets you attach the callback to a container in which elements will be added dynamically</li>
+</ul><h2>Dependencies</h2>
 
-<h3>Support or Contact</h3>
+<p>The library currently relies on:</p>
 
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
+<ul>
+<li>
+<a href="http://jquery.com/">jQuery</a> (1.7.2+)</li>
+<li>
+<a href="http://underscorejs.org">Underscore</a> by Jeremy Ashkenas, or <a href="https://github.com/bestiejs/lodash">Lodash</a> by John-David Dalton</li>
+<li>
+<a href="http://millermedeiros.github.com/js-signals/">Signals</a> by Miller Medeiros</li>
+</ul><p>I would love to have no dependency at all, but...</p>
+
+<h2>Current status</h2>
+
+<p>Currently, the library is usable, but is still missing few things, which doesn't make it suitable for immediate production
+use. However, it gives curious people (or people in the need for such a lib) the ability to start playing with it and give
+feedback (mommy I'm scared!). Known missing points:</p>
+
+<ul>
+<li>real (usable) handling of rotation and zoom</li>
+<li>cleaner/better coding, like using the Markus Gundersen's work-(strongly) inspired rotation-zoomer class as a plugin</li>
+<li>identify a gesture by the proximity of the pointers: it will prevent two almost simultaneous taps at both ends of the
+surface to be considered as a same gesture, which is in general never the case. Will be even more important on large
+interaction surface like Microsoft Surface tables</li>
+<li>give ability to the application using the lib to split a gesture into several ones</li>
+<li>making it more a module than a plugin (see Miller Medeiros' articles about this), and have jQuery pluginification as
+a plus (it's more or less done, but not great)</li>
+<li>unit tests: I need to take a deep dive into this, and didn't have the time (courage?) to do it yet</li>
+<li>making it both script-tag and AMD-compatible (I shamefully failed to do this)</li>
+</ul><p>Consider this as a something like a 0.4 release, not ready for production.</p>
+
+<h1>The elements</h1>
+
+<p>All gestures and combos are defined for a DOM element. I didn't use Events for this, but a simple callback system.
+(Should it be reworked as Events? <strong>Feedback welcome</strong>) You can define gestures and combos for an element, or for its
+descendants, by using a selector string (for now, because of the use of jQuery, this selector can be complex, but if I
+remove this dependency, I think I would have to go to simpler things like class or id matching, wouldn't I?)</p>
+
+<h1>The gestures</h1>
+
+<h2>Simple gestures supported</h2>
+
+<h3>Normal gestures</h3>
+
+<p>The basic gestures supported by the library are the ones you expect (don't deny, I know it!). I'll use the vocabulary of
+a touch screen to define the movements to be done:</p>
+
+<ul>
+<li>
+<em>tap</em>: you touch briefly the sensitive surface, and remove your finger almost instantly. Like a mouse <em>click</em>.</li>
+<li>
+<em>tip</em>: you touch the sensitive surface, and stay on it. Like a mouse <em>down</em>.</li>
+<li>
+<em>swipe</em>: it's like a fast-moving tap. You move the finger fast in one direction (top, right, bottom or left) and while
+moving fast, you tap the screen. Your finger draws a "U" in the air, tangenting the screen at the bottom of the curve,
+gently (but quickly and briefly, after all, I said "tangenting") gliding on it. Of course, the library corrects any not
+perfect direction, and keeps the direction of the biggest movement</li>
+<li>
+<em>rotate</em>: current managing of rotation is not nice. I mean, I quickly hacked a modified version of Markus Gundersen
+touch demo, to allow for zoom and rotate. But it's not yet as efficient as was my previous implementation, and I have
+to merge both. Rotation can be done with two or three (or more, but well..) fingers down, and we'll see why it matters.</li>
+<li>
+<em>pinch</em>: aka <em>zoom</em>, it's, well allowing you to do what you expect. Same comment as for rotate: count of fingers may
+differ, and this can be used efficiently.</li>
+<li>
+<em>drag</em>: it's simply moving a pointer while <em>tipping</em>
+</li>
+<li>
+<em>move</em>: <strong>not yet implemented</strong>, but should probably be in the future. It's moving without tipping. Impossible on a
+touchscreen, but for a mouse, and for other devices, it is.</li>
+</ul><h3>Notification gestures</h3>
+
+<p>In addition to these "real" gestures, exist few "notification" gestures. Complete understanding of such gestures comes
+with the explanation of combos. The notification gestures are the following:</p>
+
+<ul>
+<li>
+<em>press</em>: fired when a finger touches the screen (_touchstart_ event), a mouse is pressed, etc.</li>
+<li>
+<em>started_dragging</em>: fired when a finger starts moving, a mouse with button pressed starts moving, etc.</li>
+<li>
+<em>stopped_dragging</em>: fired when a finger IS RELEASED FROM THE SCREEN after some dragging, a mouse with button is
+released after it was dragged, etc. Whether I should implement a timer to detect the end of the motion is not decided
+yet (sounds cool and logical, but maybe difficult, so, as usual, <strong>feedback welcome</strong>)</li>
+<li>
+<em>release</em>: as expected, fired when fingers are removed from the screen (mouse released, etc.)</li>
+</ul><p>See below for explanation of the <a href="#1">difference between normal simple gestures and notification gestures</a>.</p>
+
+<h2>Combining simple gestures on multi-pointers devices</h2>
+
+<p>If it was only for simple gestures, this lib wouldn't be very useful, since lots of others do this quite well (Hammer.js,
+Touchy, etc.) It's main interest lies in the ability to create complex gestures (and <a href="#2"><em>combos</em></a>). A complex gesture
+is defined by several simple gestures happening simultaneously:
+Few examples:</p>
+
+<ul>
+<li>bi-tap</li>
+<li>tri-tap</li>
+<li>tip <strong>and</strong> swipe: one pointer is tipping, while the other is swiping</li>
+<li>bi-tip</li>
+<li>etc.</li>
+</ul><p><a name="2"></a></p>
+
+<h2>Combining gestures in combos</h2>
+
+<p>Combos (as in Street Fighter-like games) are lists of gestures (simple or complex), happening with a short period
+of time between each. A combo is ended by any lack of activity during a period of time longer than this accepted
+duration for a combo, or by any number of <em>tips</em>. Examples of combos:</p>
+
+<ul>
+<li>double <em>tap</em> then <em>tip</em>
+</li>
+<li>triple <em>tap</em>
+</li>
+<li>double bi-tap: by "bi-tap", I mean tapping two pointers at once</li>
+<li>double <em>tip</em> followed by <em>swipe</em>: can be a trigger of an action in an application, or a special attack combo in a game</li>
+<li>combinations are almost endless (in fact, no, some decisions had to be taken due to technical constraints, and
+the uselessness of the related possibilities), mostly limited by the convenience of the combo (let's say that "triple
+quad-tap followed by bi-tap simultaneously with triple-swipe" wouldn't exactly be a very usable combo :-D)</li>
+</ul><p><a name="1"></a></p>
+
+<h2>Difference between simple gestures and notification gestures</h2>
+
+<p>Gestures that can be part of combos are not sent immediately to the app. Indeed, the goal being to be a "black-box"
+for the app using the library, the idea is to not bother the app till we don't have a combo, that we match with
+definitions of callbacks. So, after a n-tap, for example, the lib wil wait for a few fractions of a second, in case a
+new event is happening, to chain it in a combo. That's of course ok, but if you want to react on mouse press/touchstart,
+this small amount of time to react will appear to the user as an eternity, or, let's say, will make the UI appear as
+sluggish. So, the solution is to use what I called "notification" gestures. They are sent immediately, and "in parallel" of normal gestures, and can't be in combos, that they would pollute. Examples:</p>
+
+<ul>
+<li>if you touch a screen, move immediately, then release, you will get: press, dragStart, drag (few times),
+dragStop, release.</li>
+<li>if you double tap a screen, while a finger is already touching, you will get: tip-press, tip-release, tip-tap. <strong>In this
+order</strong>. Remember: tap and swipe being "combo-able", they aren't sent right away. That's why release arrives first. This
+said, it's up to the app to decide which "event" to use.</li>
+</ul><h2>Mono-pointers (mouse) fallbacks</h2>
+
+<p>For now, there's not exactly any <em>fallbacks</em>, in the way that you could magically simulate multi-pointers with mono-pointer
+system. Sorry. I'm thinking of some key-button combination, like shift-click to place the center of the rotation, then
+click and drag to rotate... feedback welcome!</p>
+
+<p>So, what fallbacks mean is that you can define combos which react to both touch or mouse events, simply masking you the
+difference. So, yes, only single pointer interactions can be done with mouse.</p>
+
+<h1>Syntax for defining gestures</h1>
+
+<h2>Defining simple gestures</h2>
+
+<p>The syntax for defining simple gestures is, well, simple:</p>
+
+<ul>
+<li>the base is simply the gesture name: <em>tip</em>, <em>tap</em>, <em>swipe_t</em>, <em>swipe_r</em>, <em>swipe_b</em>, <em>swipe_l</em>, <em>pinch</em> *, <em>rotate</em> *,
+<em>drag</em>
+</li>
+<li>add to this the count of pointers involved. Want to signify a tap of two fingers? <em>tap2</em>. A tri-swipe to the right?
+<em>swipe_r3</em>. Dragging with 2 pointers? <em>drag2</em>.</li>
+<li>as the smart readers will have noticed, no need to put "1" when only one pointer is involved.</li>
+</ul><p>(*) pinch and rotate are not yet implemented like this in this alpha release. I'm still not decided on whether I should
+enhance the object returned to the drag callback with some rotation and zoom values, or define <em>pinch</em> and <em>rotate</em> as
+gestures. Indeed, any two (or more) pointers dragging involves some zoom (we are not robots), so either we have a <em>zoom</em> gesture, for which we can define precision-triggering threshold, or we have only <em>drag</em> gesture and values of rotation and zoom, and the application decides what to do with. <strong>Feedback and suggestions welcome</strong></p>
+
+<h2>Defining complex gestures</h2>
+
+<p>As we saw before, complex gestures are a combination of simultaneous simple gestures. In fact, it's even more reduced
+than this, since you can't really combine <em>any</em> kind of gestures. And it quite makes sense: though we can imagine doing
+some rotation with both hands, chances are that they will happen on different elements, and will as such be defined as
+two different gestures. What is more realistic is combination of <em>tips</em> and (_taps_ or <em>swipes</em>).</p>
+
+<h3>With "tip" prefix</h3>
+
+<p>Depending on your usage, you may or not want the lib to use "tip prefixing" (see <a href="#3">Settings</a>. By this, I mean include in the complex gestures definition, the "tip" count for tipping fingers. Example, if you want to trigger an action for every tap happening while two fingers are tipping, you would use: "tip2-tap". This is convenient for some quick application, or some demo, not using any robust routing or finite state machine to deal with complex things. Examples: <em>tip2-tap2</em> (two fingers down, tap with two others), <em>tip-swipe_b</em>, etc.</p>
+
+<h3>Without "tip" prefix</h3>
+
+<p>You define combos and complex gestures without taking into consideration the count of tipping fingers,
+because, somehow, you already deal with this with your routing system, FSM, etc. So,
+since you will already know that you are in the state "tip2", for example, you just define the combo as <em>tap2</em>,
+for dealing with a <em>tip2-tap2</em>.</p>
+
+<h2>Pattern matching</h2>
+
+<p>Sometimes, you want to catch a move, whatever the context (translate: whatever count of tips). Some other time, you may
+want to trigger something whatever the count of pointers tapping simultaneously. Etc. In all these cases, you should use
+a joker, as in regular expressions. And, what a chance, we use the same modifiers as in RegExp!</p>
+
+<ul>
+<li>
+<strong>*</strong>: any number of times (== "0 or more")</li>
+<li>
+<strong>+</strong>: any number of times &gt; 0 (== "1 or more")</li>
+<li>
+<strong>?</strong>: 0 or 1 occurrence</li>
+</ul><p>Examples:</p>
+
+<ul>
+<li>with any count of fingers tipping, act when exactly one is removed: <em>tip*-untip</em>. (Why <em>tip*</em>, not <em>tip+</em>?
+Because when you untip, the untipped finger is not tipping anymore (brilliant, I know, I know). So, untipping a single
+finger returns only "untip", not "tip-untip")</li>
+<li>with any count of fingers tipping, act when some new fingers start tipping: tip*-tip+</li>
+<li>etc.</li>
+</ul><h2>Defining combos</h2>
+
+<p>As you know, combos being few gestures in a row, we only need a separator between gestures (which is also overloadable,
+but can't be omitted). I went for greater than: "&gt;"
+Examples:</p>
+
+<ul>
+<li>double tap: tap&gt;tap</li>
+<li>double bi-tap followed by bi-swipe right: tap2&gt;tap2&gt;swipe_r2</li>
+<li>same as above, but requiring that there are first 3 fingers touching the screen: tip3-tap2&gt;tip3-tap2&gt;tip3-swipe_r2</li>
+<li>etc.</li>
+</ul><h1>Callbacks on intersecting combos</h1>
+
+<p>The library allows to define several callbacks on a same combo, or, let's say, on <strong>intersecting combos</strong>. If it may not
+sound useful at first, it's in fact adding a real comfort (and was added for this reason :-p). Let's take the example
+of the simple demo. We must catch all the fingers touching each picture, either when tipping, or when touching and moving
+right away; for this reason, we catch: <strong>tip*-tip+/tip*-press+</strong>. However, highlighting the picture ONLY when you
+want it (that is, when you select or drag it) in this callback would be tricky (I know, I tried :-)): if you do so, the
+<strong>press</strong> "event" caught means that when you double-tap, the picture will highlight, de-highlight (supposing we have the
+symmetrical logic for de-highlighting), highlight again, de-highlight again. Not nice. Adding the ability to test, within
+the callback, which "event" was really caught (if event == "tip") is not elegant for the app coder. So instead, you add
+another callback on <strong>tip+/dragStart+</strong> in which you define the highlight. You'll notice that there's no <strong>tip*</strong>,
+which means we DO want only the first finger action here (for this, it wouldn't hurt to do it at each finger, but it
+would be useless, so why waste CPU cycles?). Similarly, to de-highlight, we catch: <strong>untip+/dragStop+</strong>. This time
+however, not putting <strong>tip*</strong> is important, because we want to signify that we remove the highlight ONLY when the LAST
+finger(s) is(are) removed.</p>
+
+<h1>Coding</h1>
+
+<h2>TipTap initialization</h2>
+
+<p>You must first call TipTap.init(), passing an optional settings object. The list of fields and their default value:</p>
+
+<div class="highlight"><pre><span class="nx">comboAlternateOperator</span><span class="o">:</span> <span class="s2">"|"</span><span class="p">,</span>
+</pre></div>
+
+<p>Char to define alternate combos: press|tip</p>
+
+<div class="highlight"><pre><span class="nx">comboEndTimer_ms</span><span class="o">:</span> <span class="mi">100</span><span class="p">,</span>
+</pre></div>
+
+<p>Max delay between two actions in a same combo (like time between two clicks in a double-click)</p>
+
+<div class="highlight"><pre><span class="nx">comboGesturesSep</span><span class="o">:</span> <span class="s2">"&gt;"</span><span class="p">,</span>
+</pre></div>
+
+<p>Separator of gestures in combos: tap2**&gt;**tap2 (double bi-tap)</p>
+
+<div class="highlight"><pre><span class="nx">comboParallelActionOperator</span><span class="o">:</span> <span class="s2">"-"</span><span class="p">,</span>
+</pre></div>
+
+<p>Separator of simple gestures in complex gesture: tip2-tap2 (bi-tap while bi-tipping)</p>
+
+<div class="highlight"><pre><span class="nx">debug</span><span class="o">:</span> <span class="kc">true</span>
+</pre></div>
+
+<p>Global flag to "trace" the code (this and related code should be remove from production use, but quite convenient for understanding what's happening in your gestures)</p>
+
+<div class="highlight"><pre><span class="nx">deviceType</span><span class="o">:</span> <span class="nx">TipTap</span><span class="p">.</span><span class="nx">DEVICE_MOUSE</span><span class="p">,</span>
+</pre></div>
+
+<p>Can be TipTap.DEVICE_MOUSE or TipTap.DEVICE_TOUCH. If you want to force the type of device on which to work. In practice,
+it doesn't make sense to force it, and you should let the library define by itself what type of device to use.</p>
+
+<div class="highlight"><pre><span class="nx">moveThreshold_px</span><span class="o">:</span> <span class="nx">TipTap</span><span class="p">.</span><span class="nx">touch</span> <span class="o">?</span> <span class="mi">8</span> <span class="o">:</span> <span class="mi">0</span><span class="p">,</span>
+</pre></div>
+
+<p>When you think your finger is perfectly still on the screen, it's in fact moving, most of the time. This is another tolerance factor.</p>
+
+<div class="highlight"><pre><span class="nx">rotoZoom</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+</pre></div>
+
+<p>Global flag to activate or not the rotation and zoom "demo" effect. Will be replaced by more specific flag when these effects are correctly implemented.</p>
+
+<div class="highlight"><pre><span class="nx">simultaneousMovesTimer_ms</span><span class="o">:</span> <span class="mi">3</span> <span class="o">*</span> <span class="nx">TipTap</span><span class="p">.</span><span class="nx">TOUCH_REFRESH_ms</span><span class="p">,</span>
+</pre></div>
+
+<p>Delay accepted between similar events/moves to be considered as simultaneous. It's one of the key reasons of this library,
+compensating for not perfect simultaneity of fingers tapping for example.</p>
+
+<div class="highlight"><pre><span class="nx">swipeDuration_ms</span><span class="o">:</span> <span class="mi">8</span> <span class="o">*</span> <span class="nx">TipTap</span><span class="p">.</span><span class="nx">TOUCH_REFRESH_ms</span><span class="p">,</span>
+</pre></div>
+
+<p>Longest move duration to still be considered as a swipe (moving the finger, even fast, all along the screen is not a swipe)</p>
+
+<div class="highlight"><pre><span class="nx">swipeMaxDistance_px</span><span class="o">:</span> <span class="mi">160</span><span class="p">,</span>
+</pre></div>
+
+<p>Maximum dragged distance to still be a swipe.</p>
+
+<div class="highlight"><pre><span class="nx">swipeMinDisplacement_px</span><span class="o">:</span> <span class="mi">8</span><span class="p">,</span>
+</pre></div>
+
+<p>Speed being distance / time, define the minimal distance covered by the first drag to consider as swipe. It's not
+retina friendly. In fact, it's not multi-DPI friendly, and needs improvement!</p>
+
+<div class="highlight"><pre><span class="nx">tapMaxDuration_ms</span><span class="o">:</span> <span class="mi">150</span><span class="p">,</span>
+</pre></div>
+
+<p>If the pointer goes down without moving / releasing for longer than this, it's a tip.</p>
+
+<div class="highlight"><pre><span class="nx">useBorisSmusPointersPolyfill</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+</pre></div>
+
+<p>Uses Boris Smus <a href="https://github.com/borismus/pointer.js">"pointers.js"</a> polyfill. Defaults to false. BE CAREFUL: you have to modify the library, to deactivate the Gestures management, fully not compatible with TipTap.</p>
+
+<p><a name="3"></a></p>
+
+<div class="highlight"><pre><span class="nx">useTipPrefixes</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+</pre></div>
+
+<p>Include or not the "tip" prefixes in combos for matching: "tip-tap" or just "tap". DEFAULTS TO FALSE because,
+in fact, in a serious application, using some finished state system, it doesn't really make sense,
+and just makes combos definitions counter-intuitive.</p>
+
+<h2>Setting a callback</h2>
+
+<h4>With jQuery</h4>
+
+<div class="highlight"><pre><span class="nx">$</span><span class="p">(</span><span class="o">&lt;</span><span class="nx">targets</span> <span class="nx">filter</span><span class="o">&gt;</span><span class="p">).</span><span class="nx">jTipTap</span><span class="p">(</span><span class="s2">"on"</span><span class="p">,</span> <span class="o">&lt;</span><span class="nx">combo</span><span class="o">&gt;</span><span class="p">[,</span> <span class="o">&lt;</span><span class="nx">filter</span><span class="o">&gt;</span><span class="p">],</span> <span class="nx">callback</span><span class="p">[,</span> <span class="nx">bound</span> <span class="nx">object</span><span class="p">])</span>
+</pre></div>
+
+<ul>
+<li>
+<em>targets filter</em>: any CSS path as used in jQuery</li>
+<li>
+<em>"on"</em>: means we created a new TipTap "event". "off" doesn't exist yet.</li>
+<li>
+<em>combo</em>: any string defining a valid combo (syntax validation is, let's be fair, inexistant): "tap",
+"tip-tap", "tap2&gt;tap3", "tip2-swipe_r", "press|tip", "tip*-dragStart", etc.</li>
+<li>
+<em>filter</em> (optional): again, any CSS/jQuery valid filter, to define which objects will really receive be targeted by the
+call. This is very like event delegation: ".classname", "not:input", etc.</li>
+<li>
+<em>callback</em>: a function receiving an Action object as parameter</li>
+<li>
+<em>bound object</em> (optional): if specified, the <strong>this</strong> in the callback will be valued to this object. Equivalent of $.bind or _.bind</li>
+</ul><h4>Without jQuery</h4>
+
+<p>The lib has been made usable without jQuery. The biggest (only?) drawback is the fact that the "filter" option for delegation only accepts classname. Beware: it's "_classname_", and not "_.classname_"!</p>
+
+<p>The syntax is then a bit different:</p>
+
+<div class="highlight"><pre>    <span class="nx">TipTap</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span>
+        <span class="o">&lt;</span><span class="nx">DOM</span> <span class="nx">element</span><span class="o">|</span><span class="nx">DOM</span> <span class="nx">elements</span> <span class="nx">list</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="nx">combo</span><span class="o">:</span>    <span class="s1">'&lt;combo&gt;'</span><span class="p">,</span>
+                <span class="nx">filter</span><span class="o">:</span>   <span class="s2">"&lt;filter&gt;"</span><span class="p">,</span>
+                <span class="nx">callback</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">action</span><span class="p">)</span> <span class="p">{</span>
+                  <span class="c1">// do your stuff here</span>
+                <span class="p">}</span>
+            <span class="p">},</span>
+        <span class="p">],</span>
+        <span class="o">&lt;</span><span class="nx">bound</span> <span class="nx">object</span><span class="o">&gt;</span><span class="p">);</span>
+</pre></div>
+
+<ul>
+<li>DOM element: as retrieved by document.getElementById()</li>
+<li>DOM elements list: untested. Should allow to work on list of DOM elements sent back by getElementByClassName, getElementByTagName, querySelectorAll, etc. <strong>FULLY NOT TESTED</strong>
+</li>
+<li>
+<em>combo</em>: as in jQuery version. Any string defining a valid combo.</li>
+<li>
+<em>filter</em>: only a string being a classname. Does NOT include the "." in opposition to jQuery (because there, it's
+a CSS syntax...</li>
+<li>
+<em>callback</em>: as in jQuery version, callback receiving the Action as parameter</li>
+<li>
+<em>bound object</em>: as in jQuery version, will be the <em>this</em> in the callback</li>
+</ul><h3>A simple callback on an element</h3>
+
+<p>Setting up a callback is a simple as this:</p>
+
+<div class="highlight"><pre><span class="nx">$</span><span class="p">(</span><span class="s1">'#myID'</span><span class="p">).</span><span class="nx">jTipTap</span><span class="p">(</span><span class="s1">'on'</span><span class="p">,</span> <span class="s1">'tap'</span><span class="p">,</span>
+           <span class="kd">function</span> <span class="p">(</span><span class="nx">action</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">alert</span><span class="p">(</span><span class="s1">'You tapped me!'</span><span class="p">);</span>
+           <span class="p">});</span>
+</pre></div>
+
+<p>As you could guess, this will pop an alert when you <strong>tap</strong> the element of id <strong>myID</strong>. Defining more complex gestures and combos is as simple as this, and this is why this library was made for.</p>
+
+<h3>A callback delegated to sub-elements</h3>
+
+<p>This is hardly harder:</p>
+
+<div class="highlight"><pre><span class="nx">$</span><span class="p">(</span><span class="s1">'#myID'</span><span class="p">).</span><span class="nx">jTipTap</span><span class="p">(</span><span class="s1">'on'</span><span class="p">,</span><span class="s2">"tap"</span><span class="p">,</span> <span class="s2">".sub"</span>
+           <span class="kd">function</span> <span class="p">(</span><span class="nx">action</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">alert</span><span class="p">(</span><span class="s2">"You tapped element: "</span> <span class="o">+</span> <span class="nx">action</span><span class="p">.</span><span class="nx">getPointer</span><span class="p">(</span><span class="mi">0</span><span class="p">).</span><span class="nx">$target</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">id</span><span class="p">);</span>
+           <span class="p">});</span>
+</pre></div>
+
+<p>The third (optional) parameter is any valid jQuery filter (since all tests are made using jQuery <strong>is()</strong>), allowing some quite
+rich way of choosing which elements to pick, including usage of <strong>not:</strong>, elements names, classes, ids...
+The method <strong>getPointer()</strong> from parameter <strong>action</strong> retrieves the pointer by the given number FROM THE LAST GESTURE.
+This is important to know that we can get such informations only for the last gesture done. We could keep track of all the
+gestures which made the combo, but I didn't have the usage yet, so it is this way for now.</p>
+
+<h3>The Pointer object</h3>
+
+<p>The Pointer structure is quite simple, the four more important properties for the user being:</p>
+
+<div class="highlight"><pre><span class="nx">identifier</span>
+</pre></div>
+
+<p>The pointer identifier. Either given by the system for Touch devices, or created by TipTap library for the Mouse (but 
+meaningless in this case except for internal stuff)</p>
+
+<div class="highlight"><pre><span class="nx">$target</span>
+</pre></div>
+
+<p>The jQuery object wrapping the DOM element which received the gesture</p>
+
+<div class="highlight"><pre><span class="nx">pageX</span>
+</pre></div>
+
+<p>The pageX (like in DOM) where the gesture happened</p>
+
+<div class="highlight"><pre><span class="nx">pageY</span>
+</pre></div>
+
+<p>The pageY (like in DOM) where the gesture happened</p>
+
+<h2>The included demo</h2>
+
+<h3>Dependencies</h3>
+
+<p>To run the demo, you need to have a /libs/ folder containing the following files:</p>
+
+<ul>
+<li>jquery-1.8.1.min.js</li>
+<li>lodash.min.js</li>
+<li>signals.min.js
+They were not included in this repo because I think it's not the way to do.</li>
+</ul><h3>Content</h3>
+
+<p>The small demo shows the basics of TipTap, like attaching some callbacks to a main element, and to its not yet existing
+children, pretty much like event delegation. Because the only events created are attached to the main container, no need
+to clean anything when removing these sub elements. It also shows some small tips, like using
+<strong>tip*-tip+|tip*-press+</strong> and <strong>tip+|dragStart+</strong> to deal with highlighting the selected image correctly (only
+on tip or dragStart (in case the user moves the finger too fast for a <strong>tip</strong>), while the recording of the finger must 
+happen during tip or press (in case of fast drag start, again). If highlighting was set for <strong>press</strong> for example, a double
+tap would flash the highlighting because of the two <strong>press</strong> events sent.</p>
+
+<h3>Actions</h3>
+
+<ul>
+<li>tap the background to pop new images</li>
+<li>press+drag or tip+drag (press+drag means you touch the screen (click mouse) and move right away, tip means you wait till the image border gets highlighted and shadow shows up) to move the image. On iPad, you can use your ten fingers and your nose to move up to 11 at a time (device limit)</li>
+<li>with two or more fingers, you can zoom + rotate the pictures (however, as stated, this is not yet connected to decent usable system, it's only visual)</li>
+<li>double tap an image to zoom by 1.1</li>
+<li>triple tap an image to dezoom by 1.1</li>
+</ul>
         </section>
 
         <footer>
