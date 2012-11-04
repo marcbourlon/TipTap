@@ -11,7 +11,7 @@ module.exports = function (grunt) {
 						'src/Fsm.js',
 						'src/Gesture.js',
 						'src/Action.js',
-						'src/Pointer2.js',
+						'src/Pointer.js',
 						'src/Mouse.js',
 						'src/MouseEvent.js',
 						'src/PointerInfos.js',
