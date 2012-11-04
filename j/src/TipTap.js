@@ -431,7 +431,7 @@
 
 		},
 
-		onEndDo: function (cancelBubbling, tipTapEvent) {
+		onEndDo: function (bubblingStatus, tipTapEvent) {
 
 			var debugMe = true && this.debugMe && TipTap.settings.debug;
 
@@ -439,7 +439,7 @@
 
 			if (!pointer) {
 
-				return cancelBubbling;
+				return bubblingStatus;
 
 			}
 
