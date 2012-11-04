@@ -31,11 +31,11 @@ Essentially, its goal is to:
 (see [Jérôme Etienne's work](https://github.com/jeromeetienne/augmentedgesture.js)), Leap Motion, etc.
 * compensate for human lack of accuracy, leading to almost-simultaneous actions of pointers, instead of simultaneous.
 Think of double bi-tap for example, chances are that you will not tap both fingers twice exactly simultaneously.
-Even if you do, you will not always. And now, try with tri-tap, or worse, double tri-swipe! This inaccuracy was one of
-the main reason to create this lib, and by far the biggest technical issue to solve. To do this, when a pointer event
-occurs, it will wait for a tiny amount of time to see if other similar events come. If it happens, it will group the
-event together, a bit like what is done natively by iOS with its touch events and the touches\* arrays. Let's call
-this HIC (Human Inaccuracy Compensation).
+Even if you do sometimes, you will not always. And now, try with tri-tap, or worse, double tri-swipe! This inaccuracy
+was one of the main reason to create this lib, and by far the biggest technical issue to solve. To do this, when a
+pointer event occurs, it will wait for a tiny amount of time to see if other similar events come. If it happens,
+it will group the event together, a bit like what is done natively by iOS with its touch events and the touches\*
+arrays. Let's call this HIC (Human Inaccuracy Compensation).
 * despite the previous step, not miss any event! 
 * differenciate simply between tap, tip (long tap), swipe, move, pinch, spread, rotate...
 * give a rich but simple language to define complex gestures, in an Event-like syntax. Example:
