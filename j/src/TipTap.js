@@ -19,7 +19,7 @@
 		DEVICE_TOUCH:        2, // allows to force usage of touch device input
 		GLOBAL_CLASS_FILTER: "-", // char used internally for global container class
 		_KEEP_BUBBLING:      false,
-		listOfFingers:       [],
+		listOfPointers:       [],
 		listOfRouters:       [], // list of all Routers objects
 		// Stolen the touch test from Modernizr. Including 49KB for just this was a bit overkill, to me
 		isTouchInterface:    true,
@@ -86,9 +86,9 @@
 			// todo
 		},
 
-		findFingerByIdentifier: function (identifier) {
+		findPointerByIdentifier: function (identifier) {
 
-			return _.find(this.listOfFingers, function (f) {
+			return _.find(this.listOfPointers, function (f) {
 
 				return (f.identifier === identifier);
 
@@ -113,7 +113,7 @@
 
 			if (this.settings.useBorisSmusPointersPolyfill) {
 
-				this.device = this.Pointer;
+				this.device = this.UnifiedPointer;
 
 			} else {
 
@@ -327,7 +327,7 @@
 
 		onStartDo: function (router, bubblingStatus, tiptapEvent) {
 			var debugMe = true && this.debugMe && TipTap.settings.debug;
-			var finger;
+			var pointer;
 			var filter;
 
 			md(this + ".onStartDo-1", debugMe);
@@ -344,20 +344,21 @@
 
 			md(this + ".onStartDo-2", debugMe);
 
-			finger = new TipTap.Finger(tiptapEvent);
+			pointer = new TipTap.Pointer
+				(tiptapEvent);
 
-			// Keep track of the finger to dispatch further moves
-			this.listOfFingers.push(finger);
+			// Keep track of the pointer to dispatch further moves
+			this.listOfPointers.push(pointer);
 
-			// allocate an Action for this Finger, passing the callbacks list
-			router.allocateAction(finger);
+			// allocate an Action for this Pointer, passing the callbacks list
+			router.allocateAction(pointer);
 
 			md(this + ".onStartDo-3", debugMe);
 
-			// in case the device has something to do with the EventTouch before this one is processed by the Finger
+			// in case the device has something to do with the EventTouch before this one is processed by the Pointer
 			this.device.onStart();
 
-			finger.onStart(tiptapEvent);
+			pointer.onStart(tiptapEvent);
 
 			md(this + ".onStartDo-4", debugMe);
 
@@ -371,7 +372,7 @@
 			 Actions to allow splitting elements, we'll have to deal with several Actions concerned by one event
 			 Will it work?
 			 */
-			var debugMe = true && this.debugMe && this.settings.debug;
+			var debugMe = false && this.debugMe && this.settings.debug;
 
 			var cancelBubbling = TipTap._KEEP_BUBBLING;
 
@@ -388,13 +389,13 @@
 			this.device.onDrag(e);
 
 			// buildEtList unifies mouse and touch events/touchs in a list
-			_.each(this.device.buildEventList(e), function (eventTouch) {
+			_.each(this.device.buildEventList(e), function (tipTapEvent) {
 
-				// we store the touch identifier in the Finger, so we can match new incoming events. Obvious.
-				var finger = this.findFingerByIdentifier(eventTouch.identifier);
+				// we store the touch identifier in the Pointer, so we can match new incoming events. Obvious.
+				var pointer = this.findPointerByIdentifier(tipTapEvent.identifier);
 
 				// not found (can't happen...)
-				if (!finger) {
+				if (!pointer) {
 
 					return;
 
@@ -404,7 +405,7 @@
 
 				cancelBubbling = TipTap._CANCEL_BUBBLING;
 
-				finger.onDrag(eventTouch);
+				pointer.onDrag(tipTapEvent);
 
 			}, this);
 
@@ -419,7 +420,7 @@
 
 			var debugMe = true && this.debugMe && TipTap.settings.debug;
 
-			// odd (?) usage of _.reduce(): calls finger.end() on all fingers concerned
+			// odd (?) usage of _.reduce(): calls pointer.end() on all pointers concerned
 			if (_.reduce(this.device.buildEventList(e), _.bind(this.onEndDo, this), TipTap._KEEP_BUBBLING, this)) {
 
 				md(this + ".onEnd", debugMe, "#F00");
@@ -430,25 +431,25 @@
 
 		},
 
-		onEndDo: function (cancelBubbling, eventTouch) {
+		onEndDo: function (cancelBubbling, tipTapEvent) {
 
 			var debugMe = true && this.debugMe && TipTap.settings.debug;
 
-			md(this + ".onEndDo", debugMe, "#F00");
+			var pointer = this.findPointerByIdentifier(tipTapEvent.identifier);
 
-			var finger = this.findFingerByIdentifier(eventTouch.identifier);
-
-			if (!finger) {
+			if (!pointer) {
 
 				return cancelBubbling;
 
 			}
 
-			this.device.onEnd(eventTouch);      // in case the device has something to do with the ET
+			md(this + ".onEndDo", debugMe, "#F00");
 
-			finger.onEnd(eventTouch);
+			this.device.onEnd(tipTapEvent);      // in case the device has something to do with the event
 
-			this.unlinkFinger(finger);
+			pointer.onEnd(tipTapEvent);
+
+			this.unlinkPointer(pointer);
 
 			return TipTap._CANCEL_BUBBLING;
 
@@ -493,15 +494,15 @@
 			return "TipTap";
 		},
 
-		unlinkFinger: function (finger) {
+		unlinkPointer: function (pointer) {
 
 			var debugMe = true && this.debugMe && TipTap.settings.debug;
 
-			var l = this.listOfFingers.length;
+			var l = this.listOfPointers.length;
 
-			this.listOfFingers.splice(this.listOfFingers.indexOf(finger), 1);
+			this.listOfPointers.splice(this.listOfPointers.indexOf(pointer), 1);
 
-			md(this + ".unlinkFinger: " + l + " -> " + this.listOfFingers.length, debugMe);
+			md(this + ".unlinkPointer: " + l + " -> " + this.listOfPointers.length, debugMe);
 
 		},
 
@@ -511,7 +512,7 @@
 
 			this.device.use$(use$);
 			this.Action.use$(use$);
-			this.Finger.use$(use$);
+			this.Pointer.use$(use$);
 			this.PointerInfos.use$(use$);
 			this.Router.use$(use$);
 

@@ -13,7 +13,7 @@ test("PointerInfos has $/no $ methods set", function () {
 });
 
 test("new PointerInfos", function () {
-	var fakeFinger = {
+	var fakePointer = {
 		identifier:   1,
 		target:       null,
 		$target:      null,
@@ -32,7 +32,7 @@ test("new PointerInfos", function () {
 
 	};
 
-	var pi = new TipTap.PointerInfos(fakeFinger, 3);
+	var pi = new TipTap.PointerInfos(fakePointer, 3);
 	ok(pi.identifier, "Pointer Infos has a defined identifier");
 	ok(pi.identifier > 0, "Pointer Infos has an identifier whose value is > 0");
 });

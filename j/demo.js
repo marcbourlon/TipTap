@@ -169,7 +169,7 @@ $(function () {
 				filter:   "test",
 				callback: function (action) {
 					var $target;
-					var isMasterFinger;
+					var isMasterPointer;
 					var debugMe = true && TipTap.settings.debug;
 
 					_.each(action.listOfPointers, function (pointer) {
@@ -178,7 +178,7 @@ $(function () {
 						md("app tip-1: " + $target.attr('id') + ", " + pointer, debugMe);
 
 						// the master pointer is the one allowed to drag the element
-						isMasterFinger = !_.any(positionsList, function (position) {
+						isMasterPointer = !_.any(positionsList, function (position) {
 
 							return position.$target.is($target);
 
@@ -187,7 +187,7 @@ $(function () {
 						positionsList.push(
 							{
 								$target:    $target,
-								isMaster:   isMasterFinger,
+								isMaster:   isMasterPointer,
 								identifier: pointer.identifier,
 								dx:         pointer.pageX - parseInt($target.css('left'), 10),
 								dy:         pointer.pageY - parseInt($target.css('top'), 10)

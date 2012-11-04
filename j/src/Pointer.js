@@ -7,7 +7,7 @@
 (function (TipTap, _, $) {
 
 	// namespaces the thing
-	TipTap.Pointer = {
+	UnifiedPointer = {
 
 		debugMe: true,
 
@@ -114,5 +114,8 @@
 		},
 
 	};
+
+	// namespacing
+	TipTap.UnifiedPointer = UnifiedPointer;
 
 }(window.TipTap, _, window.jQuery));

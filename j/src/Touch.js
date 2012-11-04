@@ -13,17 +13,17 @@
 
 			var touchesList = this._getTouches$(event);
 
-			var pointersList = [];
+			var tipTapEventsList = [];
 
 			for (var i = 0, l = touchesList.length; i < l; i++) {
 
-				var pointer = touchesList[i];
+				var touch = touchesList[i];
 
-				pointersList.push(new TipTap.TouchEvent(pointer, event));
+				tipTapEventsList.push(new TipTap.TouchEvent(touch, event));
 
 			}
 
-			return pointersList;
+			return tipTapEventsList;
 
 		},
 
@@ -41,16 +41,16 @@
 
 		},
 
-		onStart: function (eventTouch) {
+		onStart: function (tipTapEvent) {
 		},
 
-		onDrag: function (eventTouch) {
+		onDrag: function (tipTapEvent) {
 		},
 
-		onEnd: function (eventTouch) {
+		onEnd: function (tipTapEvent) {
 		},
 
-		onCancel: function (eventTouch) {
+		onCancel: function (tipTapEvent) {
 		},
 
 		use$: function (use$) {

@@ -169,7 +169,7 @@
 
 				}
 
-				// allow to define a list of fingerStatusToGestureSignalMapping generating the same transition (namely end and cancel for touch :-D)
+				// allow to define a list of pointerStatusToGestureSignalMapping generating the same transition (namely end and cancel for touch :-D)
 				_.each(signalsList, function (signal) {
 
 					this.storeTransition(state.from, transition, signal);

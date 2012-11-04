@@ -30,13 +30,13 @@
 			action.finished.add(this.deallocateAction, this);
 		},
 
-		allocateAction: function (finger) {
+		allocateAction: function (pointer) {
 			var debugMe = true && this.debugMe && TipTap.settings.debug;
 
 			var action;
 
 			// can be DOM element or jQuery!
-			var target$ = finger.getTarget$();
+			var target$ = pointer.getTarget$();
 
 			md(this + ".allocateAction-1", debugMe);
 
@@ -58,7 +58,7 @@
 
 			}
 
-			action.addFingerListeners(finger);
+			action.addPointerListeners(pointer);
 
 			md(this + ".allocateAction-end(" + action + ")", debugMe);
 

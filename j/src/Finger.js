@@ -1,18 +1,18 @@
 (function (TipTap, _) {
 
-	var Finger = function (tiptapEvent) {
+	var Pointer = function (tiptapEvent) {
 		this.debugMe = true;
 
 		var debugMe = true && TipTap.settings.debug && this.debugMe;
 
-		this.direction = Finger._DIR_NONE;
+		this.direction = Pointer._DIR_NONE;
 
 		this.identifier = tiptapEvent.identifier;
 
-		// the flag is set if the Finger has tipped before doing other things. Simplifies FSM logic a lot!!
+		// the flag is set if the Pointer has tipped before doing other things. Simplifies FSM logic a lot!!
 		this.isTipping = false;
 
-		// to store the list of "pointer" informations for this Finger during its life
+		// to store the list of "pointer" informations for this Pointer during its life
 		this.listOfPositions = [];
 
 		// used to store details about the absolute drag: distance (x, y, total), speed (x, y, total), duration
@@ -21,15 +21,14 @@
 		// used to store details about the relative drag (between two last positions)
 		this.dragDetailsRelative = { dx: 0, dy: 0, d: 0, spx: 0, spy: 0, spd: 0, duration_ms: 0 };
 
-		// reference to the timer used to switch from tap to tip, allows to kill it when Finger up early
+		// reference to the timer used to switch from tap to tip, allows to kill it when Pointer up early
 		this.pressedToTippedTimer = 0;
 
 		// index of the positions list of when the swipe started (to calculate values)
 		this.swipeStartPositionIndex = 0;
 
 		// keep a reference to the initial target to force it to new Pointers (fast moves can make mouse move outside of it)
-		this.target = null;
-		this.$target = null;
+		this.target = this.$target = null;
 		this._setTarget$(tiptapEvent.getTarget$());
 
 		// create the Signals to send to listeners
@@ -41,16 +40,16 @@
 		md(this + ".new()", debugMe)
 	};
 
-	/* "stateless" finite state machine, shared by all Fingers. Stateless means that each Finger's state is stored in
-	 the Finger itself. Advantage: ONE FSM for all Fingers => don't recreate the SAME FSM for each Finger, EACH TIME
-	 a new Finger is created, which wastes some CPU time, and means more GC in the end.
+	/* "stateless" finite state machine, shared by all Pointers. Stateless means that each Pointer's state is stored in
+	 the Pointer itself. Advantage: ONE FSM for all Pointers => don't recreate the SAME FSM for each Pointer, EACH TIME
+	 a new Pointer is created, which wastes some CPU time, and means more GC in the end.
 	 */
-	Finger.fsm = new TipTap.Fsm(TipTap.Fsm.DONT_SAVE_STATE);
+	Pointer.fsm = new TipTap.Fsm(TipTap.Fsm.DONT_SAVE_STATE);
 
 	// todo: factor similar actions in functions (tip-startDragging-drag and startDragging-drag for example)
 	// todo: dragStopped ?
-	// in this FSM, all callbacks' "this" refers to the Finger calling.
-	Finger.fsm.init(
+	// in this FSM, all callbacks' "this" refers to the Pointer calling.
+	Pointer.fsm.init(
 		[
 			{
 				from:        "start",
@@ -241,13 +240,13 @@
 		]
 	);
 
-	Finger._DIR_NONE = 0;
-	Finger._DIR_TOP = 1;
-	Finger._DIR_RIGHT = 2;
-	Finger._DIR_BOTTOM = 4;
-	Finger._DIR_LEFT = 8;
+	Pointer._DIR_NONE = 0;
+	Pointer._DIR_TOP = 1;
+	Pointer._DIR_RIGHT = 2;
+	Pointer._DIR_BOTTOM = 4;
+	Pointer._DIR_LEFT = 8;
 
-	Finger.prototype = {
+	Pointer.prototype = {
 
 		addPosition: function (position) {
 
@@ -421,13 +420,13 @@
 
 						md(this + ".isSwipingOrDragging > swipe-r", debugMe)
 
-						this.direction = Finger._DIR_RIGHT;
+						this.direction = Pointer._DIR_RIGHT;
 
 					} else {
 
 						md(this + ".isSwipingOrDragging > swipe-l", debugMe)
 
-						this.direction = Finger._DIR_LEFT;
+						this.direction = Pointer._DIR_LEFT;
 
 					}
 
@@ -444,13 +443,13 @@
 
 						md(this + ".isSwipingOrDragging > swipe-b", debugMe)
 
-						this.direction = Finger._DIR_BOTTOM;
+						this.direction = Pointer._DIR_BOTTOM;
 
 					} else {
 
 						md(this + ".isSwipingOrDragging > swipe-t", debugMe)
 
-						this.direction = Finger._DIR_TOP;
+						this.direction = Pointer._DIR_TOP;
 
 					}
 
@@ -480,33 +479,33 @@
 				) || (this.dragDetailsAbsolute.d > settings.swipeMaxDistance_px);
 		},
 
-		onDrag: function (eventTouch) {
+		onDrag: function (tipTapEvent) {
 			var debugMe = true && TipTap.settings.debug && this.debugMe;
 
-			this.storePosition(eventTouch);
+			this.storePosition(tipTapEvent);
 
 			// computes all the important movement values: distance, speed, duration_ms...
 			this.dragDetailsAbsolute = this.computeAbsMove();
 			this.dragDetailsRelative = this.computeRelMove();
 
-			Finger.fsm.dragged.call(this);
+			Pointer.fsm.dragged.call(this);
 		},
 
-		onEnd: function (eventTouch) {
+		onEnd: function (tipTapEvent) {
 
-			this.storePosition(eventTouch);
+			this.storePosition(tipTapEvent);
 
-			Finger.fsm.ended.call(this);
+			Pointer.fsm.ended.call(this);
 
 		},
 
 		onStart: function () {
-			Finger.fsm.pressed.call(this);
+			Pointer.fsm.pressed.call(this);
 		},
 
 		pressedToTipped: function () {
 
-			Finger.fsm.pressedToTipped.call(this);
+			Pointer.fsm.pressedToTipped.call(this);
 
 		},
 
@@ -541,18 +540,18 @@
 			}
 		},
 
-		storePosition: function (eventTouch) {
+		storePosition: function (tipTapEvent) {
 
-			this.addPosition(new TipTap.Position(eventTouch));
+			this.addPosition(new TipTap.Position(tipTapEvent));
 
 		},
 
 		toString: function () {
-			return "---F#" + this.identifier;
+			return "---Ptr#" + this.identifier;
 		},
 
 		wasAnUncontrolledMove: function () {
-			var debugMe = true && TipTap.settings.debug && this.debugMe;
+			var debugMe = false && TipTap.settings.debug && this.debugMe;
 
 			var settings = TipTap.settings;
 
@@ -566,7 +565,7 @@
 
 	};
 
-	Finger.use$ = function (use$) {
+	Pointer.use$ = function (use$) {
 
 		if (use$) {
 
@@ -585,6 +584,6 @@
 
 
 	// namespacing
-	TipTap.Finger = Finger;
+	TipTap.Pointer = Pointer;
 
 }(window.TipTap, _));

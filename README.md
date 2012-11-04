@@ -29,7 +29,7 @@ Let's give back to a community who gives me so much: [MIT License](http://www.op
 Essentially, its goal is to:
 * provide a unified, input-device agnostic events capturing system: dealing with Mouse, Touch, Augmented Gestures
 (see [Jérôme Etienne's work](https://github.com/jeromeetienne/augmentedgesture.js)), Leap Motion, etc.
-* compensate for human lack of accuracy, leading to almost-simultaneous actions of fingers, instead of simultaneous.
+* compensate for human lack of accuracy, leading to almost-simultaneous actions of pointers, instead of simultaneous.
 Think of double bi-tap for example, chances are that you will not tap both fingers twice exactly simultaneously.
 Even if you do, you will not always. And now, try with tri-tap, or worse, double tri-swipe! This inaccuracy was one of
 the main reason to create this lib, and by far the biggest technical issue to solve. To do this, when a pointer event
@@ -91,14 +91,14 @@ The basic gestures supported by the library are the ones you expect (don't deny,
 a touch screen to define the movements to be done:
 - _tap_: you touch briefly the sensitive surface, and remove your finger almost instantly. Like a mouse _click_.
 - _tip_: you touch the sensitive surface, and stay on it. Like a mouse _down_.
-- _swipe_: it's like a fast-moving tap. You move the finger fast in one direction (top, right, bottom or left) and while
-	moving fast, you tap the screen. Your finger draws a "U" in the air, tangenting the screen at the bottom of the curve,
+- _swipe_: it's like a fast-moving tap. You move the pointer fast in one direction (top, right, bottom or left) and while
+	moving fast, you tap the screen. Your pointer draws a "U" in the air, tangenting the screen at the bottom of the curve,
 	gently (but quickly and briefly, after all, I said "tangenting") gliding on it. Of course, the library corrects any not
 	perfect direction, and keeps the direction of the biggest movement
 - _rotate_: current managing of rotation is not nice. I mean, I quickly hacked a modified version of Markus Gundersen
 	touch demo, to allow for zoom and rotate. But it's not yet as efficient as was my previous implementation, and I have
-	to merge both. Rotation can be done with two or three (or more, but well..) fingers down, and we'll see why it matters.
-- _pinch_: aka _zoom_, it's, well allowing you to do what you expect. Same comment as for rotate: count of fingers may
+	to merge both. Rotation can be done with two or three (or more, but well..) pointers down, and we'll see why it matters.
+- _pinch_: aka _zoom_, it's, well allowing you to do what you expect. Same comment as for rotate: count of pointers may
 	differ, and this can be used efficiently.
 - _drag_: it's simply moving a pointer while _tipping_
 - _move_: **not yet implemented**, but should probably be in the future. It's moving without tipping. Impossible on a
@@ -109,12 +109,12 @@ a touch screen to define the movements to be done:
 
 In addition to these "real" gestures, exist few "notification" gestures. Complete understanding of such gestures comes
 with the explanation of combos. The notification gestures are the following:
-- _press_: fired when a finger touches the screen (_touchstart_ event), a mouse is pressed, etc.
-- _started_dragging_: fired when a finger starts moving, a mouse with button pressed starts moving, etc.
-- _stopped_dragging_: fired when a finger IS RELEASED FROM THE SCREEN after some dragging, a mouse with button is
+- _press_: fired when a pointer touches the screen (_touchstart_ event), a mouse is pressed, etc.
+- _started_dragging_: fired when a pointer starts moving, a mouse with button pressed starts moving, etc.
+- _stopped_dragging_: fired when a pointer IS RELEASED FROM THE SCREEN after some dragging, a mouse with button is
 released after it was dragged, etc. Whether I should implement a timer to detect the end of the motion is not decided
 yet (sounds cool and logical, but maybe difficult, so, as usual, **feedback welcome**)
-- _release_: as expected, fired when fingers are removed from the screen (mouse released, etc.)
+- _release_: as expected, fired when pointers are removed from the screen (mouse released, etc.)
 
 See below for explanation of the [difference between normal simple gestures and notification gestures](#1).
 
@@ -158,7 +158,7 @@ this small amount of time to react will appear to the user as an eternity, or, l
 sluggish. So, the solution is to use what I called "notification" gestures. They are sent immediately, and "in parallel" of normal gestures, and can't be in combos, that they would pollute. Examples:
 - if you touch a screen, move immediately, then release, you will get: press, dragStart, drag (few times),
 dragStop, release.
-- if you double tap a screen, while a finger is already touching, you will get: tip-press, tip-release, tip-tap. **In this
+- if you double tap a screen, while a pointer is already touching, you will get: tip-press, tip-release, tip-tap. **In this
 order**. Remember: tap and swipe being "combo-able", they aren't sent right away. That's why release arrives first. This
 said, it's up to the app to decide which "event" to use.
 
@@ -180,7 +180,7 @@ difference. So, yes, only single pointer interactions can be done with mouse.
 The syntax for defining simple gestures is, well, simple:
 - the base is simply the gesture name: _tip_, _tap_, _swipe_t_, _swipe_r_, _swipe_b_, _swipe_l_, _pinch_ *, _rotate_ *,
 _drag_
-- add to this the count of pointers involved. Want to signify a tap of two fingers? _tap2_. A tri-swipe to the right?
+- add to this the count of pointers involved. Want to signify a tap of two pointers? _tap2_. A tri-swipe to the right?
 _swipe_r3_. Dragging with 2 pointers? _drag2_.
 - as the smart readers will have noticed, no need to put "1" when only one pointer is involved.
 
@@ -197,10 +197,10 @@ some rotation with both hands, chances are that they will happen on different el
 two different gestures. What is more realistic is combination of _tips_ and (_taps_ or _swipes_).
 
 ### With "tip" prefix
-Depending on your usage, you may or not want the lib to use "tip prefixing" (see [Settings](#3). By this, I mean include in the complex gestures definition, the "tip" count for tipping fingers. Example, if you want to trigger an action for every tap happening while two fingers are tipping, you would use: "tip2-tap". This is convenient for some quick application, or some demo, not using any robust routing or finite state machine to deal with complex things. Examples: _tip2-tap2_ (two fingers down, tap with two others), _tip-swipe\_b_, etc.
+Depending on your usage, you may or not want the lib to use "tip prefixing" (see [Settings](#3). By this, I mean include in the complex gestures definition, the "tip" count for tipping pointers. Example, if you want to trigger an action for every tap happening while two pointers are tipping, you would use: "tip2-tap". This is convenient for some quick application, or some demo, not using any robust routing or finite state machine to deal with complex things. Examples: _tip2-tap2_ (two pointers down, tap with two others), _tip-swipe\_b_, etc.
 
 ### Without "tip" prefix
-You define combos and complex gestures without taking into consideration the count of tipping fingers,
+You define combos and complex gestures without taking into consideration the count of tipping pointers,
 because, somehow, you already deal with this with your routing system, FSM, etc. So,
 since you will already know that you are in the state "tip2", for example, you just define the combo as _tap2_,
 for dealing with a _tip2-tap2_.
@@ -215,10 +215,10 @@ a joker, as in regular expressions. And, what a chance, we use the same modifier
 - __?__: 0 or 1 occurrence
 
 Examples:
-- with any count of fingers tipping, act when exactly one is removed: _tip\*-untip_. (Why _tip\*_, not _tip+_?
-Because when you untip, the untipped finger is not tipping anymore (brilliant, I know, I know). So, untipping a single
-finger returns only "untip", not "tip-untip")
-- with any count of fingers tipping, act when some new fingers start tipping: tip*-tip+
+- with any count of pointers tipping, act when exactly one is removed: _tip\*-untip_. (Why _tip\*_, not _tip+_?
+Because when you untip, the untipped pointer is not tipping anymore (brilliant, I know, I know). So, untipping a single
+pointer returns only "untip", not "tip-untip")
+- with any count of pointers tipping, act when some new pointers start tipping: tip*-tip+
 - etc.
 
 
@@ -229,24 +229,24 @@ but can't be omitted). I went for greater than: ">"
 Examples:
 - double tap: tap>tap
 - double bi-tap followed by bi-swipe right: tap2>tap2>swipe_r2
-- same as above, but requiring that there are first 3 fingers touching the screen: tip3-tap2>tip3-tap2>tip3-swipe_r2
+- same as above, but requiring that there are first 3 pointers touching the screen: tip3-tap2>tip3-tap2>tip3-swipe_r2
 - etc.
 
 # Callbacks on intersecting combos
 
 The library allows to define several callbacks on a same combo, or, let's say, on __intersecting combos__. If it may not
 sound useful at first, it's in fact adding a real comfort (and was added for this reason :-p). Let's take the example
-of the simple demo. We must catch all the fingers touching each picture, either when tipping, or when touching and moving
+of the simple demo. We must catch all the pointers touching each picture, either when tipping, or when touching and moving
 right away; for this reason, we catch: __tip\*-tip+/tip\*-press+__. However, highlighting the picture ONLY when you
 want it (that is, when you select or drag it) in this callback would be tricky (I know, I tried :-)): if you do so, the
 __press__ "event" caught means that when you double-tap, the picture will highlight, de-highlight (supposing we have the
 symmetrical logic for de-highlighting), highlight again, de-highlight again. Not nice. Adding the ability to test, within
 the callback, which "event" was really caught (if event == "tip") is not elegant for the app coder. So instead, you add
 another callback on __tip+/dragStart+__ in which you define the highlight. You'll notice that there's no __tip\*__,
-which means we DO want only the first finger action here (for this, it wouldn't hurt to do it at each finger, but it
+which means we DO want only the first pointer action here (for this, it wouldn't hurt to do it at each pointer, but it
 would be useless, so why waste CPU cycles?). Similarly, to de-highlight, we catch: __untip+/dragStop+__. This time
 however, not putting __tip\*__ is important, because we want to signify that we remove the highlight ONLY when the LAST
-finger(s) is(are) removed.
+pointer(s) is(are) removed.
 
 
 # Coding
@@ -295,7 +295,7 @@ it doesn't make sense to force it, and you should let the library define by itse
 moveThreshold_px: TipTap.touch ? 8 : 0,
 ```
 
-When you think your finger is perfectly still on the screen, it's in fact moving, most of the time. This is another tolerance factor.
+When you think your pointer is perfectly still on the screen, it's in fact moving, most of the time. This is another tolerance factor.
 
 ```javascript
 rotoZoom: false,
@@ -308,13 +308,13 @@ simultaneousMovesTimer_ms: 3 * TipTap.TOUCH_REFRESH_ms,
 ```
 
 Delay accepted between similar events/moves to be considered as simultaneous. It's one of the key reasons of this library,
-compensating for not perfect simultaneity of fingers tapping for example.
+compensating for not perfect simultaneity of pointers tapping for example.
 
 ```javascript
 swipeDuration_ms: 8 * TipTap.TOUCH_REFRESH_ms,
 ```
 
-Longest move duration to still be considered as a swipe (moving the finger, even fast, all along the screen is not a swipe)
+Longest move duration to still be considered as a swipe (moving the pointer, even fast, all along the screen is not a swipe)
 
 ```javascript
 swipeMaxDistance_px: 160,
@@ -381,7 +381,7 @@ TipTap.on(
 - _filter_: only a string being a classname. DO NOT include the "." in opposition to jQuery (because there, it's
 a CSS syntax...), don't set if you want the elements passed to be the ones dealing with the "events"
 - _capture_: defines if the combo must be treated by parents first (like in DOM2 even model "capture",
-or by children first (bubbling)). It allows to benefit TipTap's HIC, while still, managing multi-pointers gestures on a container full of elements with gestures attached. Say that you touch your container area with 3 fingers simultaneously. If you didn't use this _capture_ mode, then chances are high that each finger touches a child element, which will then capture the event, meaning your 3 fingers gesture won't work anymore once the container is filled. Using _capture_ lets you define higher-level gestures (like, 3 fingers pinch to zoom the whole) even when the touchable area is crowded. In other words, using **TipTap.CAPTURE_CAPTURE** when attaching a gesture to a parent element gives the gesture a higher priority than the ones of its children. If not specified, defaults to **TipTap.CAPTURE_BUBBLE**, which is the opposite.
+or by children first (bubbling)). It allows to benefit TipTap's HIC, while still, managing multi-pointers gestures on a container full of elements with gestures attached. Say that you touch your container area with 3 pointers simultaneously. If you didn't use this _capture_ mode, then chances are high that each pointer touches a child element, which will then capture the event, meaning your 3 pointers gesture won't work anymore once the container is filled. Using _capture_ lets you define higher-level gestures (like, 3 pointers pinch to zoom the whole) even when the touchable area is crowded. In other words, using **TipTap.CAPTURE_CAPTURE** when attaching a gesture to a parent element gives the gesture a higher priority than the ones of its children. If not specified, defaults to **TipTap.CAPTURE_BUBBLE**, which is the opposite.
 - _callback_ \*: the callback receiving the Action as parameter (_function(action) { <do something> }_)
 - _bound object_: will be set as the _this_ in the callback.
 
@@ -521,14 +521,14 @@ The small demo shows the basics of TipTap, like attaching some callbacks to a ma
 children, pretty much like event delegation. Because the only events created are attached to the main container, no need
 to clean anything when removing these sub elements. It also shows some small tips, like using
 **tip\*-tip\+\|tip\*-press\+** and **tip\+\|dragStart\+** to deal with highlighting the selected image correctly (only
-on tip or dragStart (in case the user moves the finger too fast for a **tip**), while the recording of the finger must 
+on tip or dragStart (in case the user moves the pointer too fast for a **tip**), while the recording of the pointer must
 happen during tip or press (in case of fast drag start, again). If highlighting was set for **press** for example, a double tap would flash the highlighting because of the two **press** events sent.
 The "demo.js" version use jquery internally (I was too lazy to change the code), but it uses TipTap without jQuery at
  all.
 
 ### Actions
 - tap the background to pop new images
-- press+drag or tip+drag (press+drag means you touch the screen (click mouse) and move right away, tip means you wait till the image border gets highlighted and shadow shows up) to move the image. On iPad, you can use your ten fingers and your nose to move up to 11 at a time (device limit)
-- with two or more fingers, you can zoom + rotate the pictures (however, as stated, this is not yet connected to decent usable system, it's only visual)
+- press+drag or tip+drag (press+drag means you touch the screen (click mouse) and move right away, tip means you wait till the image border gets highlighted and shadow shows up) to move the image. On iPad, you can use your ten pointers and your nose to move up to 11 at a time (device limit)
+- with two or more pointers, you can zoom + rotate the pictures (however, as stated, this is not yet connected to decent usable system, it's only visual)
 - double tap an image to zoom by 1.1
 - triple tap an image to dezoom by 1.1

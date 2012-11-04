@@ -1,20 +1,20 @@
 (function (TipTap, _) {
 
-	var PointerInfos = function (finger, status) {
+	var PointerInfos = function (pointer, status) {
 
-		this.identifier = finger.identifier;
+		this.identifier = pointer.identifier;
 
 		this.target = null;
 		this.$target = null;
-		this._setTarget$(finger.getTarget$());
+		this._setTarget$(pointer.getTarget$());
 
-		this.pageX = finger.getPosition().pageX;
+		this.pageX = pointer.getPosition().pageX;
 
-		this.pageY = finger.getPosition().pageY;
+		this.pageY = pointer.getPosition().pageY;
 
 		this.status = status;
 
-		this.direction = finger.getDirection();
+		this.direction = pointer.getDirection();
 
 	};
 

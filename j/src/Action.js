@@ -58,21 +58,21 @@
 
 	Action.prototype = {
 
-		addFingerListeners: function (finger) {
-			// registers Action as each finger's Signals listener
-			// allocateGesture takes two params: status and finger. _.bind attaches "this" and the first param
-			finger.pressed.add(_.bind(this.allocateGesture, this, TipTap.Gesture._PRESSED), this);
-			finger.tapped.add(_.bind(this.allocateGesture, this, TipTap.Gesture._TAPPED), this);
-			finger.tipped.add(_.bind(this.allocateGesture, this, TipTap.Gesture._TIPPED), this);
-			finger.untipped.add(_.bind(this.allocateGesture, this, TipTap.Gesture._UNTIPPED), this);
-			finger.swiped.add(_.bind(this.allocateGesture, this, TipTap.Gesture._SWIPED), this);
-			finger.dragStarted.add(_.bind(this.allocateGesture, this, TipTap.Gesture._DRAG_STARTED), this);
-			finger.dragged.add(_.bind(this.allocateGesture, this, TipTap.Gesture._DRAGGED), this);
-			finger.dragStopped.add(_.bind(this.allocateGesture, this, TipTap.Gesture._DRAG_STOPPED), this);
-			finger.released.add(_.bind(this.allocateGesture, this, TipTap.Gesture._RELEASED), this);
+		addPointerListeners: function (pointer) {
+			// registers Action as each pointer's Signals listener
+			// allocateGesture takes two params: status and pointer. _.bind attaches "this" and the first param
+			pointer.pressed.add(_.bind(this.allocateGesture, this, TipTap.Gesture._PRESSED), this);
+			pointer.tapped.add(_.bind(this.allocateGesture, this, TipTap.Gesture._TAPPED), this);
+			pointer.tipped.add(_.bind(this.allocateGesture, this, TipTap.Gesture._TIPPED), this);
+			pointer.untipped.add(_.bind(this.allocateGesture, this, TipTap.Gesture._UNTIPPED), this);
+			pointer.swiped.add(_.bind(this.allocateGesture, this, TipTap.Gesture._SWIPED), this);
+			pointer.dragStarted.add(_.bind(this.allocateGesture, this, TipTap.Gesture._DRAG_STARTED), this);
+			pointer.dragged.add(_.bind(this.allocateGesture, this, TipTap.Gesture._DRAGGED), this);
+			pointer.dragStopped.add(_.bind(this.allocateGesture, this, TipTap.Gesture._DRAG_STOPPED), this);
+			pointer.released.add(_.bind(this.allocateGesture, this, TipTap.Gesture._RELEASED), this);
 		},
 
-		allocateGesture: function (status, finger) {
+		allocateGesture: function (status, pointer) {
 			var debugMe = true && this.debugMe && TipTap.settings.debug;
 			var gesture;
 
@@ -81,10 +81,10 @@
 			/*
 			 CLONE the pointerInfos, because:
 			 1) the same can be used for different states (PRESSED and TIPPED or TAPPED)
-			 2) to not let Finger alive because of links to living Pointers
+			 2) to not let Pointer alive because of links to living PointerInfos
 			 */
-			// copy Finger position, plus some stuff
-			var pointerInfos = new TipTap.PointerInfos(finger, status);
+			// copy Pointer position, plus some stuff
+			var pointerInfos = new TipTap.PointerInfos(pointer, status);
 
 			if (TipTap.Gesture._PRESSED === status) {
 
@@ -105,7 +105,7 @@
 
 				md(this + ".allocateGesture-must create new Gesture", debugMe);
 
-				gesture = new TipTap.Gesture(status, finger.getDirection());
+				gesture = new TipTap.Gesture(status, pointer.getDirection());
 
 				// store in the FIFO of Gestures
 				this.storeGesture(gesture);
@@ -425,7 +425,7 @@
 			bb = this.fingersBoundingBox;
 			eg = this.elementGeometry;
 
-			// resize the element by taking the new Fingers bounding box dimensions, and adding the deltas
+			// resize the element by taking the new Pointers bounding box dimensions, and adding the deltas
 			$t.width(bb.width + eg.width).height(bb.height + eg.height);
 			$t.offset({
 				          left: bb.left + eg.left,
@@ -482,9 +482,9 @@
 	Action.prototype[methodNames[gesture._UNTIPPED].code] = function (gesture) {
 		var debugMe = true && this.debugMe && TipTap.settings.debug;
 
-		/* we remove tips from "tips count" BEFORE, because we it's not logical to see the untipped fingers counted as tip.
-		 Even if the "untip" event happens while tipping, from a human point of view, when you untip, the finger is not
-		 tipping anymore. So, for one finger, you expect "untip", not "tip-untip". At least, I do. And I'm the boss here :-D
+		/* we remove tips from "tips count" BEFORE, because we it's not logical to see the untipped pointers counted as tip.
+		 Even if the "untip" event happens while tipping, from a human point of view, when you untip, the pointer is not
+		 tipping anymore. So, for one pointer, you expect "untip", not "tip-untip". At least, I do. And I'm the boss here :-D
 		 */
 
 		this.pressedPointersCount -= gesture.pointersCount();
@@ -525,7 +525,7 @@
 
 		this.gesture = gesture;
 
-		// the power (^n) of the combo is the count of TOUCHING fingers, not MOVING!
+		// the power (^n) of the combo is the count of TOUCHING pointers, not MOVING!
 		this.dragged.dispatch(this, gesture.format());
 
 	};

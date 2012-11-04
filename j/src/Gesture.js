@@ -105,7 +105,7 @@
 
 				(this.direction === pointer.direction) &&
 
-				!this.hasPointerFromSameFinger(pointer));
+				!this.hasPointerInfosFromSamePointer(pointer));
 
 		},
 
@@ -131,7 +131,7 @@
 			return this.listOfPointers[index];
 		},
 
-		hasPointerFromSameFinger: function (pointer) {
+		hasPointerInfosFromSamePointer: function (pointer) {
 			var debugMe = true && this.debugMe && TipTap.settings.debug;
 			var test;
 
@@ -141,7 +141,7 @@
 
 			});
 
-			md(this + ".hasPointerFromSameFinger => " + test, debugMe, this.debugColor);
+			md(this + ".hasPointerInfosFromSamePointer => " + test, debugMe, this.debugColor);
 
 			return test;
 		},
@@ -179,7 +179,7 @@
 
 			pointersCount = direction;
 
-			direction = TipTap.Finger._DIR_NONE;
+			direction = TipTap.Pointer._DIR_NONE;
 
 		}
 
@@ -222,13 +222,13 @@
 
 		switch (direction) {
 
-			case TipTap.Finger._DIR_TOP:
+			case TipTap.Pointer._DIR_TOP:
 				return Gesture._SWIPED_T;
 
-			case TipTap.Finger._DIR_BOTTOM:
+			case TipTap.Pointer._DIR_BOTTOM:
 				return Gesture._SWIPED_B;
 
-			case TipTap.Finger._DIR_LEFT:
+			case TipTap.Pointer._DIR_LEFT:
 				return Gesture._SWIPED_L;
 
 			// arbitrarily decides that no direction is right. Can't see how it could happen, though
