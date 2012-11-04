@@ -22,8 +22,55 @@
 		listOfFingers:       [],
 		listOfRouters:       [], // list of all Routers objects
 		// Stolen the touch test from Modernizr. Including 49KB for just this was a bit overkill, to me
-		isTouchInterface:    false,
+		isTouchInterface:    true,
 		TOUCH_REFRESH_ms:    1000 / 60, // iOS touch devices frequency is 60Hz
+
+		_detectTouchDevice: function () {
+			var testsCount = 0;
+			var passedTestsCount = 0;
+
+			testsCount++;
+			if ('ontouchstart' in window) {
+				passedTestsCount++;
+			}
+
+			testsCount++;
+			// must test stronger due to this f**king Chrome sending back yes for "ontouchstart", crashing Modernizr test
+			try {
+
+				document.createEvent('TouchEvent');
+
+				passedTestsCount++;
+
+			} catch (e) {
+
+			}
+
+			testsCount++;
+			if ('createTouch' in document) {
+				passedTestsCount++;
+			}
+
+			testsCount++;
+			if (typeof TouchEvent != 'undefined') {
+				passedTestsCount++;
+			}
+
+			testsCount++;
+			if (typeof Touch == 'object') {
+				passedTestsCount++;
+			}
+
+			testsCount++;
+			if ('ontouchend' in document) {
+				passedTestsCount++;
+			}
+
+			// if more than 80% of tests positive, assume it's ok. Sadly, it's not true...
+			// http://modernizr.github.com/Modernizr/touch.html
+			return ((passedTestsCount / testsCount) > 0.8);
+
+		},
 
 		disable: function (elems) {
 			/*
@@ -59,21 +106,7 @@
 
 			this.settings = _.extend(this.settings, options);
 
-			this.isTouchInterface = ('ontouchstart' in window) || (window.DocumentTouch && document instanceof DocumentTouch);
-
-			// must test stronger due to this f**king Chrome sending back yes for "ontouchstart"!!
-			if (this.isTouchInterface) {
-
-				try {
-
-					document.createEvent('TouchEvent');
-
-				} catch (e) {
-
-					this.isTouchInterface = false;
-
-				}
-			}
+			this.isTouchInterface = this._detectTouchDevice();
 
 			// avoids too accurate movements to be detected, preventing proper gestures
 			this.settings.moveThreshold_px = this.isTouchInterface ? 8 : 0
