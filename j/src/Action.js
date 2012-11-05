@@ -6,9 +6,7 @@
 	 */
 	var Action = function (target$) {
 
-		var debugMe = true && this.debugMe && TipTap.settings.debug;
-
-		this.debugMe = true;
+		var debug = false && Action.debug && TipTap.settings.debug;
 
 		// function bound with the gesture to use when called. Allows to call it from setTimeout or immediate (untip)
 		this.boundEndComboAndMaybeAction = null;
@@ -41,7 +39,7 @@
 		this.$target = null;
 		this._setTarget$(target$);
 
-		md(this + '.new(' + (this.target ? this.target.id : this.$target[0].id) + '")', debugMe);
+		md(this + '.new(' + (this.target ? this.target.id : this.$target[0].id) + '")', debug);
 
 		// check if the target has already been processed by RotoZoomer
 		if (TipTap.settings.rotoZoom) {
@@ -73,10 +71,10 @@
 		},
 
 		allocateGesture: function (status, pointer) {
-			var debugMe = true && this.debugMe && TipTap.settings.debug;
+			var debug = true && Action.debug && TipTap.settings.debug;
 			var gesture;
 
-			md(this + ".allocateGesture-1(" + TipTap.Gesture.statusMatchCode[status].code + ")", debugMe);
+			md(this + ".allocateGesture-1(" + TipTap.Gesture.statusMatchCode[status].code + ")", debug);
 
 			/*
 			 CLONE the pointerInfos, because:
@@ -103,7 +101,7 @@
 			// if no, create new and add to stack
 			if (!gesture) {
 
-				md(this + ".allocateGesture-must create new Gesture", debugMe);
+				md(this + ".allocateGesture-must create new Gesture", debug);
 
 				gesture = new TipTap.Gesture(status, pointer.getDirection());
 
@@ -113,14 +111,14 @@
 			} else {
 
 				// shouldn't happen
-				md(this + ".allocateGesture-using gesture " + gesture, debugMe, "#00F");
+				md(this + ".allocateGesture-using gesture " + gesture, debug, "#00F");
 
 			}
 
 			// inner "event loop" of gestures treatment
 			this.startGesturesListProcessingTimer();
 
-			md(this + ".allocateGesture-4", debugMe);
+			md(this + ".allocateGesture-4", debug);
 
 			gesture.addPointer(pointerInfos);
 
@@ -142,11 +140,11 @@
 
 		buildComboClearGesturesAndSendCombo: function (gesture) {
 
-			var debugMe = true && this.debugMe && TipTap.settings.debug;
+			var debug = true && Action.debug && TipTap.settings.debug;
 
 			var combo = this.listOfFormattedGestures.join(TipTap.settings.comboGesturesSep);
 
-			md(this + ".buildComboClearGesturesAndSendCombo-1:[" + combo + "]", debugMe);
+			md(this + ".buildComboClearGesturesAndSendCombo-1:[" + combo + "]", debug);
 
 			this.clearListOfFormattedGestures();
 
@@ -156,13 +154,13 @@
 
 		cancelSendComboAndEndActionTimer: function () {
 
-			var debugMe = true && this.debugMe && TipTap.settings.debug;
+			var debug = true && Action.debug && TipTap.settings.debug;
 
-			md(this + ".cancelSendComboAndEndActionTimer-1", debugMe, "");
+			md(this + ".cancelSendComboAndEndActionTimer-1", debug, "");
 
 			if (this.endComboAndMaybeActionTimer) {
 
-				md(this + ".cancelSendComboAndEndActionTimer-clearTimeout", debugMe, "");
+				md(this + ".cancelSendComboAndEndActionTimer-clearTimeout", debug, "");
 
 				clearTimeout(this.endComboAndMaybeActionTimer);
 
@@ -179,14 +177,14 @@
 		},
 
 		consumeDoneGesturesFromFIFO: function () {
-			var debugMe = true && this.debugMe && TipTap.settings.debug;
+			var debug = true && Action.debug && TipTap.settings.debug;
 
 			var gesture;
 
 			// Don't forget to clear the timer!!
 			this.processGestureTimer = 0;
 
-			md(this + ".consumeDoneGesturesFromFIFO-1", debugMe);
+			md(this + ".consumeDoneGesturesFromFIFO-1", debug);
 
 			// while there are Gestures to process
 			while (this.fifoOfGestures.length) {
@@ -194,14 +192,14 @@
 				// take first (oldest) one
 				gesture = this.fifoOfGestures[0];
 
-				md(this + ".consumeDoneGesturesFromFIFO-treating(" + gesture + "." + gesture.status + ")", debugMe);
+				md(this + ".consumeDoneGesturesFromFIFO-treating(" + gesture + "." + gesture.status + ")", debug);
 
 				// if too recent and not in dragged status
 				if ((TipTap.settings.simultaneousMovesTimer_ms > gesture.age()) &&
 					// once in dragged state, send events as soon as possible to avoid "lag", so age doesn't count
 					(gesture.status !== TipTap.Gesture._DRAGGED)) {
 
-					md(this + ".consumeDoneGesturesFromFIFO-too young and != 'dragged', EXITING", debugMe);
+					md(this + ".consumeDoneGesturesFromFIFO-too young and != 'dragged', EXITING", debug);
 
 					// restart the scheduler to come back later
 					this.startGesturesListProcessingTimer();
@@ -243,9 +241,9 @@
 		},
 
 		endComboAndMaybeAction: function (gesture) {
-			var debugMe = true && this.debugMe && TipTap.settings.debug;
+			var debug = true && Action.debug && TipTap.settings.debug;
 
-			md(this + ".endComboAndMaybeAction-1(" + this.endComboAndMaybeActionTimer + ", " + gesture + ")", debugMe, "");
+			md(this + ".endComboAndMaybeAction-1(" + this.endComboAndMaybeActionTimer + ", " + gesture + ")", debug, "");
 
 			this.endComboAndMaybeActionTimer = 0;
 
@@ -267,7 +265,7 @@
 
 		formatGesture: function (gesture) {
 			// todo: storeGestureForCombo, store full Gesture, and format on last moment?
-			var debugMe = true && this.debugMe && TipTap.settings.debug;
+			var debug = true && Action.debug && TipTap.settings.debug;
 
 			var tips;
 
@@ -288,7 +286,7 @@
 
 			}
 
-			md(this + ".formatGesture-1(" + formattedGesture + ")", debugMe);
+			md(this + ".formatGesture-1(" + formattedGesture + ")", debug);
 
 			return formattedGesture;
 
@@ -296,9 +294,9 @@
 
 		formatAndStoreGesture: function (gesture) {
 			// todo: storeGestureForCombo, store full Gesture, and format on last moment? Must store tips count with Gesture!
-			var debugMe = true && this.debugMe && TipTap.settings.debug;
+			var debug = true && Action.debug && TipTap.settings.debug;
 
-			md(this + ".formatAndStoreGesture(" + gesture + "," + this.formatGesture(gesture) + ")", debugMe, "#F00");
+			md(this + ".formatAndStoreGesture(" + gesture + "," + this.formatGesture(gesture) + ")", debug, "#F00");
 
 			this.listOfFormattedGestures.push(this.formatGesture(gesture));
 
@@ -345,11 +343,11 @@
 		},
 
 		startGesturesListProcessingTimer: function () {
-			var debugMe = true && this.debugMe && TipTap.settings.debug;
+			var debug = true && Action.debug && TipTap.settings.debug;
 
 			if (this.processGestureTimer) {
 
-				md(this + ".startProcessGestureTimer-no need to start timer", debugMe);
+				md(this + ".startProcessGestureTimer-no need to start timer", debug);
 
 				return;
 
@@ -364,12 +362,12 @@
 
 			);
 
-			md(this + ".startProcessGestureTimer-timer started(" + this.processGestureTimer + ")", debugMe);
+			md(this + ".startProcessGestureTimer-timer started(" + this.processGestureTimer + ")", debug);
 
 		},
 
 		startSendComboAndEndActionTimer: function (gesture) {
-			var debugMe = true && this.debugMe && TipTap.settings.debug;
+			var debug = true && Action.debug && TipTap.settings.debug;
 
 			this.boundEndComboAndMaybeAction = _.bind(this.endComboAndMaybeAction, this, gesture);
 
@@ -385,7 +383,7 @@
 				);
 
 			md(this + ".startSendComboAndEndActionTimer-1(" + gesture +
-				   ", " + this.endComboAndMaybeActionTimer + ")", debugMe, "");
+				   ", " + this.endComboAndMaybeActionTimer + ")", debug, "");
 
 		},
 
@@ -396,7 +394,7 @@
 		},
 
 		terminateIfEmpty: function () {
-			var debugMe = true && this.debugMe && TipTap.settings.debug;
+			var debug = true && Action.debug && TipTap.settings.debug;
 
 			if (this.hasPressedPointers()) {
 
@@ -404,7 +402,7 @@
 
 			}
 
-			md(this + ".terminateIfEmpty-1", debugMe);
+			md(this + ".terminateIfEmpty-1", debug);
 
 			// if no more pressed pointers, Action is finished
 			this.finished.dispatch(this);
@@ -416,7 +414,7 @@
 		},
 
 		zoomElement: function () {
-			var debugMe = true && this.debugMe && TipTap.settings.debug;
+			var debug = true && Action.debug && TipTap.settings.debug;
 			var $t = this.$target;
 			var bb, eg;
 
@@ -468,7 +466,7 @@
 			};
 
 	Action.prototype[methodNames[gesture._TIPPED].code] = function (gesture) {
-		var debugMe = true && this.debugMe && TipTap.settings.debug;
+		var debug = true && Action.debug && TipTap.settings.debug;
 
 		this.formatAndStoreGesture(gesture);
 
@@ -480,7 +478,7 @@
 	};
 
 	Action.prototype[methodNames[gesture._UNTIPPED].code] = function (gesture) {
-		var debugMe = true && this.debugMe && TipTap.settings.debug;
+		var debug = true && Action.debug && TipTap.settings.debug;
 
 		/* we remove tips from "tips count" BEFORE, because we it's not logical to see the untipped pointers counted as tip.
 		 Even if the "untip" event happens while tipping, from a human point of view, when you untip, the pointer is not
@@ -513,9 +511,9 @@
 	};
 
 	Action.prototype[methodNames[gesture._DRAGGED].code] = function (gesture) {
-		var debugMe = true && this.debugMe && TipTap.settings.debug;
+		var debug = true && Action.debug && TipTap.settings.debug;
 
-		md(this + ".drag", debugMe);
+		md(this + ".drag", debug);
 
 		if (TipTap.settings.rotoZoom) {
 
@@ -556,6 +554,7 @@
 
 	};
 
+	Action.debug = true;
 
 	Action.id = function () {
 		Action._id++;

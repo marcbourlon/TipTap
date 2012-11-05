@@ -6,8 +6,6 @@
 
 	var Router = function (el$) {
 
-		this.debugMe = true;
-
 		// el$ is DOM or jQuery element
 		this._setElement$(el$);
 
@@ -33,14 +31,14 @@
 		},
 
 		allocateAction: function (pointer) {
-			var debugMe = true && this.debugMe && TipTap.settings.debug;
+			var debug = true && Router.debug && TipTap.settings.debug;
 
 			var action;
 
 			// can be DOM element or jQuery!
 			var target$ = pointer.getTarget$();
 
-			md(this + ".allocateAction-1", debugMe);
+			md(this + ".allocateAction-1", debug);
 
 			// look for an existing Action on the same target
 			action = this._findActionByTarget(target$);
@@ -48,11 +46,11 @@
 			// if no matching Action found, we create a new one
 			if (!action) {
 
-				md(this + ".allocateAction-couldn't find Action by target", debugMe);
+				md(this + ".allocateAction-couldn't find Action by target", debug);
 
 				action = new TipTap.Action(target$);
 
-				md(this + ".allocateAction-new Action created", debugMe);
+				md(this + ".allocateAction-new Action created", debug);
 
 				this.listOfActions.push(action);
 
@@ -62,7 +60,7 @@
 
 			action.addPointerListeners(pointer);
 
-			md(this + ".allocateAction-end(" + action + ")", debugMe);
+			md(this + ".allocateAction-end(" + action + ")", debug);
 
 		},
 
@@ -127,9 +125,9 @@
 
 		callComboCallback: function (action, combo) {
 
-			var debugMe = true && this.debugMe && TipTap.settings.debug;
+			var debug = true && Router.debug && TipTap.settings.debug;
 
-			md("<b>" + this + ".callComboCallback(" + action + ", " + combo + ", " + action.gesture + ")</b>", debugMe);
+			md("<b>" + this + ".callComboCallback(" + action + ", " + combo + ", " + action.gesture + ")</b>", debug);
 
 			// HACK: can be a DOM element or jQuery, depending if we use jQuery or not
 			var target$ = action.getTarget$();
@@ -179,9 +177,9 @@
 
 		deallocateAction: function (action) {
 
-			var debugMe = true && this.debugMe && TipTap.settings.debug;
+			var debug = true && Router.debug && TipTap.settings.debug;
 
-			md(this + ".deAllocateAction(" + action + ")", debugMe)
+			md(this + ".deAllocateAction(" + action + ")", debug)
 
 			this.listOfActions.splice(this.listOfActions.indexOf(action), 1);
 
@@ -299,7 +297,7 @@
 	// Utilitarians functions for either format
 	Router.comboToRegExp = function (fullCombo) {
 
-		var debugMe = true && this.debugMe && TipTap.settings.debug;
+		var debug = true && Router.debug && TipTap.settings.debug;
 
 		// replace human readable move codes (press, tip, release, etc.) by single letters for simpler & faster Regexp
 		_.each(TipTap.Gesture.statusMatchCode, function (codeLetter) {
@@ -504,6 +502,8 @@
 
 		}
 	};
+
+	Router.debug = true;
 
 	// namespaces the thing
 	TipTap.Router = Router;

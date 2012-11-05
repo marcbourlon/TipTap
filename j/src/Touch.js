@@ -2,8 +2,6 @@
 
 	// namespacing
 	Touch = {
-		debugMe: true,
-
 		START_EVENT_NAME:  'touchstart',
 		DRAG_EVENT_NAME:   'touchmove',
 		END_EVENT_NAME:    'touchend',

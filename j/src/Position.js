@@ -1,12 +1,12 @@
 (function (TipTap) {
 
-	var Position = function (eT) {
+	var Position = function (tipTapEvent) {
 
-		this.timeStamp = eT.timeStamp;
+		this.timeStamp = tipTapEvent.timeStamp;
 
-		this.pageX = eT.pageX;
+		this.pageX = tipTapEvent.pageX;
 
-		this.pageY = eT.pageY;
+		this.pageY = tipTapEvent.pageY;
 
 		// this.target = document.elementFromPoint(this.pageX, this.pageY);  // real element under the touch. If needed.
 

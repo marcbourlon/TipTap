@@ -3,9 +3,6 @@
 
 	// namespaces the thing
 	Mouse = {
-
-		debugMe: true,
-
 		START_EVENT_NAME:  'mousedown',
 		DRAG_EVENT_NAME:   'mousemove',
 		END_EVENT_NAME:    'mouseup',
@@ -37,7 +34,7 @@
 
 		onEnd: function (tiptapEvent) {
 
-			//md("Mouse up:" + e.timeStamp, debugMe);
+			//md("Mouse up:" + e.timeStamp, debug);
 			this.mouseDown = false;
 
 		},

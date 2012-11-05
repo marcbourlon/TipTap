@@ -9,7 +9,7 @@
 	// namespaces the thing
 	UnifiedPointer = {
 
-		debugMe: true,
+		debug: true,
 
 		identifier: 0,
 

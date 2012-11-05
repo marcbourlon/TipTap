@@ -28,9 +28,18 @@
 </div>
 <div id="box2">
 </div>
-<label for="debug"><input id="debug" type="checkbox" checked> Debug</label>
 
 <div id="debuglog"></div>
+
+<label for="debug-global"><input id="debug-global" type="checkbox" checked>Global debug</label>
+<label for="debug-action"><input id="debug-action" type="checkbox" checked>Action debug</label>
+<label for="debug-gesture"><input id="debug-gesture" type="checkbox" checked>Gesture debug</label>
+<label for="debug-mouse"><input id="debug-mouse" type="checkbox" checked>Mouse debug</label>
+<label for="debug-pointer"><input id="debug-pointer" type="checkbox" checked>Pointer debug</label>
+<label for="debug-rotozoomer"><input id="debug-rotozoomer" type="checkbox" checked>RotoZoomer debug</label>
+<label for="debug-router"><input id="debug-router" type="checkbox" checked>Router debug</label>
+<label for="debug-tiptap"><input id="debug-tiptap" type="checkbox" checked>TipTap debug</label>
+
 <script defer src="/libs/jquery-1.8.1.min.js"></script>
 <script defer src="/libs/lodash.min.js"></script>
 <script defer src="/libs/signals.min.js"></script>
@@ -52,6 +61,7 @@
 <script defer src="j/src/Router.js"></script>
 <!-- - ->
 <script defer src="j/dist/TipTap.min.js"></script> <!-- -->
+<script defer src="j/debugs.js"></script>
 <script defer src="j/demo.js"></script>
 <script type="text/javascript">
 	function printStackTrace() {

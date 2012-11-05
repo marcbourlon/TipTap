@@ -1,9 +1,8 @@
 (function (TipTap, _) {
 
 	var Pointer = function (tiptapEvent) {
-		this.debugMe = true;
-
-		var debugMe = true && TipTap.settings.debug && this.debugMe;
+		
+		var debug = true && Pointer.debug && TipTap.settings.debug;
 
 		this.direction = Pointer._DIR_NONE;
 
@@ -37,7 +36,8 @@
 		// we store all positions
 		this.storePosition(tiptapEvent);
 
-		md(this + ".new()", debugMe)
+		md(this + ".new()", debug);
+
 	};
 
 	/* "stateless" finite state machine, shared by all Pointers. Stateless means that each Pointer's state is stored in
@@ -59,7 +59,7 @@
 						signal: "pressed",
 						to:     "pressing",
 						action: function () {
-							var debugMe = true && TipTap.settings.debug && this.debugMe;
+							var debug = true && Pointer.debug && TipTap.settings.debug;
 							var position = this.getPosition();
 
 							// start the timer which after the time limit transforms the press (potential tap) to a sure tip
@@ -68,7 +68,7 @@
 							// let's tell the world we pressed !
 							this.pressed.dispatch(this);
 
-							md(this + "-fsm(start-pressed-pressing),(" + position.pageX + "px, " + position.pageY + "px)", debugMe)
+							md(this + "-fsm(start-pressed-pressing),(" + position.pageX + "px, " + position.pageY + "px)", debug);
 
 						}
 					}
@@ -81,9 +81,9 @@
 						signal: "pressedToTipped",
 						to:     "tipping",
 						action: function () {
-							var debugMe = true && TipTap.settings.debug && this.debugMe;
+							var debug = true && Pointer.debug && TipTap.settings.debug;
 
-							md(this + "-fsm(pressing-pressedToTipped-tipping)", debugMe)
+							md(this + "-fsm(pressing-pressedToTipped-tipping)", debug);
 
 							/*
 							 swipe and dragStop are fully similar and can be done from press or tip. But in the case of coming
@@ -109,11 +109,11 @@
 						to:     "end",
 						action: function () {
 
-							var debugMe = true && TipTap.settings.debug && this.debugMe;
+							var debug = true && Pointer.debug && TipTap.settings.debug;
 
 							this.cancelPressedToTippedTimer();
 
-							md(this + "-fsm(pressing-ended-end)", debugMe)
+							md(this + "-fsm(pressing-ended-end)", debug);
 
 							this.tapped.dispatch(this);
 
@@ -139,9 +139,9 @@
 						signal: ["ended", "cancelled"],
 						to:     "end",
 						action: function () {
-							var debugMe = true && TipTap.settings.debug && this.debugMe;
+							var debug = true && Pointer.debug && TipTap.settings.debug;
 
-							md(this + "-fsm(tipping-ended)", debugMe)
+							md(this + "-fsm(tipping-ended)", debug);
 
 							this.untipped.dispatch(this);
 
@@ -157,9 +157,9 @@
 					{
 						signal: "dragged",
 						action: function () {
-							var debugMe = true && TipTap.settings.debug && this.debugMe;
+							var debug = true && Pointer.debug && TipTap.settings.debug;
 
-							md(this + "-fsm(dragging-dragged-1)", debugMe)
+							md(this + "-fsm(dragging-dragged-1)", debug);
 
 							this.dragged.dispatch(this);
 
@@ -169,11 +169,11 @@
 						signal: ["ended", "cancelled"],
 						to:     "end",
 						action: function () {
-							var debugMe = true && TipTap.settings.debug && this.debugMe;
+							var debug = true && Pointer.debug && TipTap.settings.debug;
 
 							this.dragStopped.dispatch(this);
 
-							md(this + "-fsm(dragging-ended-1)", debugMe)
+							md(this + "-fsm(dragging-ended-1)", debug);
 
 							// usage of this flag simplifies the Fsm
 							if (this.isTipping) {
@@ -195,7 +195,7 @@
 						signal: "dragged",
 						to:     TipTap.Fsm._CALC,
 						action: function () {
-							var debugMe = true && TipTap.settings.debug && this.debugMe;
+							var debug = true && Pointer.debug && TipTap.settings.debug;
 
 							// if the movement is too much for being a swipe, convert it down to a normal drag
 							if (!this.notSwipingAnymore()) {
@@ -206,7 +206,7 @@
 
 							this.dragStarted.dispatch(this);
 
-							md(this + "-fsm(swiping-dragged-1)", debugMe);
+							md(this + "-fsm(swiping-dragged-1)", debug);
 
 							this.dragged.dispatch(this);
 
@@ -218,9 +218,9 @@
 						signal: ["ended", "cancelled"],
 						to:     "end",
 						action: function () {
-							var debugMe = true && TipTap.settings.debug && this.debugMe;
+							var debug = true && Pointer.debug && TipTap.settings.debug;
 
-							md(this + "-fsm(swiping-ended-1)", debugMe)
+							md(this + "-fsm(swiping-ended-1)", debug);
 
 							this.swiped.dispatch(this);
 
@@ -256,13 +256,13 @@
 
 		cancelPressedToTippedTimer: function () {
 
-			var debugMe = true && TipTap.settings.debug && this.debugMe;
+			var debug = true && Pointer.debug && TipTap.settings.debug;
 
-			md(this + ".cancelPressedToTippedTimer-1", debugMe);
+			md(this + ".cancelPressedToTippedTimer-1", debug);
 
 			if (this.pressedToTippedTimer) {
 
-				md(this + ".cancelPressedToTippedTimer-2", debugMe);
+				md(this + ".cancelPressedToTippedTimer-2", debug);
 
 				clearTimeout(this.pressedToTippedTimer);
 
@@ -319,7 +319,7 @@
 		},
 
 		fsmDraggedTransition: function () {
-			var debugMe = true && TipTap.settings.debug && this.debugMe;
+			var debug = true && Pointer.debug && TipTap.settings.debug;
 			var state;
 
 			// if not really dragged, move away without doing anything
@@ -329,7 +329,7 @@
 
 			}
 
-			md(this + "-fsm(pressing-dragged-1)", debugMe);
+			md(this + "-fsm(pressing-dragged-1)", debug);
 
 			// because we moved for good, we cancel the planned change of state. Useless in the case of transiting from TIP
 			this.cancelPressedToTippedTimer();
@@ -337,7 +337,7 @@
 			// detects if the move is a swipe
 			state = this.isSwipingOrDragging();
 
-			md(this + "-fsm(pressing-dragged-2)", debugMe);
+			md(this + "-fsm(pressing-dragged-2)", debug);
 
 			// if we detect a swipe, we must go to the corresponding state
 			if (state === "swiping") {
@@ -346,7 +346,7 @@
 
 			}
 
-			md(this + "-fsm(pressing-dragged-3)", debugMe);
+			md(this + "-fsm(pressing-dragged-3)", debug);
 
 			// tell the world we started a drag :-)
 			this.dragStarted.dispatch(this);
@@ -396,7 +396,7 @@
 		},
 
 		isSwipingOrDragging: function () {
-			var debugMe = true && TipTap.settings.debug && this.debugMe;
+			var debug = true && Pointer.debug && TipTap.settings.debug;
 
 			var settings = TipTap.settings;
 			var dx, dy, adx, ady;
@@ -406,25 +406,25 @@
 			dy = this.dragDetailsRelative.dy;
 			ady = Math.abs(dy);
 
-			//md(this + ".isSwipingOrDragging-1: " + this.dragDetailsAbsolute.duration_ms + "px", debugMe)
+			//md(this + ".isSwipingOrDragging-1: " + this.dragDetailsAbsolute.duration_ms + "px", debug)
 
-			md(this + ".isSwipingOrDragging-2", debugMe)
+			md(this + ".isSwipingOrDragging-2", debug);
 
 			if (adx >= ady) {
 
-				md(this + ".isSwipingOrDragging, adx: " + adx, debugMe, "#0F0")
+				md(this + ".isSwipingOrDragging, adx: " + adx, debug, "#0F0")
 
 				if (adx >= settings.swipeMinDisplacement_px) {
 
 					if (dx > 0) {
 
-						md(this + ".isSwipingOrDragging > swipe-r", debugMe)
+						md(this + ".isSwipingOrDragging > swipe-r", debug);
 
 						this.direction = Pointer._DIR_RIGHT;
 
 					} else {
 
-						md(this + ".isSwipingOrDragging > swipe-l", debugMe)
+						md(this + ".isSwipingOrDragging > swipe-l", debug);
 
 						this.direction = Pointer._DIR_LEFT;
 
@@ -441,13 +441,13 @@
 
 					if (dy > 0) {
 
-						md(this + ".isSwipingOrDragging > swipe-b", debugMe)
+						md(this + ".isSwipingOrDragging > swipe-b", debug);
 
 						this.direction = Pointer._DIR_BOTTOM;
 
 					} else {
 
-						md(this + ".isSwipingOrDragging > swipe-t", debugMe)
+						md(this + ".isSwipingOrDragging > swipe-t", debug);
 
 						this.direction = Pointer._DIR_TOP;
 
@@ -466,10 +466,10 @@
 		},
 
 		notSwipingAnymore: function () {
-			var debugMe = true && TipTap.settings.debug && this.debugMe;
+			var debug = true && Pointer.debug && TipTap.settings.debug;
 			var settings = TipTap.settings;
 
-			md(this + ".notSwipingAnymore: " + this.dragDetailsAbsolute.duration_ms + "ms, " + this.dragDetailsAbsolute.d + "px", debugMe)
+			md(this + ".notSwipingAnymore: " + this.dragDetailsAbsolute.duration_ms + "ms, " + this.dragDetailsAbsolute.d + "px", debug);
 
 			return (
 				this._computeMove(
@@ -480,7 +480,7 @@
 		},
 
 		onDrag: function (tipTapEvent) {
-			var debugMe = true && TipTap.settings.debug && this.debugMe;
+			var debug = true && Pointer.debug && TipTap.settings.debug;
 
 			this.storePosition(tipTapEvent);
 
@@ -525,13 +525,13 @@
 		},
 
 		startPressedToTippedTimer: function () {
-			var debugMe = true && TipTap.settings.debug && this.debugMe;
+			var debug = true && Pointer.debug && TipTap.settings.debug;
 
-			md(this + ".startPressedToTippedTimer-1", debugMe);
+			md(this + ".startPressedToTippedTimer-1", debug);
 
 			if (!this.pressedToTippedTimer) {
 
-				md(this + ".startPressedToTippedTimer-2", debugMe);
+				md(this + ".startPressedToTippedTimer-2", debug);
 
 				// start the timer
 				this.pressedToTippedTimer = setTimeout(_.bind(this.pressedToTipped, this),
@@ -551,19 +551,21 @@
 		},
 
 		wasAnUncontrolledMove: function () {
-			var debugMe = false && TipTap.settings.debug && this.debugMe;
+			var debug = false && TipTap.settings.debug && Pointer.debug;
 
 			var settings = TipTap.settings;
 
 			md(this + ".wasAnUncontrolledMove(" +
 				   Math.abs(this.dragDetailsAbsolute.dx) + "px, " +
-				   Math.abs(this.dragDetailsAbsolute.dy) + "px)", debugMe);
+				   Math.abs(this.dragDetailsAbsolute.dy) + "px)", debug);
 
 			return ((Math.abs(this.dragDetailsAbsolute.dx) <= settings.moveThreshold_px) &&
 				(Math.abs(this.dragDetailsAbsolute.dy) <= settings.moveThreshold_px));
 		}
 
 	};
+
+	Pointer.debug = true;
 
 	Pointer.use$ = function (use$) {
 

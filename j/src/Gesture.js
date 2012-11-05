@@ -2,9 +2,9 @@
 
 	var Gesture = function (status, direction) {
 
-		this.debugMe = false;
+		this.debug = false;
 
-		var debugMe = true && this.debugMe && TipTap.settings.debug;
+		var debug = true && this.debug && TipTap.settings.debug;
 
 		this.id = Gesture.id();
 
@@ -21,7 +21,7 @@
 		this.birthTime = Date.now();
 
 		md(this + ".new(" +
-			   Gesture.statusMatchCode[Gesture.getFullStatus(this.status, this.direction)].code + ")", debugMe, this.debugColor);
+			   Gesture.statusMatchCode[Gesture.getFullStatus(this.status, this.direction)].code + ")", debug, this.debugColor);
 
 	};
 
@@ -59,7 +59,7 @@
 
 		// todo: remove?
 		calculateZoomAndRotation: function () {
-			var debugMe = true && this.debugMe && TipTap.settings.debug;
+			var debug = true && this.debug && TipTap.settings.debug;
 
 			// todo: what to do with 3 pointers ? Calculate 3 vectors, and use longest one to do calculations?
 			// todo: order by identifier asc, to try to always use the same?
@@ -76,7 +76,8 @@
 
 			this.rotation = vec.rot - initialVec.rot;
 
-			md(this + ".calculateZoomAndRotation(" + this.zoom + ", " + this.rotation + ")", debugMe)
+			md(this + ".calculateZoomAndRotation(" + this.zoom + ", " + this.rotation + ")", debug);
+
 		},
 
 		// todo: remove?
@@ -91,14 +92,14 @@
 		},
 
 		canThisPointerBeAdded: function (pointer) {
-			var debugMe = true && this.debugMe && TipTap.settings.debug;
+			var debug = true && this.debug && TipTap.settings.debug;
 
 			md(this + ".canThisPointerBeAdded(" +
 				   Gesture.statusMatchCode[Gesture.getFullStatus(this.status, this.direction)].code +
 				   " =?= " +
 				   Gesture.statusMatchCode[Gesture.getFullStatus(pointer.status, pointer.direction)].code +
 				   ", " + pointer.identifier +
-				   ")", debugMe, this.debugColor);
+				   ")", debug, this.debugColor);
 
 			// accepts only similar statuses in one combo, and not twice the same Finger
 			return ((this.status === pointer.status) &&
@@ -110,11 +111,11 @@
 		},
 
 		format: function () {
-			var debugMe = true && this.debugMe && TipTap.settings.debug;
+			var debug = true && this.debug && TipTap.settings.debug;
 
 			var format = Gesture.formatGesture(this.status, this.direction, this.pointersCount());
 
-			md(this + ".format: " + format, debugMe, this.debugColor);
+			md(this + ".format: " + format, debug, this.debugColor);
 
 			return format;
 		},
@@ -132,7 +133,7 @@
 		},
 
 		hasPointerInfosFromSamePointer: function (pointer) {
-			var debugMe = true && this.debugMe && TipTap.settings.debug;
+			var debug = true && this.debug && TipTap.settings.debug;
 			var test;
 
 			test = _.find(this.listOfPointers, function (ptr) {
@@ -141,20 +142,20 @@
 
 			});
 
-			md(this + ".hasPointerInfosFromSamePointer => " + test, debugMe, this.debugColor);
+			md(this + ".hasPointerInfosFromSamePointer => " + test, debug, this.debugColor);
 
 			return test;
 		},
 
 		isEmpty: function () {
-			var debugMe = true && this.debugMe && TipTap.settings.debug;
+			var debug = true && this.debug && TipTap.settings.debug;
 
 			return     !this.listOfPointers.length;
 
 		},
 
 		pointersCount: function () {
-			var debugMe = true && this.debugMe && TipTap.settings.debug;
+			var debug = true && this.debug && TipTap.settings.debug;
 
 			return this.listOfPointers.length;
 
@@ -169,7 +170,7 @@
 	};
 
 	Gesture.formatGesture = function (status, direction, pointersCount) {
-		var debugMe = true && this.debugMe && TipTap.settings.debug;
+		var debug = true && this.debug && TipTap.settings.debug;
 		var i;
 		var result = "";
 		var statusName;
@@ -199,7 +200,7 @@
 
 		}
 
-		md("Gesture.formatGesture: " + result, debugMe);
+		md("Gesture.formatGesture: " + result, debug);
 
 		return result;
 

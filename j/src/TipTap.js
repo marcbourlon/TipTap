@@ -9,7 +9,7 @@
 	"use strict";
 
 	var TipTap = {
-		debugMe:             true,
+		debug:             true,
 		device:              null,
 		CAPTURE_BUBBLE:      0, // let the app define how some gesture are captured. Very useful to
 		CAPTURE_CAPTURE:     1, // define gestures on containers, despite lots of underneath objects (so, different targets!)
@@ -285,11 +285,11 @@
 		},
 
 		onStart: function (router, event) {
-			var debugMe = true && this.debugMe && TipTap.settings.debug;
+			var debug = true && TipTap.debug && TipTap.settings.debug;
 
 			var t = Date.now();
 
-			md(this + ".onStart-1: " + t + "<hr/>", debugMe);
+			md(this + ".onStart-1: " + t + "<hr/>", debug);
 
 			// Pass "keep bubbling", that the _.reduce will transform into "cancel bubbling" if a matching event is found
 			if (_.reduce(this.device.buildEventList(event),
@@ -304,16 +304,16 @@
 
 			}
 
-			md(this + ".onStart-2: " + (Date.now() - t) + " ms", debugMe);
+			md(this + ".onStart-2: " + (Date.now() - t) + " ms", debug);
 
 		},
 
 		onStartDo: function (router, bubblingStatus, tiptapEvent) {
-			var debugMe = true && this.debugMe && TipTap.settings.debug;
+			var debug = true && TipTap.debug && TipTap.settings.debug;
 			var pointer;
 			var filter;
 
-			md(this + ".onStartDo-1", debugMe);
+			md(this + ".onStartDo-1", debug);
 
 			// check if the event target element is matching at least one defined filter
 			filter = router.findMatchingFilterForEvent(tiptapEvent.getTarget$());
@@ -325,7 +325,7 @@
 
 			}
 
-			md(this + ".onStartDo-2", debugMe);
+			md(this + ".onStartDo-2", debug);
 
 			pointer = new TipTap.Pointer(tiptapEvent);
 
@@ -335,14 +335,14 @@
 			// allocate an Action for this Pointer, passing the callbacks list
 			router.allocateAction(pointer);
 
-			md(this + ".onStartDo-3", debugMe);
+			md(this + ".onStartDo-3", debug);
 
 			// in case the device has something to do with the EventTouch before this one is processed by the Pointer
 			this.device.onStart();
 
 			pointer.onStart(tiptapEvent);
 
-			md(this + ".onStartDo-4", debugMe);
+			md(this + ".onStartDo-4", debug);
 
 			return TipTap._CANCEL_BUBBLING;
 
@@ -354,7 +354,7 @@
 			 Actions to allow splitting elements, we'll have to deal with several Actions concerned by one event
 			 Will it work?
 			 */
-			var debugMe = false && this.debugMe && this.settings.debug;
+			var debug = false && TipTap.debug && TipTap.settings.debug;
 
 			var cancelBubbling = TipTap._KEEP_BUBBLING;
 
@@ -383,7 +383,7 @@
 
 				}
 
-				md(this + ".onDrag: " + t + ",l=" + this.device.buildEventList(e).length + "<hr/>", debugMe);
+				md(this + ".onDrag: " + t + ",l=" + this.device.buildEventList(e).length + "<hr/>", debug);
 
 				cancelBubbling = TipTap._CANCEL_BUBBLING;
 
@@ -400,12 +400,12 @@
 
 		onEnd: function (e) {
 
-			var debugMe = true && this.debugMe && TipTap.settings.debug;
+			var debug = true && TipTap.debug && TipTap.settings.debug;
 
 			// odd (?) usage of _.reduce(): calls pointer.end() on all pointers concerned
 			if (_.reduce(this.device.buildEventList(e), _.bind(this.onEndDo, this), TipTap._KEEP_BUBBLING, this)) {
 
-				md(this + ".onEnd", debugMe, "#F00");
+				md(this + ".onEnd", debug, "#F00");
 
 				this.stopEvent(e);
 
@@ -415,7 +415,7 @@
 
 		onEndDo: function (bubblingStatus, tipTapEvent) {
 
-			var debugMe = true && this.debugMe && TipTap.settings.debug;
+			var debug = true && TipTap.debug && TipTap.settings.debug;
 
 			var pointer = this._findPointerByIdentifier(tipTapEvent.identifier);
 
@@ -425,7 +425,7 @@
 
 			}
 
-			md(this + ".onEndDo", debugMe, "#F00");
+			md(this + ".onEndDo", debug, "#F00");
 
 			this.device.onEnd(tipTapEvent);      // in case the device has something to do with the event
 
@@ -439,7 +439,7 @@
 
 		onCancel: function (e) {
 
-			md(this + ".onCancel", debugMe);
+			md(this + ".onCancel", debug);
 
 			this.onEnd(e);  // todo: better management of cancel ?
 		},
@@ -478,13 +478,13 @@
 
 		unlinkPointer: function (pointer) {
 
-			var debugMe = true && this.debugMe && TipTap.settings.debug;
+			var debug = true && TipTap.debug && TipTap.settings.debug;
 
 			var l = this.listOfPointers.length;
 
 			this.listOfPointers.splice(this.listOfPointers.indexOf(pointer), 1);
 
-			md(this + ".unlinkPointer: " + l + " -> " + this.listOfPointers.length, debugMe);
+			md(this + ".unlinkPointer: " + l + " -> " + this.listOfPointers.length, debug);
 
 		},
 

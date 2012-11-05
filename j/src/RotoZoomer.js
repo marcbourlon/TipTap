@@ -10,9 +10,8 @@
 (function (TipTap, _) {
 
 	var RotoZoomer = function ($target, rotateable, zoomable, autoApply) {
-		this.debugMe = false;
 
-		var debugMe = true && this.debugMe && TipTap.settings.debug;
+		var debug = true && RotoZoomer.debug && TipTap.settings.debug;
 
 		this.$target = $target;
 
@@ -33,7 +32,7 @@
 			// if the transformation must be applied automatically to the target
 			this.autoApply = $target.data("rotoZoomer-autoapply");
 
-			md("<b>" + this + ".new, data read(m: [" + $target.data("rotoZoomer-matrix") + "], rotateable: " + $target.data("rotoZoomer-rotateable") + ", zoomable: " + $target.data("rotoZoomer-zoomable") + ", autoApply: " + $target.data("rotoZoomer-autoapply") + ")</b>", debugMe);
+			md("<b>" + this + ".new, data read(m: [" + $target.data("rotoZoomer-matrix") + "], rotateable: " + $target.data("rotoZoomer-rotateable") + ", zoomable: " + $target.data("rotoZoomer-zoomable") + ", autoApply: " + $target.data("rotoZoomer-autoapply") + ")</b>", debug);
 
 		} else {
 
@@ -45,7 +44,7 @@
 
 			this.autoApply = autoApply;
 
-			md("<b>" + this + ".new, data (m: [1, 0, 0, 1, 0, 0], rotateable: " + rotateable + ", zoomable: " + zoomable + ", autoApply: " + autoApply + ")</b>", debugMe);
+			md("<b>" + this + ".new, data (m: [1, 0, 0, 1, 0, 0], rotateable: " + rotateable + ", zoomable: " + zoomable + ", autoApply: " + autoApply + ")</b>", debug);
 
 
 			// todo: rename in ptrDist
@@ -90,11 +89,11 @@
 
 		// todo: rename to calculateVector
 		getTouchVector: function (position1, position2) {
-			var debugMe = true && this.debugMe && TipTap.settings.debug;
+			var debug = true && RotoZoomer.debug && TipTap.settings.debug;
 
-			md(this + ".getTouchVector-1", debugMe);
+			md(this + ".getTouchVector-1", debug);
 
-			md(this + ".getTouchVector-1(x1: " + position1.pageX + ", y1: " + position1.pageY + ", x2: " + position2.pageX + ", y2: " + position2.pageY + ")", debugMe);
+			md(this + ".getTouchVector-1(x1: " + position1.pageX + ", y1: " + position1.pageY + ", x2: " + position2.pageX + ", y2: " + position2.pageY + ")", debug);
 
 			var vec = {
 
@@ -113,16 +112,16 @@
 
 			vec.cy = position2.pageY + vec.y / 2;
 
-			md(this + ".getTouchVector-2: l: " + vec.length + ", r: " + vec.rotation + ", cx: " + vec.cx + ", cy: " + vec.cy, debugMe);
+			md(this + ".getTouchVector-2: l: " + vec.length + ", r: " + vec.rotation + ", cx: " + vec.cx + ", cy: " + vec.cy, debug);
 
 			return vec;
 		},
 
 		onDrag: function (gesture) {
 
-			var debugMe = true && this.debugMe && TipTap.settings.debug;
+			var debug = true && RotoZoomer.debug && TipTap.settings.debug;
 
-			md(this + ".onDrag-1", debugMe);
+			md(this + ".onDrag-1", debug);
 
 			var lop = gesture.listOfPointers;
 
@@ -139,7 +138,7 @@
 
 			if (lop.length >= 2) {
 
-				md(this + ".onDrag-2", debugMe);
+				md(this + ".onDrag-2", debug);
 
 				touch0 = this.getTouch(lop[0].identifier);
 
@@ -150,11 +149,11 @@
 					{pageX: lop[1].pageX, pageY: lop[1].pageY}
 				);
 
-				md(this + ".onDrag-2, vector.length = " + vector.length + ", vector.rotation = " + vector.rotation, debugMe);
+				md(this + ".onDrag-2, vector.length = " + vector.length + ", vector.rotation = " + vector.rotation, debug);
 
 				zoom = vector.length / this.touchDist;
 
-				md(this + ".onDrag-2, this.touchDist = " + this.touchDist + ", this.touchRot = " + this.touchRot, debugMe);
+				md(this + ".onDrag-2, this.touchDist = " + this.touchDist + ", this.touchRot = " + this.touchRot, debug);
 
 				if (this.rotateable) {
 
@@ -162,7 +161,7 @@
 
 				}
 
-				md(this + ".onDrag-3(rot:" + rotation + ", zoom:" + zoom + ")", debugMe);
+				md(this + ".onDrag-3(rot:" + rotation + ", zoom:" + zoom + ")", debug);
 
 				this.setMatrix(rotation, zoom, 0, 0);
 
@@ -176,19 +175,19 @@
 
 				 this.matrix[5] = -(globalTouch0.pageY + globalTouch1.pageY) / 2;
 				 */
-				md(this + ".onDrag-4", debugMe);
+				md(this + ".onDrag-4", debug);
 
 				this.applyTransform();
 
 			}
 
-			md(this + ".onDrag-end", debugMe);
+			md(this + ".onDrag-end", debug);
 
 		},
 
 		onPressed: function (gesture) {
 
-			var debugMe = true && this.debugMe && TipTap.settings.debug;
+			var debug = true && RotoZoomer.debug && TipTap.settings.debug;
 
 			var lop = gesture.listOfPointers;
 
@@ -211,7 +210,7 @@
 
 			var lot = this.touches;
 
-			md(this + ".onPressed: lopl = " + lop.length, debugMe);
+			md(this + ".onPressed: lopl = " + lop.length, debug);
 
 			// if enough active pointers
 			if (lot.length >= 2) {
@@ -224,7 +223,7 @@
 
 					if (touch0.hasOwnProperty(key)) {
 
-						md(this + ".onPressed:touch0 = " + key, debugMe);
+						md(this + ".onPressed:touch0 = " + key, debug);
 
 					}
 
@@ -232,17 +231,17 @@
 
 				touch1 = lot[1];
 
-				md(this + ".onPressed: calc vector()", debugMe);
+				md(this + ".onPressed: calc vector()", debug);
 
 				vector = this.getTouchVector(touch0, touch1);
 
-				md(this + ".onPressed: calc transform()", debugMe);
+				md(this + ".onPressed: calc transform()", debug);
 
 				transform = this.getTransform();
 
 				this.touchDist = vector.length / transform.scale;
 
-				md(this + ".onPressed: touchDist = " + this.touchDist, debugMe);
+				md(this + ".onPressed: touchDist = " + this.touchDist, debug);
 
 				if (this.rotateable) {
 
@@ -252,17 +251,17 @@
 
 			}
 
-			md(this + ".onStartedDragging-2", debugMe);
+			md(this + ".onStartedDragging-2", debug);
 
 		},
 
 		onReleased: function (gesture) {
 
-			var debugMe = true && this.debugMe && TipTap.settings.debug;
+			var debug = true && RotoZoomer.debug && TipTap.settings.debug;
 
 			_.each(gesture.listOfPointers, function (ptr) {
 
-				md(this + ".onReleased, removing:" + ptr, debugMe);
+				md(this + ".onReleased, removing:" + ptr, debug);
 
 				this.unsetTouchPos(ptr);
 
@@ -272,7 +271,7 @@
 
 		onStoppedDragging: function (gesture) {
 
-			var debugMe = true && this.debugMe && TipTap.settings.debug;
+			var debug = true && RotoZoomer.debug && TipTap.settings.debug;
 
 			var lop = gesture.listOfPointers;
 
@@ -282,7 +281,7 @@
 
 			var $target = this.$target;
 
-			md(this + ".onStoppedDragging-1", debugMe);
+			md(this + ".onStoppedDragging-1", debug);
 
 			for (i = 0; i < lopl; i++) {
 
@@ -300,14 +299,14 @@
 			// if the transformation must be applied automatically to the target
 			$target.data("rotoZoomer-autoapply", this.autoApply);
 
-			md(this + ".onStoppedDragging-2, data read(m: [" + $target.data("rotoZoomer-matrix") + "], rotateable: " + $target.data("rotoZoomer-rotateable") + ", zoomable: " + $target.data("rotoZoomer-zoomable") + ", autoApply: " + $target.data("rotoZoomer-autoapply") + ")", debugMe);
+			md(this + ".onStoppedDragging-2, data read(m: [" + $target.data("rotoZoomer-matrix") + "], rotateable: " + $target.data("rotoZoomer-rotateable") + ", zoomable: " + $target.data("rotoZoomer-zoomable") + ", autoApply: " + $target.data("rotoZoomer-autoapply") + ")", debug);
 		},
 
 		setTouchPos: function (pointer) {
 
-			var debugMe = true && this.debugMe && TipTap.settings.debug;
+			var debug = true && RotoZoomer.debug && TipTap.settings.debug;
 
-			md(this + ".setTouchPos-1", debugMe);
+			md(this + ".setTouchPos-1", debug);
 
 			// adds pointer in ascending order of ids
 			var localPointer = this.globalToLocal(pointer);
@@ -327,7 +326,7 @@
 
 			this.addTouch(touch);
 
-			md(this + ".setTouchPos-4", debugMe);
+			md(this + ".setTouchPos-4", debug);
 
 		},
 
@@ -393,13 +392,13 @@
 		},
 
 		applyTransform: function () {
-			var debugMe = true && this.debugMe && TipTap.settings.debug;
+			var debug = true && RotoZoomer.debug && TipTap.settings.debug;
 
 			var matrix = "matrix(" + this.matrix.join(",") + ")";
 
 			if (this.autoApply) {
 
-				md(this + ".autoApply", debugMe);
+				md(this + ".autoApply", debug);
 
 				this.target.style.WebkitTransform = matrix;
 
@@ -429,7 +428,7 @@
 		},
 
 		setMatrix: function (rotation, scale, translateX, translateY) {
-			var debugMe = true && this.debugMe && TipTap.settings.debug;
+			var debug = true && RotoZoomer.debug && TipTap.settings.debug;
 
 			this.matrix[0] = Math.cos(rotation) * scale;
 
@@ -443,7 +442,7 @@
 
 			this.matrix[5] = translateY;
 
-			md(this + ".setMatrix([" + this.matrix.join(',') + "])", debugMe);
+			md(this + ".setMatrix([" + this.matrix.join(',') + "])", debug);
 
 		},
 
@@ -469,6 +468,8 @@
 		}
 
 	};
+
+	RotoZoomer.debug = false;
 
 	// namespaces the thing
 	TipTap.RotoZoomer = RotoZoomer;
