@@ -1,6 +1,10 @@
+/*
+* The Router takes in charge all the interactions attached to one DOM element.
+ */
+
 (function (TipTap, _, $) {
 
-	var Router = function (el$, device) {
+	var Router = function (el$) {
 
 		this.debugMe = true;
 
@@ -11,7 +15,7 @@
 		this.listOfFilters = [];
 		this.listOfActions = [];    // list of all Actions for this Router
 
-		this.nofilter = false;  // special case when callback is set with no filter. While not set, is false
+		this.hasGlobalCallbacks = false;  // special case when callback is set with no filter. While not set, is false
 
 	};
 
@@ -82,7 +86,7 @@
 			// beware, filter can be empty string from the app call, so it's necessary to test this anyway
 			if (!filter) {
 
-				this.nofilter = true; // makes event callback test faster
+				this.hasGlobalCallbacks = true; // makes event callback test faster
 
 				filter = TipTap.GLOBAL_CLASS_FILTER;
 
@@ -131,7 +135,7 @@
 			var target$ = action.getTarget$();
 
 			// if target$ is the global container, and some actions are global, set to true
-			var globalAction = this._isElementTheTarget$(target$) && this.nofilter;
+			var globalAction = this._isElementTheTarget$(target$) && this.hasGlobalCallbacks;
 
 			// finds all the callbacks based on combo matching
 			_.each(this.listOfCallbacks, function (listOfCallbacksForThisCombo) {
@@ -219,7 +223,7 @@
 			}, this);
 
 			// if filter was not matched, but the whole target is capturing, sends back the "-" filter
-			if (!filter && this.nofilter) {
+			if (!filter && this.hasGlobalCallbacks) {
 
 				return TipTap.GLOBAL_CLASS_FILTER;
 
