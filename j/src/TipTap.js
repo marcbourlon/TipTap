@@ -144,7 +144,7 @@
 			this.isTouchInterface = this._detectTouchDevice();
 
 			// avoids too accurate movements to be detected, preventing proper gestures
-			this.settings.moveThreshold_px = this.isTouchInterface ? 8 : 0
+			this.settings.moveThreshold_px = this.isTouchInterface ? 8 : 0;
 
 			if (this.settings.useBorisSmusPointersPolyfill) {
 
