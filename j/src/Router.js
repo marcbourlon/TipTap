@@ -15,7 +15,7 @@
 		this.listOfFilters = [];
 		this.listOfActions = [];    // list of all Actions for this Router
 
-		this.hasGlobalCallbacks = false;  // special case when callback is set with no filter. While not set, is false
+		this.hasGlobalCallbacks = false;  // special case when callback is set with no filter.
 
 	};
 
@@ -248,6 +248,20 @@
 
 		},
 
+		isOnNode$: null,
+
+		isOnNode: function(node) {
+
+			return this.getElement().isSameNode(node);
+
+		},
+
+		isOn$Node: function($node) {
+
+			return this.get$Element().is($node);
+
+		},
+
 		_matchesFilter$: null,
 
 		_matchesFilter: function (node, className) {
@@ -475,6 +489,7 @@
 			this.prototype._areTheseTheSameNode$ = this.prototype._areTheseTheSame$Node;
 			this.prototype.getElement$ = this.prototype.get$Element;
 			this.prototype._isElementTheTarget$ = this.prototype._isElementThe$Target;
+			this.prototype.isOnNode$ = this.prototype.isOn$Node;
 			this.prototype._matchesFilter$ = this.prototype._matches$Filter;
 			this.prototype._setElement$ = this.prototype._set$Element;
 
@@ -483,6 +498,7 @@
 			this.prototype._areTheseTheSameNode$ = this.prototype._areTheseTheSameNode;
 			this.prototype.getElement$ = this.prototype.getElement;
 			this.prototype._isElementTheTarget$ = this.prototype._isElementTheTarget;
+			this.prototype.isOnNode$ = this.prototype.isOnNode;
 			this.prototype._matchesFilter$ = this.prototype._matchesFilter;
 			this.prototype._setElement$ = this.prototype._setElement;
 

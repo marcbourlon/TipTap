@@ -25,6 +25,22 @@
 		isTouchInterface:    true,
 		TOUCH_REFRESH_ms:    1000 / 60, // iOS touch devices frequency is 60Hz
 
+		_bindCombosToRouter: function(router, combosFiltersCallbacksList, context) {
+
+			// deal with the list of combos
+			for (var combosIdx = 0, combosCount = combosFiltersCallbacksList.length; combosIdx < combosCount; combosIdx++) {
+
+				var comboFilterCallback = combosFiltersCallbacksList[combosIdx];
+				var combo = comboFilterCallback.combo;
+				var filter = comboFilterCallback.filter || "";
+				var callback = comboFilterCallback.callback;
+
+				// attach combo and related callbacks to the Router
+				router.bindCombos(combo, filter, callback, context);
+
+			}
+		},
+
 		_detectTouchDevice: function () {
 			var testsCount = 0;
 			var passedTestsCount = 0;
@@ -86,13 +102,32 @@
 			// todo
 		},
 
-		findPointerByIdentifier: function (identifier) {
+		_findPointerByIdentifier: function (identifier) {
 
 			return _.find(this.listOfPointers, function (f) {
 
 				return (f.identifier === identifier);
 
 			});
+
+		},
+
+		_findRouter: function(listOfRouters, node$) {
+
+			for (var routerIdx = 0, routersCount = listOfRouters.length; routerIdx < routersCount; routerIdx++) {
+
+				var tmpRouter = listOfRouters[routerIdx];
+
+				// if attaching to same element than a previous one, then use same Router
+				if (tmpRouter.isOnNode$(node$)) {
+
+						return tmpRouter;
+
+				}
+
+			}
+
+			return null;
 
 		},
 
@@ -182,22 +217,7 @@
 
 				var curNode = nodesList[nodeIdx];
 
-				var router = null;
-
-				for (var routerIdx = 0, routersCount = this.listOfRouters.length; routerIdx < routersCount; routerIdx++) {
-
-					var rt = this.listOfRouters[routerIdx];
-
-					// if attaching to same element than a previous one, then use same Router
-					if (rt.isSameNode(curNode)) {
-
-						router = rt;
-
-						continue;
-
-					}
-
-				}
+				var router = this._findRouter(this.listOfRouters, curNode);
 
 				// No router found, create new and keep in list
 				if (!router) {
@@ -211,18 +231,7 @@
 
 				}
 
-				// deal with the list of combos
-				for (var combosIdx = 0, combosCount = combosFiltersCallbacksList.length; combosIdx < combosCount; combosIdx++) {
-
-					var comboFilterCallback = combosFiltersCallbacksList[combosIdx];
-					var combo = comboFilterCallback.combo;
-					var filter = comboFilterCallback.filter || "";
-					var callback = comboFilterCallback.callback;
-
-					// attach combo and related callbacks to the Router
-					router.bindCombos(combo, filter, callback, context);
-
-				}
+				this._bindCombosToRouter(router, combosFiltersCallbacksList, context);
 
 			}
 
@@ -248,27 +257,12 @@
 				// the jQuery wrapped DOM element we're working on
 				var $this = $(this);
 
-				var router = null;
-
-				for (var routerIdx = 0, routersCount = tipTap.listOfRouters.length; routerIdx < routersCount; routerIdx++) {
-
-					var tmpRouter = tipTap.listOfRouters[routerIdx];
-
-					// if attaching to same element than a previous one, then use same Router
-					if (tmpRouter.get$Element().is($this)) {
-
-						router = tmpRouter;
-
-						continue;
-
-					}
-
-				}
+				var router = tipTap._findRouter(tipTap.listOfRouters, $this);
 
 				// No router found, create new and keep in list
 				if (!router) {
 
-					router = new tipTap.Router($this, tipTap.device);  // otherwise, create new
+					router = new TipTap.Router($this);  // otherwise, create new
 
 					tipTap.listOfRouters.push(router);
 
@@ -282,18 +276,7 @@
 
 				}
 
-				// deal with the list of combos
-				for (var combosIdx = 0, combosCount = combosFiltersCallbacksList.length; combosIdx < combosCount; combosIdx++) {
-
-					var comboFilterCallback = combosFiltersCallbacksList[combosIdx];
-					var combo = comboFilterCallback.combo;
-					var filter = comboFilterCallback.filter || "";
-					var callback = comboFilterCallback.callback;
-
-					// attach combo and related callbacks to the Router
-					router.bindCombos(combo, filter, callback, context);
-
-				}
+				tipTap._bindCombosToRouter(router, combosFiltersCallbacksList, context);
 
 				return $this;
 
@@ -391,7 +374,7 @@
 			_.each(this.device.buildEventList(e), function (tipTapEvent) {
 
 				// we store the touch identifier in the Pointer, so we can match new incoming events. Obvious.
-				var pointer = this.findPointerByIdentifier(tipTapEvent.identifier);
+				var pointer = this._findPointerByIdentifier(tipTapEvent.identifier);
 
 				// not found (can't happen...)
 				if (!pointer) {
@@ -434,7 +417,7 @@
 
 			var debugMe = true && this.debugMe && TipTap.settings.debug;
 
-			var pointer = this.findPointerByIdentifier(tipTapEvent.identifier);
+			var pointer = this._findPointerByIdentifier(tipTapEvent.identifier);
 
 			if (!pointer) {
 
