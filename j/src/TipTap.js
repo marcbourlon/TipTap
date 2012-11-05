@@ -164,7 +164,7 @@
 
 			}
 
-			// make single value a list to unify treatment later. isArray test in case it's not present.
+			// make single value a list to unify treatment later.
 			if (!this._isArray(nodesList)) {
 
 				nodesList = [nodesList];
@@ -202,7 +202,7 @@
 				// No router found, create new and keep in list
 				if (!router) {
 
-					router = new this.Router(curNode, this.device);
+					router = new TipTap.Router(curNode);
 
 					this.listOfRouters.push(router);
 
@@ -344,8 +344,7 @@
 
 			md(this + ".onStartDo-2", debugMe);
 
-			pointer = new TipTap.Pointer
-				(tiptapEvent);
+			pointer = new TipTap.Pointer(tiptapEvent);
 
 			// Keep track of the pointer to dispatch further moves
 			this.listOfPointers.push(pointer);

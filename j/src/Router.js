@@ -4,8 +4,6 @@
 
 		this.debugMe = true;
 
-		this.device = device;
-
 		// el$ is DOM or jQuery element
 		this._setElement$(el$);
 
