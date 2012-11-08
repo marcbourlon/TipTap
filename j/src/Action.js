@@ -58,16 +58,15 @@
 
 		addPointerListeners: function (pointer) {
 			// get ready to, at each Pointer signal, add it to a Hics of the same kind
-			// todo: do we need second "this" binding?? (the one from add()). Same question for other signals
-			pointer.pressed.add(_.bind(this.allocateHics, this, TipTap.Gesture._PRESSED, pointer), this);
-			pointer.tapped.add(_.bind(this.allocateHics, this, TipTap.Gesture._TAPPED, pointer), this);
-			pointer.tipped.add(_.bind(this.allocateHics, this, TipTap.Gesture._TIPPED, pointer), this);
-			pointer.untipped.add(_.bind(this.allocateHics, this, TipTap.Gesture._UNTIPPED, pointer), this);
-			pointer.swiped.add(_.bind(this.allocateHics, this, TipTap.Gesture._SWIPED, pointer), this);
-			pointer.dragStarted.add(_.bind(this.allocateHics, this, TipTap.Gesture._DRAG_STARTED, pointer), this);
-			pointer.dragged.add(_.bind(this.allocateHics, this, TipTap.Gesture._DRAGGED, pointer), this);
-			pointer.dragStopped.add(_.bind(this.allocateHics, this, TipTap.Gesture._DRAG_STOPPED, pointer), this);
-			pointer.released.add(_.bind(this.allocateHics, this, TipTap.Gesture._RELEASED, pointer), this);
+			pointer.pressed.add(_.bind(this.allocateHics, this, TipTap.Gesture._PRESSED, pointer));
+			pointer.tapped.add(_.bind(this.allocateHics, this, TipTap.Gesture._TAPPED, pointer));
+			pointer.tipped.add(_.bind(this.allocateHics, this, TipTap.Gesture._TIPPED, pointer));
+			pointer.untipped.add(_.bind(this.allocateHics, this, TipTap.Gesture._UNTIPPED, pointer));
+			pointer.swiped.add(_.bind(this.allocateHics, this, TipTap.Gesture._SWIPED, pointer));
+			pointer.dragStarted.add(_.bind(this.allocateHics, this, TipTap.Gesture._DRAG_STARTED, pointer));
+			pointer.dragged.add(_.bind(this.allocateHics, this, TipTap.Gesture._DRAGGED, pointer));
+			pointer.dragStopped.add(_.bind(this.allocateHics, this, TipTap.Gesture._DRAG_STOPPED, pointer));
+			pointer.released.add(_.bind(this.allocateHics, this, TipTap.Gesture._RELEASED, pointer));
 		},
 
 		allocateHics: function (status, pointer) {

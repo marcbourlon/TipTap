@@ -21,14 +21,16 @@
 	Router.prototype = {
 
 		addActionListeners: function (action) {
-			// todo: do we need second "this" binding?? (the one from add()). Same question for other signals
-			action.pressed.add(_.bind(this.callComboCallback, this, action), this);
-			action.sendCombo.add(_.bind(this.callComboCallback, this, action), this);
-			action.dragStarted.add(_.bind(this.callComboCallback, this, action), this);
-			action.dragged.add(_.bind(this.callComboCallback, this, action), this);
-			action.dragStopped.add(_.bind(this.callComboCallback, this, action), this);
-			action.released.add(_.bind(this.callComboCallback, this, action), this);
-			action.finished.add(_.bind(this.deallocateAction, this, action), this);
+
+			var callComboCallback = _.bind(this.callComboCallback, this, action);
+
+			action.pressed.add(callComboCallback);
+			action.sendCombo.add(callComboCallback);
+			action.dragStarted.add(callComboCallback);
+			action.dragged.add(callComboCallback);
+			action.dragStopped.add(callComboCallback);
+			action.released.add(callComboCallback);
+			action.finished.add(_.bind(this.deallocateAction, this, action));
 		},
 
 		allocateAction: function (pointer) {
