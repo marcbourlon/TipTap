@@ -2,13 +2,9 @@
 
 	var Gesture = function (status, direction) {
 
-		this.debug = false;
-
-		var debug = true && this.debug && TipTap.settings.debug;
+		var debug = true && Gesture.debug && TipTap.settings.debug;
 
 		this.id = Gesture.id();
-
-		this.debugColor = "#" + (Math.round(Math.random() * Math.pow(2, 24))).toString(16);
 
 		this.status = status;
 
@@ -21,146 +17,11 @@
 		this.birthTime = Date.now();
 
 		md(this + ".new(" +
-			   Gesture.statusMatchCode[Gesture.getFullStatus(this.status, this.direction)].code + ")", debug, this.debugColor);
+			   Gesture.statusMatchCode[Gesture.getFullStatus(this.status, this.direction)].code + ")", debug, Gesture.debugColor);
 
 	};
 
 	Gesture.prototype = {
-		addPointer: function (pointer) {
-			// adds pointer in ascending order of ids. In theory, pushing would be enough due to touches arrays, but...
-			var l = this.listOfPointers.length;
-			var i = 0;
-
-			while ((i < l) &&
-
-				(this.listOfPointers[i].identifier < pointer.identifier)) {
-
-				i++;
-
-			}
-
-			if (i === l) {
-
-				this.listOfPointers.push(pointer);
-
-			} else {
-
-				this.listOfPointers.splice(i, 0, pointer);
-
-			}
-
-		},
-
-		age:                      function () {
-
-			return Date.now() - this.birthTime;
-
-		},
-
-		// todo: remove?
-		calculateZoomAndRotation: function () {
-			var debug = true && this.debug && TipTap.settings.debug;
-
-			// todo: what to do with 3 pointers ? Calculate 3 vectors, and use longest one to do calculations?
-			// todo: order by identifier asc, to try to always use the same?
-
-			var pointer0 = this.listOfPointers[0];
-
-			var pointer1 = this.listOfPointers[1];
-
-			var initialVec = this.calculateVector(pointer0.initialPosition, pointer1.initialPosition);
-
-			var vec = this.calculateVector(pointer0.position, pointer1.position);
-
-			this.zoom = vec.len / initialVec.len;
-
-			this.rotation = vec.rot - initialVec.rot;
-
-			md(this + ".calculateZoomAndRotation(" + this.zoom + ", " + this.rotation + ")", debug);
-
-		},
-
-		// todo: remove?
-		calculateZoomFactor:      function (zoomObj, min, max) {
-			var absoluteZoom, relativeZoom;
-
-			// ratio between current distance between fingers, and initial distance is absolute zoom
-			absoluteZoom = (max - min) / zoomObj.initialFingersDistance;
-			// relative zoom is ratio between last absolute zoom level and current
-			zoomObj.relativeZoom = absoluteZoom / zoomObj.absoluteZoom;
-			zoomObj.absoluteZoom = absoluteZoom;
-		},
-
-		canThisPointerBeAdded: function (pointer) {
-			var debug = true && this.debug && TipTap.settings.debug;
-
-			md(this + ".canThisPointerBeAdded(" +
-				   Gesture.statusMatchCode[Gesture.getFullStatus(this.status, this.direction)].code +
-				   " =?= " +
-				   Gesture.statusMatchCode[Gesture.getFullStatus(pointer.status, pointer.direction)].code +
-				   ", " + pointer.identifier +
-				   ")", debug, this.debugColor);
-
-			// accepts only similar statuses in one combo, and not twice the same Finger
-			return ((this.status === pointer.status) &&
-
-				(this.direction === pointer.direction) &&
-
-				!this.hasPointerInfosFromSamePointer(pointer));
-
-		},
-
-		format: function () {
-			var debug = true && this.debug && TipTap.settings.debug;
-
-			var format = Gesture.formatGesture(this.status, this.direction, this.pointersCount());
-
-			md(this + ".format: " + format, debug, this.debugColor);
-
-			return format;
-		},
-
-		getPointer: function(index) {
-			if (index < 0 ) {
-				return null;
-			}
-
-			if (index >= this.listOfPointers.length) {
-				return null;
-			}
-
-			return this.listOfPointers[index];
-		},
-
-		hasPointerInfosFromSamePointer: function (pointer) {
-			var debug = true && this.debug && TipTap.settings.debug;
-			var test;
-
-			test = _.find(this.listOfPointers, function (ptr) {
-
-				return (ptr.identifier === pointer.identifier);
-
-			});
-
-			md(this + ".hasPointerInfosFromSamePointer => " + test, debug, this.debugColor);
-
-			return test;
-		},
-
-		isEmpty: function () {
-			var debug = true && this.debug && TipTap.settings.debug;
-
-			return     !this.listOfPointers.length;
-
-		},
-
-		pointersCount: function () {
-			var debug = true && this.debug && TipTap.settings.debug;
-
-			return this.listOfPointers.length;
-
-		},
-
 		toString: function () {
 
 			return "--G#" + this.id + "-" + Gesture.statusMatchCode[this.status].code;
@@ -169,8 +30,11 @@
 
 	};
 
+	Gesture.debug = true;
+	Gesture.debugColor = "#" + (Math.round(Math.random() * Math.pow(2, 24))).toString(16);
+
 	Gesture.formatGesture = function (status, direction, pointersCount) {
-		var debug = true && this.debug && TipTap.settings.debug;
+		var debug = true && Gesture.debug && TipTap.settings.debug;
 		var i;
 		var result = "";
 		var statusName;

@@ -10,6 +10,7 @@ module.exports = function (grunt) {
 						'src/TipTap.js',
 						'src/Fsm.js',
 						'src/Gesture.js',
+						'src/Hics.js',
 						'src/Action.js',
 						'src/Pointer.js',
 						'src/Mouse.js',

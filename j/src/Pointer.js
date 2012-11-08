@@ -66,7 +66,7 @@
 							this.startPressedToTippedTimer();
 
 							// let's tell the world we pressed !
-							this.pressed.dispatch(this);
+							this.pressed.dispatch();
 
 							md(this + "-fsm(start-pressed-pressing),(" + position.pageX + "px, " + position.pageY + "px)", debug);
 
@@ -91,7 +91,7 @@
 							 */
 							this.isTipping = true;
 
-							this.tipped.dispatch(this);
+							this.tipped.dispatch();
 
 						}
 					},
@@ -115,9 +115,9 @@
 
 							md(this + "-fsm(pressing-ended-end)", debug);
 
-							this.tapped.dispatch(this);
+							this.tapped.dispatch();
 
-							this.released.dispatch(this);
+							this.released.dispatch();
 
 						}
 					}
@@ -143,9 +143,9 @@
 
 							md(this + "-fsm(tipping-ended)", debug);
 
-							this.untipped.dispatch(this);
+							this.untipped.dispatch();
 
-							this.released.dispatch(this);
+							this.released.dispatch();
 
 						}
 					}
@@ -161,7 +161,7 @@
 
 							md(this + "-fsm(dragging-dragged-1)", debug);
 
-							this.dragged.dispatch(this);
+							this.dragged.dispatch();
 
 						}
 					},
@@ -171,18 +171,18 @@
 						action: function () {
 							var debug = true && Pointer.debug && TipTap.settings.debug;
 
-							this.dragStopped.dispatch(this);
+							this.dragStopped.dispatch();
 
 							md(this + "-fsm(dragging-ended-1)", debug);
 
 							// usage of this flag simplifies the Fsm
 							if (this.isTipping) {
 
-								this.untipped.dispatch(this);
+								this.untipped.dispatch();
 
 							}
 
-							this.released.dispatch(this);
+							this.released.dispatch();
 
 						}
 					}
@@ -204,11 +204,11 @@
 
 							}
 
-							this.dragStarted.dispatch(this);
+							this.dragStarted.dispatch();
 
 							md(this + "-fsm(swiping-dragged-1)", debug);
 
-							this.dragged.dispatch(this);
+							this.dragged.dispatch();
 
 							return "dragging";
 						}
@@ -222,16 +222,16 @@
 
 							md(this + "-fsm(swiping-ended-1)", debug);
 
-							this.swiped.dispatch(this);
+							this.swiped.dispatch();
 
 							// usage of this flag simplifies the Fsm
 							if (this.isTipping) {
 
-								this.untipped.dispatch(this);
+								this.untipped.dispatch();
 
 							}
 
-							this.released.dispatch(this);
+							this.released.dispatch();
 
 						}
 					}
@@ -349,10 +349,10 @@
 			md(this + "-fsm(pressing-dragged-3)", debug);
 
 			// tell the world we started a drag :-)
-			this.dragStarted.dispatch(this);
+			this.dragStarted.dispatch();
 
 			// and that we dragged
-			this.dragged.dispatch(this);
+			this.dragged.dispatch();
 
 			return "dragging";
 		},

@@ -14,8 +14,8 @@
 		// store the reference to the timer waiting for a following Gesture. Allow to kill the timer
 		this.endComboAndMaybeActionTimer = 0;
 
-		// file of Gestures, to ensure a sequential treatment
-		this.fifoOfGestures = [];
+		// file of HICSs, to ensure a sequential treatment
+		this.fifoOfHics = [];
 
 		// store here the last gesture before sending to application
 		this.gesture = null;
@@ -31,8 +31,8 @@
 		// count of Pointers "active" (fingers touching, mouse down...)
 		this.pressedPointersCount = 0;
 
-		// "pointer" on the setTimeout of Gesture FIFO processing (scheduler)
-		this.processGestureTimer = 0;
+		// "pointer" on the setTimeout of Hics FIFO processing (scheduler)
+		this.processHicsTimer = 0;
 
 		// preallocating both to null might help optimizers / JIT
 		this.target = null;
@@ -57,84 +57,76 @@
 	Action.prototype = {
 
 		addPointerListeners: function (pointer) {
-			// registers Action as each pointer's Signals listener
-			// allocateGesture takes two params: status and pointer. _.bind attaches "this" and the first param
-			pointer.pressed.add(_.bind(this.allocateGesture, this, TipTap.Gesture._PRESSED), this);
-			pointer.tapped.add(_.bind(this.allocateGesture, this, TipTap.Gesture._TAPPED), this);
-			pointer.tipped.add(_.bind(this.allocateGesture, this, TipTap.Gesture._TIPPED), this);
-			pointer.untipped.add(_.bind(this.allocateGesture, this, TipTap.Gesture._UNTIPPED), this);
-			pointer.swiped.add(_.bind(this.allocateGesture, this, TipTap.Gesture._SWIPED), this);
-			pointer.dragStarted.add(_.bind(this.allocateGesture, this, TipTap.Gesture._DRAG_STARTED), this);
-			pointer.dragged.add(_.bind(this.allocateGesture, this, TipTap.Gesture._DRAGGED), this);
-			pointer.dragStopped.add(_.bind(this.allocateGesture, this, TipTap.Gesture._DRAG_STOPPED), this);
-			pointer.released.add(_.bind(this.allocateGesture, this, TipTap.Gesture._RELEASED), this);
+			// get ready to, at each Pointer signal, add it to a Hics of the same kind
+			// todo: do we need second "this" binding?? (the one from add()). Same question for other signals
+			pointer.pressed.add(_.bind(this.allocateHics, this, TipTap.Gesture._PRESSED, pointer), this);
+			pointer.tapped.add(_.bind(this.allocateHics, this, TipTap.Gesture._TAPPED, pointer), this);
+			pointer.tipped.add(_.bind(this.allocateHics, this, TipTap.Gesture._TIPPED, pointer), this);
+			pointer.untipped.add(_.bind(this.allocateHics, this, TipTap.Gesture._UNTIPPED, pointer), this);
+			pointer.swiped.add(_.bind(this.allocateHics, this, TipTap.Gesture._SWIPED, pointer), this);
+			pointer.dragStarted.add(_.bind(this.allocateHics, this, TipTap.Gesture._DRAG_STARTED, pointer), this);
+			pointer.dragged.add(_.bind(this.allocateHics, this, TipTap.Gesture._DRAGGED, pointer), this);
+			pointer.dragStopped.add(_.bind(this.allocateHics, this, TipTap.Gesture._DRAG_STOPPED, pointer), this);
+			pointer.released.add(_.bind(this.allocateHics, this, TipTap.Gesture._RELEASED, pointer), this);
 		},
 
-		allocateGesture: function (status, pointer) {
+		allocateHics: function (status, pointer) {
 			var debug = true && Action.debug && TipTap.settings.debug;
-			var gesture;
 
-			md(this + ".allocateGesture-1(" + TipTap.Gesture.statusMatchCode[status].code + ")", debug);
+			md(this + ".allocateHics-1(" + TipTap.Gesture.statusMatchCode[status].code + ")", debug);
 
 			/*
-			 CLONE the pointerInfos, because:
+			 CLONE the PointerInfos, because:
 			 1) the same can be used for different states (PRESSED and TIPPED or TAPPED)
-			 2) to not let Pointer alive because of links to living PointerInfos
+			 2) to not let Pointer alive because of links to still living PointerInfos
 			 */
-			// copy Pointer position, plus some stuff
 			var pointerInfos = new TipTap.PointerInfos(pointer, status);
 
-			if (TipTap.Gesture._PRESSED === status) {
+			if (status === TipTap.Gesture._PRESSED) {
 
-				// clears any pending Action termination timer
+				// clear any pending Action termination timer
 				this.cancelSendComboAndEndActionTimer();
 
 			}
 
-			// is there a Gesture which can accept this pointerInfos?
-			gesture = _.find(this.fifoOfGestures, function (g) {
+			// is there a Hics which can accept this pointerInfos?
+			var hics = _.find(this.fifoOfHics, function (h) {
 
-				return g.canThisPointerBeAdded(pointerInfos);
+				return h.canThisPointerBeAdded(pointerInfos);
 
 			}, this);
 
 			// if no, create new and add to stack
-			if (!gesture) {
+			if (!hics) {
 
-				md(this + ".allocateGesture-must create new Gesture", debug);
+				md(this + ".allocateHics-must create new Hics", debug);
 
-				gesture = new TipTap.Gesture(status, pointer.getDirection());
+				hics = new TipTap.Hics(status, pointer.getDirection());
 
-				// store in the FIFO of Gestures
-				this.storeGesture(gesture);
-
-			} else {
-
-				// shouldn't happen
-				md(this + ".allocateGesture-using gesture " + gesture, debug, "#00F");
+				this.storeHics(hics);
 
 			}
 
-			// inner "event loop" of gestures treatment
-			this.startGesturesListProcessingTimer();
+			// inner "event loop" of Hics treatment
+			this.startHicsListProcessingTimer();
 
-			md(this + ".allocateGesture-4", debug);
+			md(this + ".allocateHics-4", debug);
 
-			gesture.addPointer(pointerInfos);
+			hics.addPointer(pointerInfos);
 
-			return gesture;
+			return hics;
 
 		},
 
-		buildAndSendNotificationGesture: function (gesture) {
+		buildAndSendNotificationGesture: function (hics) {
+
+			// small shortcut for the app. TODO: deal with gesture/hics concept problem
+			this.gesture = hics;
 
 			// small shortcut for the app
-			this.gesture = gesture;
+			this.listOfPointers = hics.listOfPointers;
 
-			// small shortcut for the app
-			this.listOfPointers = gesture.listOfPointers;
-
-			this.sendCombo.dispatch(this, this.formatGesture(gesture));
+			this.sendCombo.dispatch(this.includeHicsInGesture(hics));
 
 		},
 
@@ -148,7 +140,7 @@
 
 			this.clearListOfFormattedGestures();
 
-			this.sendCombo.dispatch(this, combo, gesture);
+			this.sendCombo.dispatch(combo, gesture);
 
 		},
 
@@ -176,46 +168,48 @@
 
 		},
 
-		consumeDoneGesturesFromFIFO: function () {
+		consumeDoneHicsFromFIFO: function () {
 			var debug = true && Action.debug && TipTap.settings.debug;
 
-			var gesture;
+			var hics;
 
 			// Don't forget to clear the timer!!
-			this.processGestureTimer = 0;
+			this.processHicsTimer = 0;
 
 			md(this + ".consumeDoneGesturesFromFIFO-1", debug);
 
+			var methodsArray = TipTap.Gesture.statusMatchCode;
+
 			// while there are Gestures to process
-			while (this.fifoOfGestures.length) {
+			while (this.fifoOfHics.length) {
 
 				// take first (oldest) one
-				gesture = this.fifoOfGestures[0];
+				hics = this.fifoOfHics[0];
 
-				md(this + ".consumeDoneGesturesFromFIFO-treating(" + gesture + "." + gesture.status + ")", debug);
+				md(this + ".consumeDoneGesturesFromFIFO-treating(" + hics + "." + hics.status + ")", debug);
 
 				// if too recent and not in dragged status
-				if ((TipTap.settings.simultaneousMovesTimer_ms > gesture.age()) &&
+				if ((TipTap.settings.simultaneousMovesTimer_ms > hics.age()) &&
 					// once in dragged state, send events as soon as possible to avoid "lag", so age doesn't count
-					(gesture.status !== TipTap.Gesture._DRAGGED)) {
+					(hics.status !== TipTap.Gesture._DRAGGED)) {
 
 					md(this + ".consumeDoneGesturesFromFIFO-too young and != 'dragged', EXITING", debug);
 
 					// restart the scheduler to come back later
-					this.startGesturesListProcessingTimer();
+					this.startHicsListProcessingTimer();
 
 					// and exit
 					return;
 
 				}
 
-				// remove the Gesture from the list
-				this.fifoOfGestures.shift();
+				// remove the Hics from the list
+				this.fifoOfHics.shift();
 
-				//rotZoom = gesture.getRotationAndZoom();
+				//rotZoom = hics.getRotationAndZoom();
 
 				// call the function corresponding to the status
-				this[TipTap.Gesture.statusMatchCode[gesture.status].code].call(this, gesture);
+				this[methodsArray[hics.status].code].call(this, hics);
 
 			}
 
@@ -240,14 +234,14 @@
 
 		},
 
-		endComboAndMaybeAction: function (gesture) {
+		endComboAndMaybeAction: function (hics) {
 			var debug = true && Action.debug && TipTap.settings.debug;
 
-			md(this + ".endComboAndMaybeAction-1(" + this.endComboAndMaybeActionTimer + ", " + gesture + ")", debug, "");
+			md(this + ".endComboAndMaybeAction-1(" + this.endComboAndMaybeActionTimer + ", " + hics + ")", debug, "");
 
 			this.endComboAndMaybeActionTimer = 0;
 
-			this.buildComboClearGesturesAndSendCombo(gesture);
+			this.buildComboClearGesturesAndSendCombo(hics);
 
 			// if no more Pointers active, kill the Action
 			this.terminateIfEmpty();
@@ -263,7 +257,7 @@
 
 		},
 
-		formatGesture: function (gesture) {
+		includeHicsInGesture: function (gesture) {
 			// todo: storeGestureForCombo, store full Gesture, and format on last moment?
 			var debug = true && Action.debug && TipTap.settings.debug;
 
@@ -296,9 +290,9 @@
 			// todo: storeGestureForCombo, store full Gesture, and format on last moment? Must store tips count with Gesture!
 			var debug = true && Action.debug && TipTap.settings.debug;
 
-			md(this + ".formatAndStoreGesture(" + gesture + "," + this.formatGesture(gesture) + ")", debug, "#F00");
+			md(this + ".formatAndStoreGesture(" + gesture + "," + this.includeHicsInGesture(gesture) + ")", debug, "#F00");
 
-			this.listOfFormattedGestures.push(this.formatGesture(gesture));
+			this.listOfFormattedGestures.push(this.includeHicsInGesture(gesture));
 
 		},
 
@@ -342,10 +336,10 @@
 
 		},
 
-		startGesturesListProcessingTimer: function () {
+		startHicsListProcessingTimer: function () {
 			var debug = true && Action.debug && TipTap.settings.debug;
 
-			if (this.processGestureTimer) {
+			if (this.processHicsTimer) {
 
 				md(this + ".startProcessGestureTimer-no need to start timer", debug);
 
@@ -354,24 +348,24 @@
 			}
 
 			// start the timer of the Gesture: lifefime == duration of simultaneity tolerance
-			this.processGestureTimer = setTimeout(
+			this.processHicsTimer = setTimeout(
 
-				_.bind(this.consumeDoneGesturesFromFIFO, this),
+				_.bind(this.consumeDoneHicsFromFIFO, this),
 
 				TipTap.settings.simultaneousMovesTimer_ms / 4
 
 			);
 
-			md(this + ".startProcessGestureTimer-timer started(" + this.processGestureTimer + ")", debug);
+			md(this + ".startProcessGestureTimer-timer started(" + this.processHicsTimer + ")", debug);
 
 		},
 
-		startSendComboAndEndActionTimer: function (gesture) {
+		startSendComboAndEndActionTimer: function (hics) {
 			var debug = true && Action.debug && TipTap.settings.debug;
 
-			this.boundEndComboAndMaybeAction = _.bind(this.endComboAndMaybeAction, this, gesture);
+			this.boundEndComboAndMaybeAction = _.bind(this.endComboAndMaybeAction, this, hics);
 
-			// tap/swipe wait for the time needed to do a possible next gesture within the same combo
+			// tap/swipe wait for the time needed to do a possible next hics within the same combo
 			this.endComboAndMaybeActionTimer =
 
 				setTimeout(
@@ -382,14 +376,14 @@
 
 				);
 
-			md(this + ".startSendComboAndEndActionTimer-1(" + gesture +
+			md(this + ".startSendComboAndEndActionTimer-1(" + hics +
 				   ", " + this.endComboAndMaybeActionTimer + ")", debug, "");
 
 		},
 
-		storeGesture: function (gesture) {
+		storeHics: function (hics) {
 
-			this.fifoOfGestures.push(gesture);
+			this.fifoOfHics.push(hics);
 
 		},
 
@@ -405,7 +399,7 @@
 			md(this + ".terminateIfEmpty-1", debug);
 
 			// if no more pressed pointers, Action is finished
-			this.finished.dispatch(this);
+			this.finished.dispatch();
 
 		},
 
@@ -438,46 +432,47 @@
 	var methodNames = gesture.statusMatchCode;
 
 	// status callback. Names are dynamically created from gestures codes, avoid keeping two source files in sync
-	Action.prototype[methodNames[gesture._PRESSED].code] = function (gesture) {
+	Action.prototype[methodNames[gesture._PRESSED].code] = function (hics) {
 
 		if (TipTap.settings.rotoZoom) {
 
-			this.rotoZoomer.onPressed(gesture);
+			this.rotoZoomer.onPressed(hics);
+
 		}
 
 		// notification gestures are not stored in the formatted list
-		this.buildAndSendNotificationGesture(gesture);
+		this.buildAndSendNotificationGesture(hics);
 
 	};
 
 	// tap and swipe are treated the same
 	Action.prototype[methodNames[gesture._SWIPED].code] =
 		Action.prototype[methodNames[gesture._TAPPED].code] =
-			function (gesture) {
+			function (hics) {
 
 				this.cancelSendComboAndEndActionTimer();
 
-				// store gesture at the last moment, to avoid issue with "release", due to small wait for tab/swipe
-				this.formatAndStoreGesture(gesture);
+				// store hics at the last moment, to avoid issue with "release", due to small wait for tab/swipe
+				this.formatAndStoreGesture(hics);
 
 				// only tab and swipe are "chainable" anymore, doing tip and a tap shortly after doesn't make much sense as a Combo
-				this.startSendComboAndEndActionTimer(gesture);
+				this.startSendComboAndEndActionTimer(hics);
 
 			};
 
-	Action.prototype[methodNames[gesture._TIPPED].code] = function (gesture) {
+	Action.prototype[methodNames[gesture._TIPPED].code] = function (hics) {
 		var debug = true && Action.debug && TipTap.settings.debug;
 
-		this.formatAndStoreGesture(gesture);
+		this.formatAndStoreGesture(hics);
 
-		// we increase the "tips count" AFTER storing the gesture, so that a single tip doesn't generate tip-tip
-		this.pressedPointersCount += gesture.pointersCount();
+		// we increase the "tips count" AFTER storing the hics, so that a single tip doesn't generate tip-tip
+		this.pressedPointersCount += hics.getPointersCount();
 
-		this.buildComboClearGesturesAndSendCombo(gesture);
+		this.buildComboClearGesturesAndSendCombo(hics);
 
 	};
 
-	Action.prototype[methodNames[gesture._UNTIPPED].code] = function (gesture) {
+	Action.prototype[methodNames[gesture._UNTIPPED].code] = function (hics) {
 		var debug = true && Action.debug && TipTap.settings.debug;
 
 		/* we remove tips from "tips count" BEFORE, because we it's not logical to see the untipped pointers counted as tip.
@@ -485,7 +480,7 @@
 		 tipping anymore. So, for one pointer, you expect "untip", not "tip-untip". At least, I do. And I'm the boss here :-D
 		 */
 
-		this.pressedPointersCount -= gesture.pointersCount();
+		this.pressedPointersCount -= hics.getPointersCount();
 
 		// cancel any planned automatic sending, because an untip causes immediate sending
 		this.cancelSendComboAndEndActionTimer();
@@ -493,64 +488,64 @@
 		// an untip must not be chained to previous gestures anymore, doesn't really make sense
 		this.flushPreviousGesture();
 
-		this.formatAndStoreGesture(gesture);
+		this.formatAndStoreGesture(hics);
 
-		this.buildComboClearGesturesAndSendCombo(gesture);
+		this.buildComboClearGesturesAndSendCombo(hics);
 
 		// if no more Pointers active, kill the Action
 		this.terminateIfEmpty();
 
 	};
 
-	Action.prototype[methodNames[gesture._DRAG_STARTED].code] = function (gesture) {
+	Action.prototype[methodNames[gesture._DRAG_STARTED].code] = function (hics) {
 
 		// notification gestures are not stored in the formatted list
 
-		this.buildAndSendNotificationGesture(gesture);
+		this.buildAndSendNotificationGesture(hics);
 
 	};
 
-	Action.prototype[methodNames[gesture._DRAGGED].code] = function (gesture) {
+	Action.prototype[methodNames[gesture._DRAGGED].code] = function (hics) {
 		var debug = true && Action.debug && TipTap.settings.debug;
 
 		md(this + ".drag", debug);
 
 		if (TipTap.settings.rotoZoom) {
 
-			this.rotoZoomer.onDrag(gesture);
+			this.rotoZoomer.onDrag(hics);
 
 		}
 
-		this.gesture = gesture;
+		this.gesture = hics;
 
 		// the power (^n) of the combo is the count of TOUCHING pointers, not MOVING!
-		this.dragged.dispatch(this, gesture.format());
+		this.dragged.dispatch(hics.format());
 
 	};
 
-	Action.prototype[methodNames[gesture._DRAG_STOPPED].code] = function (gesture) {
+	Action.prototype[methodNames[gesture._DRAG_STOPPED].code] = function (hics) {
 
 		if (TipTap.settings.rotoZoom) {
 
-			this.rotoZoomer.onStoppedDragging(gesture);
+			this.rotoZoomer.onStoppedDragging(hics);
 
 		}
 
 		// notification gestures are not stored in the formatted list
-		this.buildAndSendNotificationGesture(gesture);
+		this.buildAndSendNotificationGesture(hics);
 
 	};
 
-	Action.prototype[methodNames[gesture._RELEASED].code] = function (gesture) {
+	Action.prototype[methodNames[gesture._RELEASED].code] = function (hics) {
 
 		if (TipTap.settings.rotoZoom) {
 
-			this.rotoZoomer.onReleased(gesture);
+			this.rotoZoomer.onReleased(hics);
 
 		}
 
 		// notification gestures are not stored in the formatted list
-		this.buildAndSendNotificationGesture(gesture);
+		this.buildAndSendNotificationGesture(hics);
 
 	};
 
