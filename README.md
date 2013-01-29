@@ -24,7 +24,7 @@ Let's give back to a community who gives me so much: [MIT License](http://www.op
 
 # The TipTap library
 
-## So, was it meant to do?
+## So, what is it meant to do?
 
 Essentially, its goal is to:
 * provide a unified, input-device agnostic events capturing system: dealing with Mouse, Touch, Augmented Gestures
