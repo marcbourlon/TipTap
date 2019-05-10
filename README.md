@@ -270,7 +270,7 @@ Max delay between two actions in a same combo (like time between two clicks in a
 comboGesturesSep: ">",
 ```
 
-Separator of gestures in combos: tap2**>**tap2 (double bi-tap)
+Separator of gestures in combos: tap2>tap2
 
 ```javascript
 comboParallelActionOperator: "-",
